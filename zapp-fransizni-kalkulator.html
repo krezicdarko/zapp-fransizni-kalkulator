@@ -62,7 +62,7 @@
   .row .lab .lt{font-size:13px;color:#374151;font-weight:600;display:flex;align-items:center;gap:6px}
   .row .lab .lt .rn{font-size:11px;font-weight:600;color:var(--muted)}
   .row.qp .num{flex-wrap:wrap;justify-content:flex-end;gap:3px}
-  .row.qp .num input[type=number]{width:52px}
+  .row.qp .num input[type=number]{width:64px}
   .row.qp .num .unit{min-width:0;font-size:11px}
   .row.qp .qpx{color:var(--muted);font-weight:700;font-size:13px}
   .row.qp .qpsum{font-weight:800;color:var(--ink);font-size:14px;min-width:62px;text-align:right}
@@ -475,11 +475,6 @@
 
   <div id="ownView">
     <div class="own-wrap">
-      <div class="own-soon">
-        <span class="own-badge">🏛️ Uskoro</span>
-        <h2>Vlasnička struktura</h2>
-        <p>Model vlasničke strukture franšize — udjeli, uloge partnera i raspodjela — je u pripremi. <b>Coming soon.</b></p>
-      </div>
       <div class="card own-prop">
         <h3>💡 Imate prijedlog?</h3>
         <p>Podijelite kako bi vlasnička struktura trebala izgledati. Prijedlog ide direktno na <b>darko.krezic@zapp.io</b>. Prijava je <b>potpuno anonimna</b> ako ne želite navesti ime, a možete poslati i <b>više prijedloga</b>.</p>
@@ -659,13 +654,13 @@ function buildInputs(){
           <div class="lab">
             <span class="lt">${esc(it.lab)}</span>
             <span class="num">
-              <input type="number" class="qpf" aria-label="${esc(it.lab)} — cijena (KM)" min="0" step="${it.priceStep||1}" value="${store[it.priceId]}"><span class="unit">KM</span>
-              <span class="qpx">×</span>
               <input type="number" class="qpf" aria-label="${esc(it.lab)} — količina (kom)" min="0" step="${it.qtyStep||1}" value="${store[it.qtyId]}"><span class="unit">kom</span>
+              <span class="qpx">×</span>
+              <input type="number" class="qpf" aria-label="${esc(it.lab)} — cijena (KM)" min="0" step="${it.priceStep||1}" value="${store[it.priceId]}"><span class="unit">KM</span>
               <span class="qpx">=</span><span class="qpsum"></span>
             </span>
           </div>`;
-        const qins=row.querySelectorAll('input'), priceIn=qins[0], qtyIn=qins[1];
+        const qins=row.querySelectorAll('input'), qtyIn=qins[0], priceIn=qins[1];
         refs[mode][it.priceId]={number:priceIn}; refs[mode][it.qtyId]={number:qtyIn};
         qpSumEls[it.qtyId]={el:row.querySelector('.qpsum'),priceId:it.priceId,qtyId:it.qtyId};
         const bindQp=(inp,id)=>{
