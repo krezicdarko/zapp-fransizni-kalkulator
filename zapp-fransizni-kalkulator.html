@@ -61,6 +61,11 @@
   .row .lab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
   .row .lab .lt{font-size:13px;color:#374151;font-weight:600;display:flex;align-items:center;gap:6px}
   .row .lab .lt .rn{font-size:11px;font-weight:600;color:var(--muted)}
+  .row.qp .num{flex-wrap:wrap;justify-content:flex-end;gap:3px}
+  .row.qp .num input[type=number]{width:52px}
+  .row.qp .num .unit{min-width:0;font-size:11px}
+  .row.qp .qpx{color:var(--muted);font-weight:700;font-size:13px}
+  .row.qp .qpsum{font-weight:800;color:var(--ink);font-size:14px;min-width:62px;text-align:right}
   .hint{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;
     background:#EDEEF0;color:#6B7280;font-size:10px;font-weight:800;cursor:help;flex:none}
   .row .lab .num{display:flex;align-items:center;gap:4px}
@@ -171,6 +176,8 @@
   .namecell{display:flex;flex-direction:column;gap:3px;align-items:flex-start}
   .selfchk{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#9A5A12;cursor:pointer;user-select:none}
   .selfchk input{width:auto !important;height:auto;margin:0;accent-color:var(--zapp);cursor:pointer}
+  .rowflags{display:flex;gap:10px;flex-wrap:wrap}
+  .ownerchk{color:#2563EB}.ownerchk input{accent-color:#2563EB}
   #rtbody tr.selfrow td{background:#FBF4E9}
   #rtbody tr.selfrow:hover td{background:#F7ECDA}
   /* mod C: grupa restorana (zbirni red) */
@@ -510,12 +517,9 @@ const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&
 const A_GROUPS = [
   { title:'Početna investicija (jednokratno)', key:'invest',
     sum:v=>fmt(v.tabletPrice*v.tabletQty+v.bagPrice*v.bagQty+v.shirtPrice*v.shirtQty+v.hub+v.launch+v.legal+v.deposit), items:[
-    {id:'tabletPrice',lab:'Tableti — cijena po komadu', min:0,max:2000,step:10,val:300,unit:'KM'},
-    {id:'tabletQty',  lab:'Tableti — broj komada', min:0,max:200,step:1,val:30,unit:'kom',note:v=>'(= '+fmt(v.tabletPrice*v.tabletQty)+')'},
-    {id:'bagPrice',   lab:'Termo torbe — cijena po komadu', min:0,max:1000,step:10,val:200,unit:'KM'},
-    {id:'bagQty',     lab:'Termo torbe — broj komada', min:0,max:200,step:1,val:30,unit:'kom',note:v=>'(= '+fmt(v.bagPrice*v.bagQty)+')'},
-    {id:'shirtPrice', lab:'Majice — cijena po komadu', min:0,max:500,step:5,val:20,unit:'KM'},
-    {id:'shirtQty',   lab:'Majice — broj komada', min:0,max:300,step:1,val:60,unit:'kom',note:v=>'(= '+fmt(v.shirtPrice*v.shirtQty)+')'},
+    {qp:true, lab:'Tableti',     priceId:'tabletPrice', qtyId:'tabletQty', priceVal:300, qtyVal:30, priceStep:10, qtyStep:1},
+    {qp:true, lab:'Torbe',       priceId:'bagPrice',    qtyId:'bagQty',    priceVal:200, qtyVal:30, priceStep:10, qtyStep:1},
+    {qp:true, lab:'Majice',      priceId:'shirtPrice',  qtyId:'shirtQty',  priceVal:20,  qtyVal:60, priceStep:5,  qtyStep:1},
     {id:'hub',      lab:'Postavljanje ureda', min:0,max:60000,step:500,val:0,unit:'KM',hint:'Adaptacija prostora, namještaj, oprema ureda za dispečing.'},
     {id:'launch',   lab:'Početni marketing', min:0,max:40000,step:500,val:6000,unit:'KM',hint:'Početna kampanja pri otvaranju grada (online, lokalno, akcije).'},
     {id:'legal',    lab:'Pravno / registracija firme', min:0,max:15000,step:250,val:2000,unit:'KM'},
@@ -604,7 +608,7 @@ const T_GROUPS = [
 ];
 
 /* dataset presets — "custom" je placeholder (isti kao BiH) dok ne ubacimo stvarne brojeve */
-const defA={}; A_GROUPS.forEach(g=>g.items.forEach(i=>defA[i.id]=i.val));
+const defA={}; A_GROUPS.forEach(g=>g.items.forEach(i=>{ if(i.qp){defA[i.priceId]=i.priceVal; defA[i.qtyId]=i.qtyVal;} else defA[i.id]=i.val; }));
 const defB={}; B_GROUP.forEach(g=>g.items.forEach(i=>defB[i.id]=i.val));
 const defT={}; T_GROUPS.forEach(g=>g.items.forEach(i=>defT[i.id]=i.val));
 const DATA = {
@@ -623,7 +627,7 @@ let cardPct=3.5, cardVol=10;   /* Pregled kartične uplate: iznos provizije % (3
 const refs={A:{},B:{}};
 const openState={invest:false,staff:false,fixed:false,courier:false,volume:true,restB:true,
   tPeople:true,tVehicle:true,tGear:false,tVar:false,tCap:true};  /* kategorije: troškovi zbirno (zatvoreno), obim otvoreno */
-let groupSumEls={}, rowNoteEls={};
+let groupSumEls={}, rowNoteEls={}, qpSumEls={};
 
 const SCEN={
   A:{ pes:{ordersDay:60,growth:2,aov:16,restComm:18}, real:{ordersDay:90,growth:4,aov:18,restComm:20}, opt:{ordersDay:140,growth:7,aov:20,restComm:22} },
@@ -632,7 +636,7 @@ const SCEN={
 
 /* ---------- Build inputs ---------- */
 function buildInputs(){
-  const panel=document.getElementById('inputPanel'); panel.innerHTML=''; groupSumEls={}; rowNoteEls={};
+  const panel=document.getElementById('inputPanel'); panel.innerHTML=''; groupSumEls={}; rowNoteEls={}; qpSumEls={};
   const groups=(mode==='A')?A_GROUPS:B_GROUP;
   const store=(mode==='A')?valA:valB; refs[mode]={};
   groups.forEach(g=>{
@@ -649,6 +653,30 @@ function buildInputs(){
     groupSumEls[g.key]=head.querySelector('.gsum');
     const body=document.createElement('div'); body.className='gbody'; body.id=bodyId;
     g.items.forEach(it=>{
+      if(it.qp){
+        const row=document.createElement('div'); row.className='row qp';
+        row.innerHTML=`
+          <div class="lab">
+            <span class="lt">${esc(it.lab)}</span>
+            <span class="num">
+              <input type="number" class="qpf" aria-label="${esc(it.lab)} — cijena (KM)" min="0" step="${it.priceStep||1}" value="${store[it.priceId]}"><span class="unit">KM</span>
+              <span class="qpx">×</span>
+              <input type="number" class="qpf" aria-label="${esc(it.lab)} — količina (kom)" min="0" step="${it.qtyStep||1}" value="${store[it.qtyId]}"><span class="unit">kom</span>
+              <span class="qpx">=</span><span class="qpsum"></span>
+            </span>
+          </div>`;
+        const qins=row.querySelectorAll('input'), priceIn=qins[0], qtyIn=qins[1];
+        refs[mode][it.priceId]={number:priceIn}; refs[mode][it.qtyId]={number:qtyIn};
+        qpSumEls[it.qtyId]={el:row.querySelector('.qpsum'),priceId:it.priceId,qtyId:it.qtyId};
+        const bindQp=(inp,id)=>{
+          inp.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(!isFinite(n))return;store[id]=n;update();});
+          const clamp=()=>{let n=parseFloat(inp.value);if(!isFinite(n))n=store[id];n=Math.max(0,n);store[id]=n;inp.value=n;update();};
+          inp.addEventListener('blur',clamp); inp.addEventListener('change',clamp);
+        };
+        bindQp(priceIn,it.priceId); bindQp(qtyIn,it.qtyId);
+        body.appendChild(row);
+        return;
+      }
       const row=document.createElement('div'); row.className='row';
       const aria=esc(it.lab)+' ('+it.unit+')';
       const smax=it.smax||it.max;                  // gornja granica slidera
@@ -676,7 +704,10 @@ function buildInputs(){
 function refreshGroupSums(){
   const groups=(mode==='A')?A_GROUPS:B_GROUP, store=(mode==='A')?valA:valB;
   groups.forEach(g=>{ if(groupSumEls[g.key]&&g.sum) groupSumEls[g.key].textContent=g.sum(store);
-    g.items.forEach(it=>{ if(it.note&&rowNoteEls[it.id]) rowNoteEls[it.id].textContent=it.note(store); }); });
+    g.items.forEach(it=>{
+      if(it.qp&&qpSumEls[it.qtyId]) qpSumEls[it.qtyId].el.textContent=fmt(store[it.priceId]*store[it.qtyId]);
+      else if(it.note&&rowNoteEls[it.id]) rowNoteEls[it.id].textContent=it.note(store);
+    }); });
 }
 function setVal(id,v){const s=(mode==='A')?valA:valB;s[id]=v;if(refs[mode][id]){refs[mode][id].range.value=v;refs[mode][id].number.value=v;}}
 
@@ -954,7 +985,7 @@ const RESTO_DEFAULT=[
   {name:'Kodiak burger & steak', n90:2359, aov:29.6, ord:26},
   {name:'JS Doner Kebab', n90:2329, aov:22.6, ord:26},
 ];
-const cloneR=a=>a.map(({n90,ord,...r})=>({...r,npm:Math.round(n90/3),comm:20,del:3,self:false,selfComm:6}));  /* n90 (90 dana) → npm = Glovo mjesečni prosjek (pokretač); nar/dan se izvodi iz npm */
+const cloneR=a=>a.map(({n90,ord,...r})=>({...r,npm:Math.round(n90/3),comm:20,del:3,self:false,selfComm:6,owner:false}));  /* n90 (90 dana) → npm = Glovo mjesečni prosjek (pokretač); nar/dan se izvodi iz npm */
 /* Grupe restorana = zbirni redovi po proviziji (unesi zbirne podatke za sve restorane iste provizije). Zadano: L2=22%, L3=25% */
 const GROUP_DEFAULT=[{name:'L2',comm:22},{name:'L3',comm:25}];
 const groupRows=()=>GROUP_DEFAULT.map(g=>({name:g.name,npm:0,aov:20,comm:g.comm,del:3,self:false,selfComm:6,group:true}));
@@ -972,7 +1003,7 @@ function renderResto(){
     const tr=document.createElement('tr'); tr.dataset.i=i; if(self) tr.classList.add('selfrow'); if(group) tr.classList.add('grouprow');
     const nameCell = group
       ? `<div class="namecell"><input type="text" class="rname" data-f="name" value="${esc(r.name)}" aria-label="Naziv grupe" placeholder="Naziv grupe (npr. L2)"><span class="grouptag">📊 grupa restorana (zbirno)</span></div>`
-      : `<div class="namecell"><input type="text" class="rname" data-f="name" value="${esc(r.name)}" aria-label="Naziv restorana" placeholder="Naziv restorana"><label class="selfchk"><input type="checkbox" data-f="self" ${self?'checked':''} aria-label="Sam vozi (in-house dostava) ${esc(r.name)}"> 🚗 sam vozi</label></div>`;
+      : `<div class="namecell"><input type="text" class="rname" data-f="name" value="${esc(r.name)}" aria-label="Naziv restorana" placeholder="Naziv restorana"><div class="rowflags"><label class="selfchk"><input type="checkbox" data-f="self" ${self?'checked':''} aria-label="Sam vozi (in-house dostava) ${esc(r.name)}"> 🚗 sam vozi</label><label class="selfchk ownerchk"><input type="checkbox" data-f="owner" ${r.owner?'checked':''} aria-label="Vlasnik ${esc(r.name)}"> 👤 vlasnik</label></div></div>`;
     const commCell = self
       ? `<td><input type="number" data-f="selfComm" min="0" max="40" step="0.5" value="${r.selfComm}" aria-label="Sam vozi provizija ${esc(r.name)}"></td>`
       : `<td><input type="number" data-f="comm" min="0" max="40" step="0.5" value="${r.comm}" aria-label="Provizija ${esc(r.name)}"></td>`;
@@ -996,6 +1027,8 @@ function renderResto(){
     });
     const selfChk=tr.querySelector('input[type=checkbox][data-f=self]');
     if(selfChk) selfChk.addEventListener('change',e=>{rRows[i].self=e.target.checked;renderResto();});
+    const ownerChk=tr.querySelector('input[type=checkbox][data-f=owner]');
+    if(ownerChk) ownerChk.addEventListener('change',e=>{rRows[i].owner=e.target.checked;saveState();});
     const nameInp=tr.querySelector('input.rname');
     nameInp.addEventListener('input',e=>{rRows[i].name=e.target.value;saveState();});
     nameInp.addEventListener('blur',e=>{const val=e.target.value.trim()||'Restoran';rRows[i].name=val;e.target.value=val;saveState();});
@@ -1073,7 +1106,7 @@ document.getElementById('rApplyAll').onclick=()=>{const c=parseFloat(document.ge
 document.getElementById('rWorkDays').addEventListener('input',recomputeResto);
 document.getElementById('rSelfComm').addEventListener('input',saveState);
 document.getElementById('rResetBtn').onclick=()=>{rRows=defaultRows();rSortField='npm';rSortDir=-1;document.getElementById('rWorkDays').value=30;document.getElementById('rAllComm').value=20;document.getElementById('rAllDel').value=3;document.getElementById('rSelfComm').value=6;renderResto();};
-document.getElementById('rAddBtn').onclick=()=>{const nr={name:'Novi restoran',npm:450,aov:15,comm:parseFloat(document.getElementById('rAllComm').value)||20,del:parseFloat(document.getElementById('rAllDel').value)||3,self:false,selfComm:selfCommV()||6};rRows.push(nr);renderResto();
+document.getElementById('rAddBtn').onclick=()=>{const nr={name:'Novi restoran',npm:450,aov:15,comm:parseFloat(document.getElementById('rAllComm').value)||20,del:parseFloat(document.getElementById('rAllDel').value)||3,self:false,selfComm:selfCommV()||6,owner:false};rRows.push(nr);renderResto();
   const tr=[...document.querySelectorAll('#rtbody tr')].find(t=>rRows[+t.dataset.i]===nr); const ni=tr&&tr.querySelector('input.rname'); if(ni){ni.scrollIntoView({block:'center'});ni.focus();ni.select();}};
 document.getElementById('rAddGroupBtn').onclick=()=>{const nums=rRows.filter(r=>r.group).map(r=>{const m=/^L(\d+)$/.exec((r.name||'').trim());return m?+m[1]:0;});const next=nums.length?Math.max(...nums)+1:2;
   const nr={name:'L'+next,npm:0,aov:20,comm:parseFloat(document.getElementById('rAllComm').value)||20,del:parseFloat(document.getElementById('rAllDel').value)||3,self:false,selfComm:selfCommV()||6,group:true};rRows.push(nr);renderResto();
@@ -1412,7 +1445,7 @@ function loadState(){
   if(s.valB&&typeof s.valB==='object') Object.assign(valB, s.valB);
   if(s.valT&&typeof s.valT==='object') Object.assign(valT, s.valT);
   if(s.openState&&typeof s.openState==='object') Object.assign(openState, s.openState);
-  if(Array.isArray(s.rRows)&&s.rRows.length&&('aov' in s.rRows[0])) rRows=s.rRows.map(r=>{const sub90=parseInt(String(r.sub||'').split('nar')[0].replace(/[^\d]/g,''),10);const npm=typeof r.npm==='number'?r.npm:(typeof r.n90==='number'?Math.round(r.n90/3):(sub90?Math.round(sub90/3):Math.round((+r.ord||0)*30)));return {name:r.name||'Restoran',npm,aov:+r.aov||0,comm:typeof r.comm==='number'?r.comm:20,del:typeof r.del==='number'?r.del:3,self:!!r.self,selfComm:typeof r.selfComm==='number'?r.selfComm:6,group:!!r.group};});
+  if(Array.isArray(s.rRows)&&s.rRows.length&&('aov' in s.rRows[0])) rRows=s.rRows.map(r=>{const sub90=parseInt(String(r.sub||'').split('nar')[0].replace(/[^\d]/g,''),10);const npm=typeof r.npm==='number'?r.npm:(typeof r.n90==='number'?Math.round(r.n90/3):(sub90?Math.round(sub90/3):Math.round((+r.ord||0)*30)));return {name:r.name||'Restoran',npm,aov:+r.aov||0,comm:typeof r.comm==='number'?r.comm:20,del:typeof r.del==='number'?r.del:3,self:!!r.self,selfComm:typeof r.selfComm==='number'?r.selfComm:6,owner:!!r.owner,group:!!r.group};});
   try{
     if(typeof s.rWorkDays==='number') document.getElementById('rWorkDays').value=s.rWorkDays;
     if(typeof s.rAllComm==='number') document.getElementById('rAllComm').value=s.rAllComm;
