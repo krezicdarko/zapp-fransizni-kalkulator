@@ -520,8 +520,7 @@ const A_GROUPS = [
     sum:v=>fmt(v.director+v.manager+v.finance+v.opsSal*v.opsCount)+' /mj', items:[
     {id:'director',  lab:'Plata direktora', min:0,max:8000,step:50,val:4000,unit:'KM',hint:'Direktor / voditelj franšize — strateško vođenje, odnos sa Zappom, akvizicija restorana i partnera.'},
     {id:'manager',   lab:'Plata operativnog menadžera', min:0,max:6000,step:50,val:0,unit:'KM',hint:'Vođenje dnevne operative — kuriri, raspored, kvalitet i brzina dostave.'},
-    {id:'opsSal',    lab:'Plata call centra / dispečinga (po osobi)', min:0,max:4000,step:50,val:900,unit:'KM',hint:'Operativni tim — prima narudžbe i reklamacije te raspoređuje kurire u realnom vremenu. Kod manje operacije to je isti tim (call centar = dispečing).'},
-    {id:'opsCount',  lab:'Broj agenata (call centar + dispečing)', min:0,max:12,step:1,val:3,unit:'os'},
+    {qp:true, lab:'Call centar / dispečing', priceId:'opsSal', qtyId:'opsCount', priceVal:1500, qtyVal:3, priceStep:50, qtyStep:1, qtyUnit:'os', priceUnit:'KM', hint:'Operativni tim — prima narudžbe i reklamacije te raspoređuje kurire u realnom vremenu. Kod manje operacije isti tim (call centar = dispečing). Broj osoba × plata po osobi /mj.'},
     {id:'finance',   lab:'Financije / računovodstvo', min:0,max:4000,step:50,val:2000,unit:'KM',hint:'Knjigovodstvo, fakturisanje i obračun plata — interno zaposlen ili vanjski servis.'},
   ]},
   { title:'Ostali fiksni troškovi (mjesečno)', key:'fixed',
