@@ -368,26 +368,26 @@
       <div class="ov-sub">Povuci skalu da uživo vidiš kako se prihod, rashod i profit mijenjaju s brojem narudžbi. Podaci: prosječna vrijednost narudžbe (PVN) iz „Top restorani"; provizija, dostava i troškovi iz „Fransizer".</div>
     </div>
     <div class="kpis">
-      <div class="kpi"><div class="k-lab">Prihod po dostavi</div><div class="k-val ov-calc-val" id="ovPrihodPd">—</div><div class="k-val ov-cust-val"><input type="number" id="ovPrihodPdC" data-ovcpd="rev" step="0.1" min="0"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovPrihodSub"></div><div class="k-sub ov-cust-val" style="color:var(--muted)">ukupan prihod ÷ narudžbe</div></div>
-      <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-calc-val"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl"><input type="number" id="ovLog3plInp" step="0.1" min="0"><span class="ov-unit">KM</span></span></div><div class="k-val ov-cust-val"><input type="number" id="ovTrosakLogPdC" data-ovcpd="log" step="0.1" min="0"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovLogSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg ov-calc-only" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
-      <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-calc-val" id="ovTrosakOffPd">—</div><div class="k-val ov-cust-val"><input type="number" id="ovTrosakOffPdC" data-ovcpd="ured" step="0.1" min="0"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only">osoblje + ostali fiksni troškovi</div></div>
+      <div class="kpi"><div class="k-lab">Prihod po dostavi</div><div class="k-val ov-calc-val" id="ovPrihodPd">—</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovPrihodPdC" data-ovcpd="rev"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovPrihodSub"></div><div class="k-sub ov-cust-val" style="color:var(--muted)">ukupan prihod ÷ narudžbe</div></div>
+      <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-calc-val"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl"><input type="number" id="ovLog3plInp" step="0.1" min="0"><span class="ov-unit">KM</span></span></div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakLogPdC" data-ovcpd="log"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovLogSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg ov-calc-only" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
+      <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-calc-val" id="ovTrosakOffPd">—</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakOffPdC" data-ovcpd="ured"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only">osoblje + ostali fiksni troškovi</div></div>
       <div class="kpi" id="ovProfitCard"><div class="k-lab">Profit po dostavi</div><div class="k-val" id="ovProfitPd">—</div></div>
     </div>
     <div class="cards2">
       <div class="card">
         <h3>📥 Prihod (mjesečno)</h3>
-        <div class="bd"><span>Provizija</span><span class="v pos ov-calc-val" id="ovProvMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="prov"></span></div>
+        <div class="bd"><span>Provizija</span><span class="v pos ov-calc-val" id="ovProvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="prov"></span></div>
         <div class="bd ov-calc-only"><span>Provizija (sami voze) <b id="ovSelfPct">—</b></span><span class="v pos" id="ovSelfProvMj">—</span></div>
-        <div class="bd"><span>Naknada za dostavu</span><span class="v pos ov-calc-val" id="ovDostMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="dost"></span></div>
-        <div class="bd"><span>Marketing</span><span class="v pos ov-calc-val" id="ovMarketingMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="mkt"></span></div>
+        <div class="bd"><span>Naknada za dostavu</span><span class="v pos ov-calc-val" id="ovDostMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="dost"></span></div>
+        <div class="bd"><span>Marketing</span><span class="v pos ov-calc-val" id="ovMarketingMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="mkt"></span></div>
         <div class="bd tot"><span>Ukupan prihod</span><span class="v pos" id="ovPrihodMj">—</span></div>
       </div>
       <div class="card">
         <h3>📤 Rashod (mjesečno)</h3>
-        <div class="bd"><span>Trošak po dostavi (logistika)</span><span class="v neg ov-calc-val" id="ovRashodLogMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="log"></span></div>
-        <div class="bd"><span>Trošak po dostavi (ured)</span><span class="v neg ov-calc-val" id="ovRashodOffMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="ured"></span></div>
-        <div class="bd"><span>Kartične uplate <span class="ov-calc-val"><span class="abbr" data-tip="Iznos provizije — kartična/procesorska naknada koja se naplaćuje na kartične transakcije.">(provizija)</span> <input type="number" id="ovCardPct" value="3.5" min="0" step="0.1" style="width:48px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% na <span class="abbr" data-tip="Obim — koliki dio PROMETA je plaćen karticom. Promet = ukupan promet (PVN × narudžbe) + ukupna dostava (naknada × narudžbe). Od toga se uzme ovaj %, pa se na njega obračuna provizija.">obim</span> <input type="number" id="ovCardVol" value="10" min="0" max="100" step="1" style="width:44px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% prometa</span></span><span class="v neg ov-calc-val" id="ovKarticeMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="card"></span></div>
-        <div class="bd"><span>PDV</span><span class="v neg ov-calc-val" id="ovPdvMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="pdv"></span></div>
+        <div class="bd"><span>Trošak po dostavi (logistika)</span><span class="v neg ov-calc-val" id="ovRashodLogMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="log"></span></div>
+        <div class="bd"><span>Trošak po dostavi (ured)</span><span class="v neg ov-calc-val" id="ovRashodOffMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="ured"></span></div>
+        <div class="bd"><span>Kartične uplate <span class="ov-calc-val"><span class="abbr" data-tip="Iznos provizije — kartična/procesorska naknada koja se naplaćuje na kartične transakcije.">(provizija)</span> <input type="number" id="ovCardPct" value="3.5" min="0" step="0.1" style="width:48px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% na <span class="abbr" data-tip="Obim — koliki dio PROMETA je plaćen karticom. Promet = ukupan promet (PVN × narudžbe) + ukupna dostava (naknada × narudžbe). Od toga se uzme ovaj %, pa se na njega obračuna provizija.">obim</span> <input type="number" id="ovCardVol" value="10" min="0" max="100" step="1" style="width:44px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% prometa</span></span><span class="v neg ov-calc-val" id="ovKarticeMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="card"></span></div>
+        <div class="bd"><span>PDV</span><span class="v neg ov-calc-val" id="ovPdvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="pdv"></span></div>
         <div class="bd tot"><span>Ukupan rashod</span><span class="v neg" id="ovRashodMj">—</span></div>
       </div>
     </div>
@@ -511,6 +511,11 @@ const fmt = n => new Intl.NumberFormat('de-DE',{maximumFractionDigits:0}).format
 const fmt2 = n => new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0) + ' KM';
 const pct = n => new Intl.NumberFormat('de-DE',{maximumFractionDigits:1}).format(n||0) + ' %';
 const num = n => new Intl.NumberFormat('de-DE',{maximumFractionDigits:1}).format(n||0);
+// Ručni unos — formatiranje/parsiranje inputa u de-DE stilu (točka = tisuće, zarez = decimala), da izgleda kao Izračunato
+const ovG = n => new Intl.NumberFormat('de-DE',{maximumFractionDigits:0}).format(Math.round(n||0));             // "23.358"
+const ovD = n => new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0); // "6,89"
+const ovPI = s => { const d=String(s).replace(/[^0-9]/g,''); return d===''?NaN:parseInt(d,10); };                // "23.358" → 23358
+const ovPD = s => { s=String(s).replace(/\s/g,''); if(s==='')return NaN; if(s.indexOf(',')>=0){s=s.replace(/\./g,'').replace(',','.');} else if((s.match(/\./g)||[]).length>1){s=s.replace(/\./g,'');} return parseFloat(s); }; // "6,89"/"6.89" → 6.89
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* ---------- Input configs (val = Procjena BiH) ---------- */
@@ -1181,9 +1186,9 @@ function updateOverview(){
   set('ovSelfPct', num(selfFran)+'%'); set('ovSelfProvMj', fmt(v.aov*selfFran/100*ordersMonth));
   set('ovRashodLogMj',fmt(logMj)); set('ovRashodOffMj',fmt(offMj)); set('ovKarticeMj',fmt(karticeMj));
   set('ovRashodMj',fmt(rashodMj)); set('ovProfitMj',fmt(profitMj));
-  const setIn=(id,val)=>{const e=document.getElementById(id); if(e&&document.activeElement!==e) e.value=(Math.round(val*100)/100);};
+  const setIn=(id,val)=>{const e=document.getElementById(id); if(e&&document.activeElement!==e) e.value=ovD(val);};
   setIn('ovPrihodPdC',revPd); setIn('ovTrosakLogPdC',logPd); setIn('ovTrosakOffPdC',offPd);
-  if(custom){ document.querySelectorAll('#overView .ovc-inp').forEach(inp=>{const k=inp.dataset.ovc; if(document.activeElement!==inp) inp.value=Math.round(ovcMj[k]||0);}); }
+  if(custom){ document.querySelectorAll('#overView .ovc-inp').forEach(inp=>{const k=inp.dataset.ovc; if(document.activeElement!==inp) inp.value=ovG(ovcMj[k]||0);}); }
   const cpEl=document.getElementById('ovCardPct'); if(cpEl&&document.activeElement!==cpEl) cpEl.value=cardPct;
   const cvEl=document.getElementById('ovCardVol'); if(cvEl&&document.activeElement!==cvEl) cvEl.value=cardVol;
   const pmj=document.getElementById('ovProfitMj'); if(pmj) pmj.className='v '+(profitMj>=0?'pos':'neg');
@@ -1225,10 +1230,11 @@ function updateOverview(){
   const cvi=document.getElementById('ovCardVol');
   if(cvi) cvi.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(isFinite(n))cardVol=Math.max(0,n);updateOverview();saveState();});
   const ovEl=document.getElementById('overView');
-  if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('.ovc-inp'); if(!inp)return; const k=inp.dataset.ovc; const raw=inp.value; if(raw==='')return; const n=parseFloat(raw); if(isFinite(n))ovcMj[k]=Math.max(0,n); updateOverview(); saveState();});
-  if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('[data-ovcpd]'); if(!inp)return; const k=inp.dataset.ovcpd; const raw=inp.value; if(raw==='')return; const n=parseFloat(raw); if(!isFinite(n))return; const om=(valA.ordersDay*valA.workDays)||1; const x=Math.max(0,n);
+  if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('.ovc-inp'); if(!inp)return; const k=inp.dataset.ovc; const raw=inp.value; if(raw==='')return; const n=ovPI(raw); if(isFinite(n))ovcMj[k]=Math.max(0,n); updateOverview(); saveState();});
+  if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('[data-ovcpd]'); if(!inp)return; const k=inp.dataset.ovcpd; const raw=inp.value; if(raw==='')return; const n=ovPD(raw); if(!isFinite(n))return; const om=(valA.ordersDay*valA.workDays)||1; const x=Math.max(0,n);
     if(k==='log') ovcMj.log=x*om; else if(k==='ured') ovcMj.ured=x*om; else if(k==='rev') ovcMj.prov=Math.max(0, x*om - ovcMj.dost - ovcMj.mkt);
     updateOverview(); saveState();});
+  if(ovEl) ovEl.addEventListener('focusout',e=>{const t=e.target; if(t&&t.matches&&t.matches('.ovc-inp,[data-ovcpd]')) updateOverview();});
   document.querySelectorAll('#ovModeSeg button').forEach(b=>b.onclick=()=>{
     ovMode=b.dataset.ovm;
     if(ovMode==='custom' && !ovcSeeded){ const v=valA, om=v.ordersDay*v.workDays, franComm=Math.max(0,v.restComm-3), log=(logSrc==='3pl'?(pl3Price||0):courierCostPerDelivery(v));
