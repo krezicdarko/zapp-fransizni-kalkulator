@@ -61,11 +61,14 @@
   .row .lab{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
   .row .lab .lt{font-size:13px;color:#374151;font-weight:600;display:flex;align-items:center;gap:6px}
   .row .lab .lt .rn{font-size:11px;font-weight:600;color:var(--muted)}
-  .row.qp .num{flex-wrap:wrap;justify-content:flex-end;gap:3px}
-  .row.qp .num input[type=number]{width:64px}
-  .row.qp .num .unit{min-width:0;font-size:11px}
-  .row.qp .qpx{color:var(--muted);font-weight:700;font-size:13px}
-  .row.qp .qpsum{font-weight:800;color:var(--ink);font-size:14px;min-width:62px;text-align:right}
+  .row.qp .lab{flex-wrap:nowrap;gap:6px}
+  .row.qp .lab .lt{flex:0 1 auto;min-width:0}
+  .row.qp .num{flex-wrap:nowrap;justify-content:flex-end;gap:2px;flex:1 0 auto}
+  .row.qp .num input[type=number]{width:50px;-webkit-appearance:none;-moz-appearance:textfield;appearance:textfield}
+  .row.qp .num input[type=number]::-webkit-outer-spin-button,.row.qp .num input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .row.qp .num .unit{min-width:0;font-size:11px;margin:0}
+  .row.qp .qpx{color:var(--muted);font-weight:700;font-size:13px;flex:none}
+  .row.qp .qpsum{font-weight:800;color:var(--ink);font-size:13px;min-width:0;text-align:right;white-space:nowrap;flex:none}
   .hint{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;
     background:#EDEEF0;color:#6B7280;font-size:10px;font-weight:800;cursor:help;flex:none}
   .row .lab .num{display:flex;align-items:center;gap:4px}
@@ -211,6 +214,7 @@
   #overView.ov-custom .ov-cust-val{display:block}
   #overView.ov-custom .ov-calc-only{display:none}
   .ov-cust-val input{width:96px;font-size:22px;font-weight:800;border:1px solid var(--zapp);border-radius:8px;padding:2px 8px;color:var(--ink);background:#FFFBF4}
+  .ovc-inp{width:120px;text-align:right;font-size:14px;font-weight:700;border:1px solid var(--zapp);border-radius:6px;padding:2px 6px;color:var(--ink);background:#FFFBF4}
   #overView:not(.log-3pl) .lp-3pl{display:none}
   #overView.log-3pl .lp-fleet{display:none}
   .lp-3pl input{width:90px;font-size:22px;font-weight:800;border:1px solid var(--zapp);border-radius:8px;padding:2px 8px;color:var(--ink);background:#FFFBF4}
@@ -520,7 +524,7 @@ const A_GROUPS = [
     sum:v=>fmt(v.director+v.manager+v.finance+v.opsSal*v.opsCount)+' /mj', items:[
     {id:'director',  lab:'Plata direktora', min:0,max:8000,step:50,val:4000,unit:'KM',hint:'Direktor / voditelj franšize — strateško vođenje, odnos sa Zappom, akvizicija restorana i partnera.'},
     {id:'manager',   lab:'Plata operativnog menadžera', min:0,max:6000,step:50,val:0,unit:'KM',hint:'Vođenje dnevne operative — kuriri, raspored, kvalitet i brzina dostave.'},
-    {qp:true, lab:'Call centar / dispečing', priceId:'opsSal', qtyId:'opsCount', priceVal:1500, qtyVal:3, priceStep:50, qtyStep:1, qtyUnit:'os', priceUnit:'KM', hint:'Operativni tim — prima narudžbe i reklamacije te raspoređuje kurire u realnom vremenu. Kod manje operacije isti tim (call centar = dispečing). Broj osoba × plata po osobi /mj.'},
+    {qp:true, lab:'Dispečeri', priceId:'opsSal', qtyId:'opsCount', priceVal:1500, qtyVal:3, priceStep:50, qtyStep:1, qtyUnit:'os', priceUnit:'KM', hint:'Operativni tim (call centar = dispečing) — prima narudžbe i reklamacije te raspoređuje kurire u realnom vremenu. Broj osoba × plata po osobi /mj.'},
     {id:'finance',   lab:'Financije / računovodstvo', min:0,max:4000,step:50,val:2000,unit:'KM',hint:'Knjigovodstvo, fakturisanje i obračun plata — interno zaposlen ili vanjski servis.'},
   ]},
   { title:'Ostali fiksni troškovi (mjesečno)', key:'fixed',
@@ -614,6 +618,7 @@ const valT={...defT};   /* Mod T: trošak logistike po dostavi (samostalan store
 let ovMode='calc', ovCustomRev=null, ovCustomCostLog=null, ovCustomCostOff=null;   /* Pregled: izvor podataka calc|custom + ručne vrijednosti (logistika/ured) */
 let logSrc='3pl', pl3Price=4;   /* Pregled logistika (calc mod): 'fleet'=izračun | '3pl'=dogovorena cijena, default 4 KM */
 let cardPct=3.5, cardVol=10;   /* Pregled kartične uplate: iznos provizije % (3.5) i obim % prometa plaćen karticom (10) */
+let ovcMj={prov:0,dost:0,mkt:0,log:0,ured:0,card:0,pdv:0}, ovcSeeded=false;   /* Ručni unos: mjesečni iznosi (upisivi); seedani iz Izračunato pri prvom prelasku */
 const refs={A:{},B:{}};
 const openState={invest:false,staff:false,fixed:false,courier:false,volume:true,restB:true,
   tPeople:true,tVehicle:true,tGear:false,tVar:false,tCap:true};  /* kategorije: troškovi zbirno (zatvoreno), obim otvoreno */
@@ -1137,14 +1142,22 @@ function updateOverview(){
   const calcOff=ordersMonth>0 ? officeMonthly/ordersMonth : 0;      // ured po dostavi (fiksni ÷ dostave); pri 0 narudžbi nedefinirano
   const noOrders=(!custom && ordersMonth<=0);                       // calc mod bez narudžbi: po-dostavi metrike nedefinirane, fiksni troškovi ostaju
   const use3pl=(logSrc==='3pl');                                    // izvor logistike (calc mod): vlastita flota (izračun) vs 3PL dogovorena cijena
-  let revPd, logPd, offPd;
-  if(custom){ revPd=ovCustomRev||0; logPd=ovCustomCostLog||0; offPd=ovCustomCostOff||0; }
-  else { revPd=calcRev; logPd=(use3pl?(pl3Price||0):calcLog); offPd=calcOff; }
-  const karticePerDel=(v.aov+v.delFee)*(cardVol/100)*(cardPct/100);   // kartična provizija po dostavi: (promet+dostava) × obim% × provizija%
-  const costPd=logPd+offPd+karticePerDel, profPd=revPd-costPd;
-  // mjesečno: prihod, logistika i kartice skaliraju s narudžbama; ured je FIKSAN (ostaje i pri 0 narudžbi → tad je profit minus)
-  const prihodMj=revPd*ordersMonth, logMj=logPd*ordersMonth, offMj=(custom?offPd*ordersMonth:officeMonthly), karticeMj=karticePerDel*ordersMonth;
-  const rashodMj=logMj+offMj+karticeMj, profitMj=prihodMj-rashodMj, neto=profitMj;
+  const om = ordersMonth>0?ordersMonth:1;
+  let revPd, logPd, offPd, karticePerDel, prihodMj, logMj, offMj, karticeMj, marketingMj, dostMj, provMj, pdvMj, rashodMj, profitMj;
+  if(custom){
+    // RUČNI UNOS: mjesečni iznosi (upisivi) su izvor; po-dostavi se izvodi (÷ narudžbe)
+    if(!ovcSeeded){ ovcMj={prov:Math.round(v.aov*(franComm/100)*ordersMonth), dost:Math.round(v.delFee*ordersMonth), mkt:0, log:Math.round((use3pl?(pl3Price||0):calcLog)*ordersMonth), ured:Math.round(officeMonthly), card:Math.round((v.aov+v.delFee)*(cardVol/100)*(cardPct/100)*ordersMonth), pdv:0}; ovcSeeded=true; }
+    provMj=ovcMj.prov; dostMj=ovcMj.dost; marketingMj=ovcMj.mkt; logMj=ovcMj.log; offMj=ovcMj.ured; karticeMj=ovcMj.card; pdvMj=ovcMj.pdv;
+    prihodMj=provMj+dostMj+marketingMj; rashodMj=logMj+offMj+karticeMj+pdvMj; profitMj=prihodMj-rashodMj;
+    revPd=prihodMj/om; logPd=logMj/om; offPd=offMj/om; karticePerDel=karticeMj/om;
+  } else {
+    revPd=calcRev; logPd=(use3pl?(pl3Price||0):calcLog); offPd=calcOff;
+    karticePerDel=(v.aov+v.delFee)*(cardVol/100)*(cardPct/100);   // kartična provizija po dostavi: (promet+dostava) × obim% × provizija%
+    provMj=v.aov*(franComm/100)*ordersMonth; dostMj=v.delFee*ordersMonth; marketingMj=0;
+    logMj=logPd*ordersMonth; offMj=officeMonthly; karticeMj=karticePerDel*ordersMonth; pdvMj=0;
+    prihodMj=provMj+dostMj; rashodMj=logMj+offMj+karticeMj; profitMj=prihodMj-rashodMj;
+  }
+  const costPd=logPd+offPd+karticePerDel, profPd=revPd-costPd, neto=profitMj;
   const set=(id,t)=>{const e=document.getElementById(id); if(e)e.textContent=t;};
   set('ovPrihodPd',fmt2(calcRev)); set('ovTrosakLogPd',fmt2(calcLog));
   set('ovLogSub', use3pl?'3PL — dogovorena cijena':'kuriri, vozila, gorivo, oprema');
@@ -1154,11 +1167,13 @@ function updateOverview(){
   set('ovTrosakOffPd', noOrders?'—':fmt2(calcOff));
   set('ovProfitPd', noOrders?'—':fmt2(profPd)); set('ovNeto',fmt(neto));
   set('ovPrihodSub','PVN '+fmt2(v.aov)+' → provizija fransizeru '+fmt2(v.aov*(franComm/100))+' ('+num(v.restComm)+'% − 3% Zapp = '+num(franComm)+'%) + dostava '+fmt2(v.delFee));
-  set('ovProvMj',fmt(v.aov*(franComm/100)*ordersMonth)); set('ovDostMj',fmt(v.delFee*ordersMonth)); set('ovPrihodMj',fmt(prihodMj));
+  set('ovProvMj',fmt(provMj)); set('ovDostMj',fmt(dostMj)); set('ovPrihodMj',fmt(prihodMj));
   const selfRate=selfCommV(), selfFran=Math.max(0, selfRate-3);    // sinkronizirano s Top restorani „Sam vozi" provizijom (rSelfComm), fransizeru ide − 3% Zapp
   set('ovSelfPct', num(selfFran)+'%'); set('ovSelfProvMj', fmt(v.aov*selfFran/100*ordersMonth));
   set('ovRashodLogMj',fmt(logMj)); set('ovRashodOffMj',fmt(offMj)); set('ovKarticeMj',fmt(karticeMj));
   set('ovRashodMj',fmt(rashodMj)); set('ovProfitMj',fmt(profitMj));
+  set('ovPrihodPdC',noOrders?'—':fmt2(revPd)); set('ovTrosakLogPdC',noOrders?'—':fmt2(logPd)); set('ovTrosakOffPdC',noOrders?'—':fmt2(offPd));
+  if(custom){ document.querySelectorAll('#overView .ovc-inp').forEach(inp=>{const k=inp.dataset.ovc; if(document.activeElement!==inp) inp.value=Math.round(ovcMj[k]||0);}); }
   const cpEl=document.getElementById('ovCardPct'); if(cpEl&&document.activeElement!==cpEl) cpEl.value=cardPct;
   const cvEl=document.getElementById('ovCardVol'); if(cvEl&&document.activeElement!==cvEl) cvEl.value=cardVol;
   const pmj=document.getElementById('ovProfitMj'); if(pmj) pmj.className='v '+(profitMj>=0?'pos':'neg');
@@ -1199,13 +1214,15 @@ function updateOverview(){
   if(cpi) cpi.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(isFinite(n))cardPct=Math.max(0,n);updateOverview();saveState();});
   const cvi=document.getElementById('ovCardVol');
   if(cvi) cvi.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(isFinite(n))cardVol=Math.max(0,n);updateOverview();saveState();});
+  const ovEl=document.getElementById('overView');
+  if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('.ovc-inp'); if(!inp)return; const k=inp.dataset.ovc; const raw=inp.value; if(raw==='')return; const n=parseFloat(raw); if(isFinite(n))ovcMj[k]=Math.max(0,n); updateOverview(); saveState();});
   document.querySelectorAll('#ovModeSeg button').forEach(b=>b.onclick=()=>{
     ovMode=b.dataset.ovm;
-    if(ovMode==='custom'){ const v=valA, ordersMonth=v.ordersDay*v.workDays, log=courierCostPerDelivery(v);
+    if(ovMode==='custom' && !ovcSeeded){ const v=valA, om=v.ordersDay*v.workDays, franComm=Math.max(0,v.restComm-3), log=(logSrc==='3pl'?(pl3Price||0):courierCostPerDelivery(v));
       const officeMonthly=(v.director+v.manager+v.finance+v.opsSal*v.opsCount)+(v.rent+v.mktg+v.insurance+v.utils+v.software);
-      if(ovCustomRev==null) ovCustomRev=Math.round((v.aov*(v.restComm/100)+v.delFee)*10)/10;
-      if(ovCustomCostLog==null) ovCustomCostLog=Math.round(log*10)/10;
-      if(ovCustomCostOff==null) ovCustomCostOff=Math.round((ordersMonth>0?officeMonthly/ordersMonth:0)*10)/10; }
+      const cardMj=(v.aov+v.delFee)*(cardVol/100)*(cardPct/100)*om;
+      ovcMj={prov:Math.round(v.aov*(franComm/100)*om), dost:Math.round(v.delFee*om), mkt:0, log:Math.round(log*om), ured:Math.round(officeMonthly), card:Math.round(cardMj), pdv:0};
+      ovcSeeded=true; }
     updateOverview(); saveState();
   });
 })();
@@ -1415,7 +1432,7 @@ document.addEventListener('keydown',e=>{const a=document.activeElement; if(e.key
 /* ---------- Auto-spremanje (localStorage — lokalno na ovom uređaju/browseru) ---------- */
 const SAVE_KEY='zapp-kalkulator-v2';
 function buildSnapshot(){
-  return {v:1, mode, preset, targetType, targetValue, ovMode, logSrc, pl3Price, cardPct, cardVol, ovCustomRev, ovCustomCostLog, ovCustomCostOff,
+  return {v:1, mode, preset, targetType, targetValue, ovMode, logSrc, pl3Price, cardPct, cardVol, ovcMj:{...ovcMj}, ovcSeeded, ovCustomRev, ovCustomCostLog, ovCustomCostOff,
     valA:{...valA}, valB:{...valB}, valT:{...valT}, openState:{...openState},
     rRows: rRows.map(r=>({...r})),
     rWorkDays:+document.getElementById('rWorkDays').value||30,
@@ -1438,6 +1455,7 @@ function loadState(){
   if(typeof s.pl3Price==='number') pl3Price=s.pl3Price;
   if(typeof s.cardPct==='number') cardPct=s.cardPct;
   if(typeof s.cardVol==='number') cardVol=s.cardVol;
+  if(s.ovcMj&&typeof s.ovcMj==='object'){ Object.assign(ovcMj, s.ovcMj); if(s.ovcSeeded) ovcSeeded=true; }
   if(typeof s.ovCustomRev==='number') ovCustomRev=s.ovCustomRev;
   if(typeof s.ovCustomCostLog==='number') ovCustomCostLog=s.ovCustomCostLog;
   if(typeof s.ovCustomCostOff==='number') ovCustomCostOff=s.ovCustomCostOff;
