@@ -88,7 +88,7 @@
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
   @media (max-width:1080px){.kpis{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:480px){.kpis{grid-template-columns:repeat(2,1fr);gap:10px}}
-  #overView .kpis{grid-template-columns:repeat(5,1fr);gap:12px}
+  #overView .kpis{grid-template-columns:repeat(4,1fr);gap:12px}
   @media (max-width:1100px){#overView .kpis{grid-template-columns:repeat(3,1fr)}}
   @media (max-width:600px){#overView .kpis{grid-template-columns:repeat(2,1fr)}}
   .kpi{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;position:relative;overflow:hidden}
@@ -213,8 +213,13 @@
   #overView.ov-custom .ov-calc-val{display:none}
   #overView.ov-custom .ov-cust-val{display:block}
   #overView.ov-custom .ov-calc-only{display:none}
-  .ov-cust-val input{width:96px;font-size:22px;font-weight:800;border:1px solid var(--zapp);border-radius:8px;padding:2px 8px;color:var(--ink);background:#FFFBF4}
-  .ovc-inp{width:120px;text-align:right;font-size:14px;font-weight:700;border:1px solid var(--zapp);border-radius:6px;padding:2px 6px;color:var(--ink);background:#FFFBF4}
+  .ov-cust-val input{width:90px;text-align:right;font-size:21px;font-weight:800;border:1px solid transparent;border-radius:8px;padding:2px 6px;color:var(--ink);background:transparent}
+  .ovc-inp{width:104px;text-align:right;font-size:14px;font-weight:700;border:1px solid transparent;border-radius:6px;padding:2px 5px;color:var(--ink);background:transparent}
+  .ovc-inp[data-ovc=prov],.ovc-inp[data-ovc=dost],.ovc-inp[data-ovc=mkt]{color:var(--green)}
+  .ovc-inp[data-ovc=log],.ovc-inp[data-ovc=ured],.ovc-inp[data-ovc=card],.ovc-inp[data-ovc=pdv]{color:var(--red)}
+  #overView .ov-cust-val input:focus{outline:none;border-color:var(--zapp);background:#FFFBF4}
+  #overView.ov-custom .bd .ov-cust-val{display:inline-flex;align-items:center;gap:4px}
+  .bd .ov-cust-val::after{content:'KM';font-size:12px;color:var(--muted);font-weight:600}
   #overView:not(.log-3pl) .lp-3pl{display:none}
   #overView.log-3pl .lp-fleet{display:none}
   .lp-3pl input{width:90px;font-size:22px;font-weight:800;border:1px solid var(--zapp);border-radius:8px;padding:2px 8px;color:var(--ink);background:#FFFBF4}
@@ -363,11 +368,10 @@
       <div class="ov-sub">Povuci skalu da uživo vidiš kako se prihod, rashod i profit mijenjaju s brojem narudžbi. Podaci: prosječna vrijednost narudžbe (PVN) iz „Top restorani"; provizija, dostava i troškovi iz „Fransizer".</div>
     </div>
     <div class="kpis">
-      <div class="kpi"><div class="k-lab">Prihod po dostavi</div><div class="k-val ov-calc-val" id="ovPrihodPd">—</div><div class="k-val ov-cust-val" id="ovPrihodPdC">—</div><div class="k-sub ov-calc-only" id="ovPrihodSub"></div><div class="k-sub ov-cust-val" style="color:var(--muted)">ukupan prihod ÷ narudžbe</div></div>
-      <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-calc-val"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl"><input type="number" id="ovLog3plInp" step="0.1" min="0"><span class="ov-unit">KM</span></span></div><div class="k-val ov-cust-val" id="ovTrosakLogPdC">—</div><div class="k-sub ov-calc-only" id="ovLogSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg ov-calc-only" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
-      <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-calc-val" id="ovTrosakOffPd">—</div><div class="k-val ov-cust-val" id="ovTrosakOffPdC">—</div><div class="k-sub ov-calc-only">osoblje + ostali fiksni troškovi</div></div>
+      <div class="kpi"><div class="k-lab">Prihod po dostavi</div><div class="k-val ov-calc-val" id="ovPrihodPd">—</div><div class="k-val ov-cust-val"><input type="number" id="ovPrihodPdC" data-ovcpd="rev" step="0.1" min="0"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovPrihodSub"></div><div class="k-sub ov-cust-val" style="color:var(--muted)">ukupan prihod ÷ narudžbe</div></div>
+      <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-calc-val"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl"><input type="number" id="ovLog3plInp" step="0.1" min="0"><span class="ov-unit">KM</span></span></div><div class="k-val ov-cust-val"><input type="number" id="ovTrosakLogPdC" data-ovcpd="log" step="0.1" min="0"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovLogSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg ov-calc-only" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
+      <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-calc-val" id="ovTrosakOffPd">—</div><div class="k-val ov-cust-val"><input type="number" id="ovTrosakOffPdC" data-ovcpd="ured" step="0.1" min="0"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only">osoblje + ostali fiksni troškovi</div></div>
       <div class="kpi" id="ovProfitCard"><div class="k-lab">Profit po dostavi</div><div class="k-val" id="ovProfitPd">—</div></div>
-      <div class="kpi" id="ovNetoCard"><div class="k-lab">Mjesečni profit</div><div class="k-val" id="ovNeto">—</div></div>
     </div>
     <div class="cards2">
       <div class="card">
@@ -1172,7 +1176,8 @@ function updateOverview(){
   set('ovSelfPct', num(selfFran)+'%'); set('ovSelfProvMj', fmt(v.aov*selfFran/100*ordersMonth));
   set('ovRashodLogMj',fmt(logMj)); set('ovRashodOffMj',fmt(offMj)); set('ovKarticeMj',fmt(karticeMj));
   set('ovRashodMj',fmt(rashodMj)); set('ovProfitMj',fmt(profitMj));
-  set('ovPrihodPdC',noOrders?'—':fmt2(revPd)); set('ovTrosakLogPdC',noOrders?'—':fmt2(logPd)); set('ovTrosakOffPdC',noOrders?'—':fmt2(offPd));
+  const setIn=(id,val)=>{const e=document.getElementById(id); if(e&&document.activeElement!==e) e.value=(Math.round(val*100)/100);};
+  setIn('ovPrihodPdC',revPd); setIn('ovTrosakLogPdC',logPd); setIn('ovTrosakOffPdC',offPd);
   if(custom){ document.querySelectorAll('#overView .ovc-inp').forEach(inp=>{const k=inp.dataset.ovc; if(document.activeElement!==inp) inp.value=Math.round(ovcMj[k]||0);}); }
   const cpEl=document.getElementById('ovCardPct'); if(cpEl&&document.activeElement!==cpEl) cpEl.value=cardPct;
   const cvEl=document.getElementById('ovCardVol'); if(cvEl&&document.activeElement!==cvEl) cvEl.value=cardVol;
@@ -1216,6 +1221,9 @@ function updateOverview(){
   if(cvi) cvi.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(isFinite(n))cardVol=Math.max(0,n);updateOverview();saveState();});
   const ovEl=document.getElementById('overView');
   if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('.ovc-inp'); if(!inp)return; const k=inp.dataset.ovc; const raw=inp.value; if(raw==='')return; const n=parseFloat(raw); if(isFinite(n))ovcMj[k]=Math.max(0,n); updateOverview(); saveState();});
+  if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('[data-ovcpd]'); if(!inp)return; const k=inp.dataset.ovcpd; const raw=inp.value; if(raw==='')return; const n=parseFloat(raw); if(!isFinite(n))return; const om=(valA.ordersDay*valA.workDays)||1; const x=Math.max(0,n);
+    if(k==='log') ovcMj.log=x*om; else if(k==='ured') ovcMj.ured=x*om; else if(k==='rev') ovcMj.prov=Math.max(0, x*om - ovcMj.dost - ovcMj.mkt);
+    updateOverview(); saveState();});
   document.querySelectorAll('#ovModeSeg button').forEach(b=>b.onclick=()=>{
     ovMode=b.dataset.ovm;
     if(ovMode==='custom' && !ovcSeeded){ const v=valA, om=v.ordersDay*v.workDays, franComm=Math.max(0,v.restComm-3), log=(logSrc==='3pl'?(pl3Price||0):courierCostPerDelivery(v));
