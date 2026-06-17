@@ -164,7 +164,7 @@
   .rest .rn{font-weight:800;font-size:13px}
   .rest .rm{font-size:11px;color:var(--muted)}
   .rate{display:inline-block;background:#EAF7EF;color:#1C7A45;font-weight:800;font-size:11px;padding:1px 6px;border-radius:6px;margin-left:4px}
-  #restoView .c-pd{font-weight:800;color:#9A5A12} #restoView .c-net,#restoView .c-mr{font-weight:800;color:var(--green)} #restoView .c-gmv,#restoView .c-mb{font-weight:800;color:#374151}
+  #restoView .c-pd{font-weight:800;color:#9A5A12} #restoView .c-net,#restoView .c-mr{font-weight:800;color:var(--green)} #restoView .c-gmv,#restoView .c-gmvd,#restoView .c-mb{font-weight:800;color:#374151}
   #restoView td.c-ord{font-weight:700;color:var(--muted)}
   .del{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:15px;font-weight:800;padding:2px 6px;border-radius:6px}
   .del:hover{background:#FDECEC;color:var(--red)}
@@ -437,22 +437,23 @@
         <thead><tr>
           <th>#</th>
           <th class="sortable" data-sort="name">Restoran</th>
-          <th class="sortable" data-sort="gmv"><span class="abbr" data-tip="Promet KM/mj — novčani promet kroz platformu mjesečno = PVN × Promet/mj.">Promet KM/mj</span></th>
+          <th class="sortable" data-sort="gmv"><span class="abbr" data-tip="Promet KM/mj — ukupni novčani promet kroz platformu mjesečno = PVN × Nar./mj.">Promet KM/mj</span></th>
+          <th class="sortable" data-sort="gmvd"><span class="abbr" data-tip="Promet KM/dan — dnevni novčani promet = PVN × Nar./dan (= Promet KM/mj ÷ radnih dana).">Promet KM/dan</span></th>
+          <th class="sortable" data-sort="npm"><span class="abbr" data-tip="Nar./mj — broj narudžbi mjesečno (Glovo: broj narudžbi za 90 dana ÷ 3). Pokretač svih izračuna.">Nar./mj</span></th>
+          <th class="sortable" data-sort="ord"><span class="abbr" data-tip="Nar./dan — narudžbi po danu, izvedeno: Nar./mj ÷ radnih dana.">Nar./dan</span></th>
           <th class="sortable" data-sort="aov"><span class="abbr" data-tip="PVN — prosječna vrijednost narudžbe (prosječan iznos jedne narudžbe u KM).">PVN (KM)</span></th>
-          <th class="sortable" data-sort="npm"><span class="abbr" data-tip="Promet/mj — broj narudžbi mjesečno (Glovo: promet za 90 dana ÷ 3). Pokretač svih izračuna.">Promet/mj</span></th>
-          <th class="sortable" data-sort="ord"><span class="abbr" data-tip="Nar./dan — narudžbi po danu, izvedeno: Promet/mj ÷ radnih dana.">Nar./dan</span></th>
           <th><span class="abbr" data-tip="Prov. % — provizija: procenat vrijednosti narudžbe koji restoran plaća platformi.">Prov. %</span></th><th><span class="abbr" data-tip="Dostava (KM) — naknada za dostavu po narudžbi, u KM.">Dostava (KM)</span></th>
           <th class="sortable" data-sort="pd"><span class="abbr" data-tip="Prihod/dost. — prihod po dostavi = PVN × provizija% + naknada za dostavu.">Prihod/dost.</span></th>
           <th class="sortable" data-sort="net"><span class="abbr" data-tip="Neto/dost. — neto po dostavi = prihod − trošak kurira po dostavi (iz taba „Fransizer").">Neto/dost.</span></th>
-          <th class="sortable" data-sort="mbruto"><span class="abbr" data-tip="Mj. bruto — mjesečni bruto = Prihod/dost. × Promet/mj (prije troška kurira).">Mj. bruto</span></th>
-          <th class="sortable" data-sort="mr"><span class="abbr" data-tip="Mj. neto — mjesečni neto = Neto/dost. × Promet/mj (prije fiksnih troškova i royaltyja).">Mj. neto</span></th>
+          <th class="sortable" data-sort="mbruto"><span class="abbr" data-tip="Mj. bruto — mjesečni bruto = Prihod/dost. × Nar./mj (prije troška kurira).">Mj. bruto</span></th>
+          <th class="sortable" data-sort="mr"><span class="abbr" data-tip="Mj. neto — mjesečni neto = Neto/dost. × Nar./mj (prije fiksnih troškova i royaltyja).">Mj. neto</span></th>
           <th class="no-print"></th>
         </tr></thead>
         <tbody id="rtbody"></tbody>
         <tfoot><tr>
           <td></td><td class="lbl">Ukupno / prosjek</td>
-          <td class="c-gmv" id="rtGmv"></td><td id="rtAvgAov"></td><td id="rtNpm"></td>
-          <td id="rtOrders"></td><td></td><td></td>
+          <td class="c-gmv" id="rtGmv"></td><td class="c-gmvd" id="rtGmvd"></td><td id="rtNpm"></td>
+          <td id="rtOrders"></td><td id="rtAvgAov"></td><td></td><td></td>
           <td class="c-pd" id="rtAvgPd"></td><td class="c-net" id="rtAvgNet"></td><td class="c-mb" id="rtMbruto"></td><td class="c-mr" id="rtMr"></td><td class="no-print"></td>
         </tr></tfoot>
       </table>
@@ -461,7 +462,7 @@
       <button class="btn ghost" id="rAddBtn">+ Dodaj restoran</button>
       <button class="btn ghost" id="rAddGroupBtn">+ Dodaj grupu restorana</button>
     </div>
-    <div class="rnote no-print"><b>Sve ćelije su uredive</b> — uključujući naziv restorana (klikni i prepiši). Klik na zaglavlje kolone sortira (ponovni klik mijenja smjer ▲▼); zadano je sortirano po prometu/mj, opadajuće. <b>„Promet/mj" (Glovo: promet za 90 dana ÷ 3) je pokretač svih izračuna</b> — uredi ga stvarnim brojem. „Nar./dan" se <b>izvodi</b> = Promet/mj ÷ radnih dana (nije za ručni unos). „Promet KM/mj" = PVN × Promet/mj (novčani promet kroz platformu). „Prihod/dost." = PVN × provizija% + dostava. „Neto/dost." = prihod − <b>trošak kurira po dostavi</b> (iz taba „Fransizer"). „Mj. bruto" = Prihod/dost. × Promet/mj (prije troška kurira); „Mj. neto" = Neto/dost. × Promet/mj (prije fiksnih troškova i royaltyja fransizera). <br><b>🚗 „Sam vozi"</b> (in-house restoran s vlastitom dostavom): provizija je niža (default <b>6%</b>, <b>izmjenjiva po restoranu</b>), <b>naknadu za dostavu naplaćuje i zadržava restoran</b>, pa se franšizeru <b>ne obračunava trošak kurira</b> — u koloni „Prihod/Neto" računa se provizija od PVN-a, bez dostave. (Promet KM/mj i dalje teče kroz platformu.) <br><b>📊 Grupa restorana (L2, L3…)</b>: zbirni red za sve restorane iste provizije (zadano L2 = 22%, L3 = 25%). Unesi <b>zbirni</b> Promet/mj i prosječan PVN grupe — računa se kao i pojedinačni restoran i sumira u totale (grupe su uvijek na dnu tabele). Za isti promet koristi <b>ILI</b> pojedinačne restorane <b>ILI</b> grupu, da izbjegneš dvostruko brojanje.</div>
+    <div class="rnote no-print"><b>Sve ćelije su uredive</b> — uključujući naziv restorana (klikni i prepiši). Klik na zaglavlje kolone sortira (ponovni klik mijenja smjer ▲▼); zadano je sortirano po prometu/mj, opadajuće. <b>„Nar./mj" (Glovo: broj narudžbi za 90 dana ÷ 3) je pokretač svih izračuna</b> — uredi ga stvarnim brojem. „Nar./dan" se <b>izvodi</b> = Nar./mj ÷ radnih dana (nije za ručni unos). „Promet KM/mj" = PVN × Nar./mj (novčani promet kroz platformu). „Prihod/dost." = PVN × provizija% + dostava. „Neto/dost." = prihod − <b>trošak kurira po dostavi</b> (iz taba „Fransizer"). „Mj. bruto" = Prihod/dost. × Nar./mj (prije troška kurira); „Mj. neto" = Neto/dost. × Nar./mj (prije fiksnih troškova i royaltyja fransizera). <br><b>🚗 „Sam vozi"</b> (in-house restoran s vlastitom dostavom): provizija je niža (default <b>6%</b>, <b>izmjenjiva po restoranu</b>), <b>naknadu za dostavu naplaćuje i zadržava restoran</b>, pa se franšizeru <b>ne obračunava trošak kurira</b> — u koloni „Prihod/Neto" računa se provizija od PVN-a, bez dostave. (Promet KM/mj i dalje teče kroz platformu.) <br><b>📊 Grupa restorana (L2, L3…)</b>: zbirni red za sve restorane iste provizije (zadano L2 = 22%, L3 = 25%). Unesi <b>zbirni</b> Nar./mj i prosječan PVN grupe — računa se kao i pojedinačni restoran i sumira u totale (grupe su uvijek na dnu tabele). Za isti promet koristi <b>ILI</b> pojedinačne restorane <b>ILI</b> grupu, da izbjegneš dvostruko brojanje.</div>
   </div>
 
   <div id="costView">
@@ -483,7 +484,7 @@
         <h3>💡 Imate prijedlog?</h3>
         <p>Podijelite kako bi vlasnička struktura trebala izgledati. Prijedlog ide direktno na <b>darko.krezic@zapp.io</b>. Prijava je <b>potpuno anonimna</b> ako ne želite navesti ime, a možete poslati i <b>više prijedloga</b>.</p>
         <label class="own-fld">Ime i prezime / Ime firme (opcionalno)
-          <input type="text" id="ownName" placeholder="npr. Marko Marković ili naziv firme — nije obavezno">
+          <input type="text" id="ownName" placeholder="Ime i prezime, ime firme">
         </label>
         <label class="own-fld">Vaš prijedlog
           <textarea id="ownMsg" placeholder="Opišite kako vidite vlasničku strukturu: udjeli, uloge, raspodjela dobiti, ulaganja…"></textarea>
@@ -742,7 +743,7 @@ function paybackForOrdersDay(od0){
   for(let m=1;m<=36;m++){const od=od0*Math.pow(1+v.growth/100,m-1);cum+=aMonth(od).profit;if(cum>=0)return m;}
   return null;
 }
-function avgRestoPVN(){ if(!rRows||!rRows.length) return 18; const o=rRows.reduce((s,r)=>s+(+r.npm||0),0); if(!o) return 18; const gmv=rRows.reduce((s,r)=>s+(+r.aov||0)*(+r.npm||0),0); return Math.round(gmv/o*10)/10; }  /* ponderisano: Σ(PVN×Promet/mj) ÷ Σ Promet/mj */
+function avgRestoPVN(){ if(!rRows||!rRows.length) return 18; const o=rRows.reduce((s,r)=>s+(+r.npm||0),0); if(!o) return 18; const gmv=rRows.reduce((s,r)=>s+(+r.aov||0)*(+r.npm||0),0); return Math.round(gmv/o*10)/10; }  /* ponderisano: Σ(PVN×Nar./mj) ÷ Σ Nar./mj */
 function computeA(){
   valA.aov=avgRestoPVN();   // PVN = prosjek PVN-a iz 20 restorana (tab „Top restorani")
   const v=valA, inv=investmentA(), m1=aMonth(v.ordersDay);
@@ -1014,9 +1015,10 @@ function renderResto(){
       <td>${i+1}.</td>
       <td>${nameCell}</td>
       <td class="c-gmv"></td>
+      <td class="c-gmvd"></td>
+      <td><input type="number" data-f="npm" min="0" step="1" value="${r.npm}" aria-label="Broj narudžbi mjesečno (Glovo) ${esc(r.name)}"></td>
+      <td class="c-ord" title="Izvedeno: Nar./mj ÷ radnih dana"></td>
       <td><input type="number" data-f="aov" min="0" max="120" step="0.5" value="${r.aov}" aria-label="PVN ${esc(r.name)}"></td>
-      <td><input type="number" data-f="npm" min="0" step="1" value="${r.npm}" aria-label="Promet mjesečno (Glovo) ${esc(r.name)}"></td>
-      <td class="c-ord" title="Izvedeno: Promet/mj ÷ radnih dana"></td>
       ${commCell}
       ${delCell}
       <td class="c-pd"></td><td class="c-net"></td><td class="c-mb"></td><td class="c-mr"></td>
@@ -1059,6 +1061,7 @@ function recomputeResto(){
     else { pd=r.aov*(r.comm/100)+r.del; npd=pd-cpd; }
     const mbruto=pd*npm, mnet=npd*npm;
     tr.querySelector('.c-gmv').textContent=fmt(gmv);
+    tr.querySelector('.c-gmvd').textContent=fmt(gmv/wd);
     tr.querySelector('.c-ord').textContent=num(ord);
     tr.querySelector('.c-pd').textContent=fmt2(pd);
     const ne=tr.querySelector('.c-net'); ne.textContent=fmt2(npd); ne.style.color=npd<0?'var(--red)':'';
@@ -1078,6 +1081,7 @@ function recomputeResto(){
   const rev=document.getElementById('rkRev'); rev.textContent=fmt(sNet); rev.style.color=sNet<0?'var(--red)':'';
   document.getElementById('rtNpm').textContent=num(sNpm);
   document.getElementById('rtGmv').textContent=fmt(sGmv);
+  document.getElementById('rtGmvd').textContent=fmt(sGmv/wd);
   document.getElementById('rtAvgAov').textContent=fmt2(avgAov);
   document.getElementById('rtOrders').textContent=num(sO);
   document.getElementById('rtAvgPd').textContent=fmt2(avgPd);
@@ -1095,6 +1099,7 @@ function valForR(r,f){const wd=rWD(), cpd=courierCostPerDelivery(valA), npm=+r.n
   if(f==='mbruto')return pd*npm;
   if(f==='mr')return npd*npm;
   if(f==='gmv')return r.aov*npm;
+  if(f==='gmvd')return r.aov*npm/wd;
   if(f==='npm')return npm;
   if(f==='name')return r.name.toLowerCase();
   return r[f];}
@@ -1114,14 +1119,14 @@ document.getElementById('rAddGroupBtn').onclick=()=>{const nums=rRows.filter(r=>
 document.getElementById('rPrintBtn').onclick=()=>window.print();
 document.getElementById('rCsvBtn').onclick=()=>{
   const wd=rWD(), cpd=courierCostPerDelivery(valA);
-  const head=['Naziv','Tip','Sam vozi','Promet/mj','Promet KM/mj','PVN','Nar/dan','Provizija %','Dostava','Prihod/dostava','Trošak/dostava','Neto/dostava','Mj. bruto','Mj. neto'];
+  const head=['Naziv','Tip','Sam vozi','Promet KM/mj','Promet KM/dan','Nar./mj','Nar/dan','PVN','Provizija %','Dostava','Prihod/dostava','Trošak/dostava','Neto/dostava','Mj. bruto','Mj. neto'];
   const lines=[head.join(';')];
   rRows.forEach(r=>{
-    const npm=+r.npm||0, ord=npm/wd, gmv=r.aov*npm;
+    const npm=+r.npm||0, ord=npm/wd, gmv=r.aov*npm, gmvd=gmv/wd;
     const pd = r.self ? r.aov*((+r.selfComm||0)/100) : r.aov*(r.comm/100)+r.del;
     const npd = r.self ? pd : pd-cpd, mbruto=pd*npm, net=npd*npm;
     const commCsv = r.self ? (+r.selfComm||0) : r.comm, delCsv = r.self ? 0 : r.del, trCsv = r.self ? 0 : cpd;
-    lines.push([r.name,(r.group?'Grupa':'Restoran'),(r.self?'DA':'NE'),npm,gmv.toFixed(0),r.aov,ord.toFixed(1),commCsv,delCsv,pd.toFixed(2),trCsv.toFixed(2),npd.toFixed(2),mbruto.toFixed(0),net.toFixed(0)].join(';'));
+    lines.push([r.name,(r.group?'Grupa':'Restoran'),(r.self?'DA':'NE'),gmv.toFixed(0),gmvd.toFixed(0),npm,ord.toFixed(1),r.aov,commCsv,delCsv,pd.toFixed(2),trCsv.toFixed(2),npd.toFixed(2),mbruto.toFixed(0),net.toFixed(0)].join(';'));
   });
   const blob=new Blob(["﻿"+lines.join("\n")],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='zapp-top-restorani-bl.csv'; a.click();
@@ -1363,15 +1368,11 @@ function updateCost(){ refreshCostSums(); renderCost(); saveState(); }
 
 /* ---------- Vlasnička struktura: prijedlog → e-mail (FormSubmit, slanje sa servera; bez backenda) ---------- */
 const OWN_EMAIL='darko.krezic@zapp.io';
-const OWN_FORM='https://formsubmit.co/ajax/'+OWN_EMAIL;   /* server šalje e-mail; PRVI put FormSubmit traži jednokratnu potvrdu na OWN_EMAIL, poslije radi bez interakcije */
+const OWN_FORM='https://formsubmit.co/ajax/f9eb4a5a5864ced35b40029e29e3148f';   /* FormSubmit alias za darko.krezic@zapp.io (forma AKTIVIRANA 2026-06-17; alias skriva e-mail od spam-botova) */
 function ownStatus(msg,ok){ const s=document.getElementById('ownStatus'); if(!s)return; s.textContent=msg||''; s.classList.toggle('ok',!!ok); }
 (function initOwn(){
   const send=document.getElementById('ownSendBtn'), copy=document.getElementById('ownCopyBtn');
   const read=()=>({ name:(document.getElementById('ownName').value||'').trim(), msg:(document.getElementById('ownMsg').value||'').trim() });
-  function mailtoFallback(name,msg){
-    const body='Ime i prezime / Ime firme: '+(name||'(anonimno)')+'\n\nPrijedlog:\n'+msg+'\n\n— Poslano iz Zapp franšiznog kalkulatora';
-    location.href='mailto:'+OWN_EMAIL+'?subject='+encodeURIComponent('Prijedlog — Vlasnička struktura (Zapp franšiza)')+'&body='+encodeURIComponent(body);
-  }
   if(send) send.onclick=async()=>{
     const {name,msg}=read();
     if(!msg){ ownStatus('Upišite prijedlog prije slanja.',false); document.getElementById('ownMsg').focus(); return; }
@@ -1381,8 +1382,9 @@ function ownStatus(msg,ok){ const s=document.getElementById('ownStatus'); if(!s)
         body:JSON.stringify({_subject:'Prijedlog — Vlasnička struktura (Zapp franšiza)',_template:'table',_captcha:'false','Ime / firma':(name||'(anonimno)'),'Prijedlog':msg})});
       const d=await r.json().catch(()=>({}));
       if(r.ok && String(d.success)==='true'){ ownStatus('✓ Prijedlog poslan. Hvala!',true); document.getElementById('ownMsg').value=''; document.getElementById('ownName').value=''; }
-      else { ownStatus('Slanje sa servera nije uspjelo — otvaram e-mail aplikaciju kao rezervu…',false); mailtoFallback(name,msg); }
-    }catch(e){ ownStatus('Nema veze sa serverom — otvaram e-mail aplikaciju kao rezervu…',false); mailtoFallback(name,msg); }
+      else if(/activ/i.test(d&&d.message||'')){ ownStatus('Slanje se prvi put aktivira — pokušajte ponovo za koji minut, ili kliknite „Kopiraj tekst" i pošaljite ručno.',false); }
+      else { ownStatus('Slanje trenutno nije moguće — kliknite „Kopiraj tekst" i pošaljite na '+OWN_EMAIL+'.',false); }
+    }catch(e){ ownStatus('Nema veze sa serverom — kliknite „Kopiraj tekst" i pošaljite na '+OWN_EMAIL+'.',false); }
     finally{ send.disabled=false; }
   };
   if(copy) copy.onclick=async()=>{
