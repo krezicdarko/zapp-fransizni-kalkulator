@@ -491,7 +491,6 @@
         </label>
         <div class="own-actions">
           <button class="btn zapp" id="ownSendBtn" type="button">✉️ Pošalji prijedlog</button>
-          <button class="btn ghost" id="ownCopyBtn" type="button">⧉ Kopiraj tekst</button>
         </div>
         <div class="own-status" id="ownStatus" role="status" aria-live="polite"></div>
       </div>
@@ -1377,7 +1376,7 @@ const OWN_EMAIL='darko.krezic@zapp.io';
 const OWN_FORM='https://formsubmit.co/ajax/f9eb4a5a5864ced35b40029e29e3148f';   /* FormSubmit alias za darko.krezic@zapp.io (forma AKTIVIRANA 2026-06-17; alias skriva e-mail od spam-botova) */
 function ownStatus(msg,ok){ const s=document.getElementById('ownStatus'); if(!s)return; s.textContent=msg||''; s.classList.toggle('ok',!!ok); }
 (function initOwn(){
-  const send=document.getElementById('ownSendBtn'), copy=document.getElementById('ownCopyBtn');
+  const send=document.getElementById('ownSendBtn');
   const read=()=>({ name:(document.getElementById('ownName').value||'').trim(), msg:(document.getElementById('ownMsg').value||'').trim() });
   if(send) send.onclick=async()=>{
     const {name,msg}=read();
@@ -1388,17 +1387,10 @@ function ownStatus(msg,ok){ const s=document.getElementById('ownStatus'); if(!s)
         body:JSON.stringify({_subject:'Prijedlog — Vlasnička struktura (Zapp franšiza)',_template:'table',_captcha:'false','Ime / firma':(name||'(anonimno)'),'Prijedlog':msg})});
       const d=await r.json().catch(()=>({}));
       if(r.ok && String(d.success)==='true'){ ownStatus('✓ Prijedlog poslan. Hvala!',true); document.getElementById('ownMsg').value=''; document.getElementById('ownName').value=''; }
-      else if(/activ/i.test(d&&d.message||'')){ ownStatus('Slanje se prvi put aktivira — pokušajte ponovo za koji minut, ili kliknite „Kopiraj tekst" i pošaljite ručno.',false); }
-      else { ownStatus('Slanje trenutno nije moguće — kliknite „Kopiraj tekst" i pošaljite na '+OWN_EMAIL+'.',false); }
-    }catch(e){ ownStatus('Nema veze sa serverom — kliknite „Kopiraj tekst" i pošaljite na '+OWN_EMAIL+'.',false); }
+      else if(/activ/i.test(d&&d.message||'')){ ownStatus('Slanje se aktivira — pokušajte ponovo za koji minut.',false); }
+      else { ownStatus('Slanje trenutno nije moguće — pokušajte ponovo.',false); }
+    }catch(e){ ownStatus('Nema veze sa serverom — pokušajte ponovo.',false); }
     finally{ send.disabled=false; }
-  };
-  if(copy) copy.onclick=async()=>{
-    const {name,msg}=read();
-    if(!msg){ ownStatus('Nema teksta za kopiranje.',false); return; }
-    const text='Prijedlog — Vlasnička struktura (Zapp franšiza)\nIme i prezime / Ime firme: '+(name||'(anonimno)')+'\n\n'+msg;
-    try{ await navigator.clipboard.writeText(text); ownStatus('✓ Tekst kopiran. Zalijepite ga u e-mail za '+OWN_EMAIL+'.',true); }
-    catch(e){ ownStatus('Kopiranje nije uspjelo — označite tekst i kopirajte ručno.',false); }
   };
 })();
 
