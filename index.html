@@ -408,7 +408,7 @@
       <div class="card">
         <h3>📥 Prihod (mjesečno)</h3>
         <div class="bd"><span>Provizija</span><span class="v pos ov-calc-val" id="ovProvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="prov"></span></div>
-        <div class="bd ov-calc-only"><span>Provizija (sami voze) <b id="ovSelfPct">—</b></span><span class="v pos" id="ovSelfProvMj">—</span></div>
+        <div class="bd"><span>Provizija (sami voze) <b id="ovSelfPct">—</b></span><span class="v pos" id="ovSelfProvMj">—</span></div>
         <div class="bd"><span>Naknada za dostavu</span><span class="v pos ov-calc-val" id="ovDostMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="dost"></span></div>
         <div class="bd"><span>Marketing</span><span class="v pos ov-calc-val" id="ovMarketingMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="mkt"></span></div>
         <div class="bd tot"><span>Ukupan prihod</span><span class="v pos" id="ovPrihodMj">—</span></div>
@@ -695,8 +695,9 @@ let logSrc='3pl', pl3Price=4;   /* Pregled logistika (calc mod): 'fleet'=izraču
 let cardPct=3.5, cardVol=10;   /* Pregled kartične uplate: iznos provizije % (3.5) i obim % prometa plaćen karticom (10) */
 let ovcMj={prov:0,dost:0,mkt:0,log:0,ured:0,card:0,pdv:0}, ovcSeeded=false;   /* Ručni unos: mjesečni iznosi (upisivi); seedani iz Izračunato pri prvom prelasku */
 const refs={A:{},B:{}};
-const openState={invest:false,staff:false,fixed:false,courier:false,volume:true,restB:true,
-  tPeople:true,tVehicle:true,tGear:false,tVar:false,tCap:true};  /* kategorije: troškovi zbirno (zatvoreno), obim otvoreno */
+const openState={invest:false,staff:false,fixed:false,courier:false,volume:false,restB:true,
+  tPeople:true,tVehicle:true,tGear:false,tVar:false,tCap:true};  /* Fransizer kategorije: sve zatvorene po defaultu (prikaz sume, klik otvara) */
+const A_COLLAPSE_KEYS=['invest','staff','fixed','courier','volume'];   /* Fransizer grupe — uvijek zatvorene na učitavanju */
 let groupSumEls={}, rowNoteEls={}, qpSumEls={};
 
 const SCEN={
@@ -1538,6 +1539,7 @@ function loadState(){
   if(s.valB&&typeof s.valB==='object') Object.assign(valB, s.valB);
   if(s.valT&&typeof s.valT==='object') Object.assign(valT, s.valT);
   if(s.openState&&typeof s.openState==='object') Object.assign(openState, s.openState);
+  A_COLLAPSE_KEYS.forEach(k=>openState[k]=false);   // Fransizer kategorije uvijek zatvorene na učitavanju (klik otvara za uređivanje)
   if(Array.isArray(s.rRows)&&s.rRows.length&&('aov' in s.rRows[0])) rRows=s.rRows.map(r=>{const sub90=parseInt(String(r.sub||'').split('nar')[0].replace(/[^\d]/g,''),10);const npm=typeof r.npm==='number'?r.npm:(typeof r.n90==='number'?Math.round(r.n90/3):(sub90?Math.round(sub90/3):Math.round((+r.ord||0)*30)));return {name:r.name||'Restoran',npm,aov:+r.aov||0,comm:typeof r.comm==='number'?r.comm:20,del:typeof r.del==='number'?r.del:3,self:!!r.self,selfComm:typeof r.selfComm==='number'?r.selfComm:6,owner:!!r.owner,group:!!r.group};});
   try{
     if(typeof s.rWorkDays==='number') document.getElementById('rWorkDays').value=s.rWorkDays;
