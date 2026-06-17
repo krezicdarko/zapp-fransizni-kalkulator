@@ -254,6 +254,37 @@
   .own-actions{display:flex;gap:10px;flex-wrap:wrap}
   .own-status{margin-top:12px;font-size:13px;font-weight:700;min-height:18px;color:#B91C1C}
   .own-status.ok{color:var(--green)}
+  /* mod V: interni (zaključani) panel za vlasničku strukturu */
+  .own-lock{font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55}
+  #ownPanel{display:none}
+  .own-secthead{font-weight:800;font-size:13px;margin:18px 0 8px;color:var(--ink)}
+  .own-metrics{display:grid;gap:14px;margin:6px 0 2px}
+  .own-w label{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;font-size:13px;gap:10px}
+  .own-w label .ws{font-weight:600;font-size:11px;color:var(--muted)}
+  .own-w .wv{font-weight:800;font-size:13px;color:var(--zapp-dark);white-space:nowrap}
+  .own-w input[type=range]{width:100%;accent-color:var(--zapp);height:4px;cursor:pointer;margin-top:7px}
+  .own-wsum{font-size:12px;color:var(--muted);font-weight:700;margin:10px 0 2px}
+  .own-wsum b{color:var(--ink)}
+  table.own-tbl{width:100%;border-collapse:collapse;margin-top:6px;font-size:13px}
+  table.own-tbl th,table.own-tbl td{padding:8px 7px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  table.own-tbl th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.3px;font-weight:700}
+  table.own-tbl td:first-child,table.own-tbl th:first-child{text-align:left;white-space:normal}
+  table.own-tbl tfoot td{font-weight:800;border-top:2px solid var(--line);border-bottom:none}
+  .own-share{font-weight:800;color:var(--zapp-dark)}
+  .own-bars{display:grid;gap:9px;margin:14px 0 2px}
+  .own-bar-row{display:grid;grid-template-columns:minmax(90px,150px) 1fr 52px;align-items:center;gap:10px;font-size:13px}
+  .own-bar-row .nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .own-bar-track{background:var(--line);border-radius:6px;overflow:hidden;height:18px}
+  .own-bar{height:18px;border-radius:6px 0 0 6px;background:var(--zapp);min-width:2px}
+  .own-bar-row .pc{font-weight:800;text-align:right;color:var(--zapp-dark)}
+  .own-empty{color:var(--muted);font-size:14px;padding:10px 0;line-height:1.6}
+  .own-why{font-size:13px;color:var(--ink);line-height:1.6;margin-top:6px}
+  .own-why h4{margin:16px 0 6px;font-size:13.5px}
+  .own-why ul{margin:6px 0;padding-left:20px}
+  .own-why li{margin-bottom:4px}
+  .own-note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.55;border-top:1px solid var(--line);padding-top:12px}
+  .own-foot{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  @media(max-width:560px){ .own-bar-row{grid-template-columns:84px 1fr 46px} table.own-tbl{font-size:12px} table.own-tbl th,table.own-tbl td{padding:7px 5px} }
 
   /* print */
   .print-head{display:none;align-items:center;gap:14px;border-bottom:2px solid var(--zapp);padding-bottom:12px;margin-bottom:18px}
@@ -480,6 +511,41 @@
 
   <div id="ownView">
     <div class="own-wrap">
+
+      <div class="card own-gate" id="ownGate">
+        <h3>🔒 Vlasnička struktura — interni izračun</h3>
+        <p class="own-lock">Ovaj dio je vidljiv samo uz šifru. Prikazuje prijedlog raspodjele vlasništva za restorane označene kvačicom <b>👤 vlasnik</b> u tabu „Top restorani".</p>
+        <label class="own-fld">Šifra
+          <input type="password" id="ownPass" placeholder="Unesite šifru" autocomplete="off">
+        </label>
+        <div class="own-actions">
+          <button class="btn zapp" id="ownUnlockBtn" type="button">Otključaj</button>
+        </div>
+        <div class="own-status" id="ownGateStatus" role="status" aria-live="polite"></div>
+      </div>
+
+      <div class="card" id="ownPanel">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3 style="margin:0;font-size:16px">🏛️ Prijedlog vlasničke strukture</h3>
+          <span style="flex:1"></span>
+          <button class="btn ghost" id="ownLockBtn" type="button" style="font-size:12px;padding:7px 12px">🔒 Zaključaj</button>
+        </div>
+        <p class="own-lock" style="margin-top:8px">Udjeli se računaju iz ekonomskog doprinosa svakog restorana zajedničkoj franšizi (podaci iz „Top restorani"). Označi restorane kvačicom <b>👤 vlasnik</b> da uđu u izračun. Omjere faktora možeš podesiti klizačima.</p>
+
+        <div class="own-secthead">⚖️ Omjer faktora (težine)</div>
+        <div class="own-metrics" id="ownWeights"></div>
+        <div class="own-wsum" id="ownWsum"></div>
+
+        <div class="own-secthead">📊 Prijedlog udjela</div>
+        <div id="ownResults"></div>
+
+        <div class="own-why" id="ownWhy"></div>
+
+        <div class="own-foot">
+          <button class="btn ghost" id="ownResetW" type="button">↺ Vrati zadane omjere</button>
+        </div>
+      </div>
+
       <div class="card own-prop">
         <h3>💡 Imate prijedlog?</h3>
         <p>Podijelite kako bi vlasnička struktura trebala izgledati. Prijedlog ide direktno na <b>darko.krezic@zapp.io</b>. Prijava je <b>potpuno anonimna</b> ako ne želite navesti ime, a možete poslati i <b>više prijedloga</b>.</p>
