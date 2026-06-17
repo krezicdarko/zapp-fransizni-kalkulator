@@ -237,10 +237,6 @@
   body.mode-v .grid, body.mode-v .toolbar, body.mode-v .footnote{display:none}
   body.mode-v #ownView{display:block}
   .own-wrap{max-width:760px;margin:0 auto;display:grid;gap:18px}
-  .own-soon{text-align:center;padding:30px 20px;border:1px dashed var(--line);border-radius:14px;background:linear-gradient(180deg,#FAFBFC,#fff)}
-  .own-badge{display:inline-block;background:var(--zapp);color:#fff;font-weight:800;font-size:12px;letter-spacing:.4px;padding:5px 12px;border-radius:999px;text-transform:uppercase}
-  .own-soon h2{margin:14px 0 8px;font-size:22px}
-  .own-soon p{margin:0 auto;max-width:560px;color:var(--muted);font-size:14px;line-height:1.55}
   .own-prop h3{margin:0 0 6px;font-size:16px}
   .own-prop>p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.5}
   .own-fld{display:block;font-weight:700;font-size:13px;margin-bottom:12px}
@@ -1340,19 +1336,29 @@ function updateCost(){ refreshCostSums(); renderCost(); saveState(); }
   const pb=document.getElementById('cPrintBtn'); if(pb) pb.onclick=()=>window.print();
 })();
 
-/* ---------- Vlasnička struktura: prijedlog (anonimno, samo e-mail — anketa parkirana za sad) ---------- */
+/* ---------- Vlasnička struktura: prijedlog → e-mail (FormSubmit, slanje sa servera; bez backenda) ---------- */
 const OWN_EMAIL='darko.krezic@zapp.io';
+const OWN_FORM='https://formsubmit.co/ajax/'+OWN_EMAIL;   /* server šalje e-mail; PRVI put FormSubmit traži jednokratnu potvrdu na OWN_EMAIL, poslije radi bez interakcije */
 function ownStatus(msg,ok){ const s=document.getElementById('ownStatus'); if(!s)return; s.textContent=msg||''; s.classList.toggle('ok',!!ok); }
 (function initOwn(){
   const send=document.getElementById('ownSendBtn'), copy=document.getElementById('ownCopyBtn');
   const read=()=>({ name:(document.getElementById('ownName').value||'').trim(), msg:(document.getElementById('ownMsg').value||'').trim() });
-  if(send) send.onclick=()=>{
+  function mailtoFallback(name,msg){
+    const body='Ime i prezime / Ime firme: '+(name||'(anonimno)')+'\n\nPrijedlog:\n'+msg+'\n\n— Poslano iz Zapp franšiznog kalkulatora';
+    location.href='mailto:'+OWN_EMAIL+'?subject='+encodeURIComponent('Prijedlog — Vlasnička struktura (Zapp franšiza)')+'&body='+encodeURIComponent(body);
+  }
+  if(send) send.onclick=async()=>{
     const {name,msg}=read();
     if(!msg){ ownStatus('Upišite prijedlog prije slanja.',false); document.getElementById('ownMsg').focus(); return; }
-    const subject='Prijedlog — Vlasnička struktura (Zapp franšiza)';
-    const body='Ime i prezime / Ime firme: '+(name||'(anonimno)')+'\n\nPrijedlog:\n'+msg+'\n\n— Poslano iz Zapp franšiznog kalkulatora';
-    ownStatus('Otvaram e-mail za slanje na '+OWN_EMAIL+' …',true);
-    location.href='mailto:'+OWN_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+    send.disabled=true; ownStatus('Šaljem prijedlog…',true);
+    try{
+      const r=await fetch(OWN_FORM,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+        body:JSON.stringify({_subject:'Prijedlog — Vlasnička struktura (Zapp franšiza)',_template:'table',_captcha:'false','Ime / firma':(name||'(anonimno)'),'Prijedlog':msg})});
+      const d=await r.json().catch(()=>({}));
+      if(r.ok && String(d.success)==='true'){ ownStatus('✓ Prijedlog poslan. Hvala!',true); document.getElementById('ownMsg').value=''; document.getElementById('ownName').value=''; }
+      else { ownStatus('Slanje sa servera nije uspjelo — otvaram e-mail aplikaciju kao rezervu…',false); mailtoFallback(name,msg); }
+    }catch(e){ ownStatus('Nema veze sa serverom — otvaram e-mail aplikaciju kao rezervu…',false); mailtoFallback(name,msg); }
+    finally{ send.disabled=false; }
   };
   if(copy) copy.onclick=async()=>{
     const {name,msg}=read();

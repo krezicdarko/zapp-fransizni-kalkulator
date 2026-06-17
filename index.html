@@ -237,10 +237,6 @@
   body.mode-v .grid, body.mode-v .toolbar, body.mode-v .footnote{display:none}
   body.mode-v #ownView{display:block}
   .own-wrap{max-width:760px;margin:0 auto;display:grid;gap:18px}
-  .own-soon{text-align:center;padding:30px 20px;border:1px dashed var(--line);border-radius:14px;background:linear-gradient(180deg,#FAFBFC,#fff)}
-  .own-badge{display:inline-block;background:var(--zapp);color:#fff;font-weight:800;font-size:12px;letter-spacing:.4px;padding:5px 12px;border-radius:999px;text-transform:uppercase}
-  .own-soon h2{margin:14px 0 8px;font-size:22px}
-  .own-soon p{margin:0 auto;max-width:560px;color:var(--muted);font-size:14px;line-height:1.55}
   .own-prop h3{margin:0 0 6px;font-size:16px}
   .own-prop>p{margin:0 0 14px;color:var(--muted);font-size:13px;line-height:1.5}
   .own-fld{display:block;font-weight:700;font-size:13px;margin-bottom:12px}
@@ -363,31 +359,31 @@
       <div class="ov-sub">Povuci skalu da uživo vidiš kako se prihod, rashod i profit mijenjaju s brojem narudžbi. Podaci: prosječna vrijednost narudžbe (PVN) iz „Top restorani"; provizija, dostava i troškovi iz „Fransizer".</div>
     </div>
     <div class="kpis">
-      <div class="kpi"><div class="k-lab">Prihod po dostavi</div><div class="k-val ov-calc-val" id="ovPrihodPd">—</div><div class="k-val ov-cust-val"><input type="number" id="ovCustomRevInp" step="0.1" min="0"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovPrihodSub"></div></div>
-      <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-calc-val"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl"><input type="number" id="ovLog3plInp" step="0.1" min="0"><span class="ov-unit">KM</span></span></div><div class="k-val ov-cust-val"><input type="number" id="ovCustomCostLogInp" step="0.1" min="0"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovLogSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg ov-calc-only" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
-      <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-calc-val" id="ovTrosakOffPd">—</div><div class="k-val ov-cust-val"><input type="number" id="ovCustomCostOffInp" step="0.1" min="0"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only">osoblje + ostali fiksni troškovi</div></div>
+      <div class="kpi"><div class="k-lab">Prihod po dostavi</div><div class="k-val ov-calc-val" id="ovPrihodPd">—</div><div class="k-val ov-cust-val" id="ovPrihodPdC">—</div><div class="k-sub ov-calc-only" id="ovPrihodSub"></div><div class="k-sub ov-cust-val" style="color:var(--muted)">ukupan prihod ÷ narudžbe</div></div>
+      <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-calc-val"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl"><input type="number" id="ovLog3plInp" step="0.1" min="0"><span class="ov-unit">KM</span></span></div><div class="k-val ov-cust-val" id="ovTrosakLogPdC">—</div><div class="k-sub ov-calc-only" id="ovLogSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg ov-calc-only" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
+      <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-calc-val" id="ovTrosakOffPd">—</div><div class="k-val ov-cust-val" id="ovTrosakOffPdC">—</div><div class="k-sub ov-calc-only">osoblje + ostali fiksni troškovi</div></div>
       <div class="kpi" id="ovProfitCard"><div class="k-lab">Profit po dostavi</div><div class="k-val" id="ovProfitPd">—</div></div>
       <div class="kpi" id="ovNetoCard"><div class="k-lab">Mjesečni profit</div><div class="k-val" id="ovNeto">—</div></div>
     </div>
-    <div class="cards2 ov-calc-only">
+    <div class="cards2">
       <div class="card">
         <h3>📥 Prihod (mjesečno)</h3>
-        <div class="bd"><span>Provizija</span><span class="v pos" id="ovProvMj">—</span></div>
-        <div class="bd"><span>Provizija (sami voze) <b id="ovSelfPct">—</b></span><span class="v pos" id="ovSelfProvMj">—</span></div>
-        <div class="bd"><span>Naknada za dostavu</span><span class="v pos" id="ovDostMj">—</span></div>
-        <div class="bd"><span>Marketing</span><span class="v pos" id="ovMarketingMj">—</span></div>
+        <div class="bd"><span>Provizija</span><span class="v pos ov-calc-val" id="ovProvMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="prov"></span></div>
+        <div class="bd ov-calc-only"><span>Provizija (sami voze) <b id="ovSelfPct">—</b></span><span class="v pos" id="ovSelfProvMj">—</span></div>
+        <div class="bd"><span>Naknada za dostavu</span><span class="v pos ov-calc-val" id="ovDostMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="dost"></span></div>
+        <div class="bd"><span>Marketing</span><span class="v pos ov-calc-val" id="ovMarketingMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="mkt"></span></div>
         <div class="bd tot"><span>Ukupan prihod</span><span class="v pos" id="ovPrihodMj">—</span></div>
       </div>
       <div class="card">
         <h3>📤 Rashod (mjesečno)</h3>
-        <div class="bd"><span>Trošak po dostavi (logistika)</span><span class="v neg" id="ovRashodLogMj">—</span></div>
-        <div class="bd"><span>Trošak po dostavi (ured)</span><span class="v neg" id="ovRashodOffMj">—</span></div>
-        <div class="bd"><span>Kartične uplate <span class="abbr" data-tip="Iznos provizije — kartična/procesorska naknada koja se naplaćuje na kartične transakcije.">(provizija)</span> <input type="number" id="ovCardPct" value="3.5" min="0" step="0.1" style="width:48px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% na <span class="abbr" data-tip="Obim — koliki dio PROMETA je plaćen karticom. Promet = ukupan promet (PVN × narudžbe) + ukupna dostava (naknada × narudžbe). Od toga se uzme ovaj %, pa se na njega obračuna provizija.">obim</span> <input type="number" id="ovCardVol" value="10" min="0" max="100" step="1" style="width:44px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% prometa</span><span class="v neg" id="ovKarticeMj">—</span></div>
-        <div class="bd"><span>PDV</span><span class="v neg" id="ovPdvMj">—</span></div>
+        <div class="bd"><span>Trošak po dostavi (logistika)</span><span class="v neg ov-calc-val" id="ovRashodLogMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="log"></span></div>
+        <div class="bd"><span>Trošak po dostavi (ured)</span><span class="v neg ov-calc-val" id="ovRashodOffMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="ured"></span></div>
+        <div class="bd"><span>Kartične uplate <span class="ov-calc-val"><span class="abbr" data-tip="Iznos provizije — kartična/procesorska naknada koja se naplaćuje na kartične transakcije.">(provizija)</span> <input type="number" id="ovCardPct" value="3.5" min="0" step="0.1" style="width:48px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% na <span class="abbr" data-tip="Obim — koliki dio PROMETA je plaćen karticom. Promet = ukupan promet (PVN × narudžbe) + ukupna dostava (naknada × narudžbe). Od toga se uzme ovaj %, pa se na njega obračuna provizija.">obim</span> <input type="number" id="ovCardVol" value="10" min="0" max="100" step="1" style="width:44px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% prometa</span></span><span class="v neg ov-calc-val" id="ovKarticeMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="card"></span></div>
+        <div class="bd"><span>PDV</span><span class="v neg ov-calc-val" id="ovPdvMj">—</span><span class="ov-cust-val"><input type="number" class="ovc-inp" data-ovc="pdv"></span></div>
         <div class="bd tot"><span>Ukupan rashod</span><span class="v neg" id="ovRashodMj">—</span></div>
       </div>
     </div>
-    <div class="card ov-calc-only" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
       <h3 style="margin:0">💰 Profit (mjesečno)</h3>
       <span class="v pos" id="ovProfitMj" style="font-size:26px;font-weight:800">—</span>
     </div>
@@ -649,14 +645,15 @@ function buildInputs(){
     const body=document.createElement('div'); body.className='gbody'; body.id=bodyId;
     g.items.forEach(it=>{
       if(it.qp){
+        const qU=it.qtyUnit||'kom', pU=it.priceUnit||'KM';
         const row=document.createElement('div'); row.className='row qp';
         row.innerHTML=`
           <div class="lab">
-            <span class="lt">${esc(it.lab)}</span>
+            <span class="lt">${esc(it.lab)}${it.hint?`<span class="hint" tabindex="0" role="button" aria-label="Objašnjenje: ${esc(it.hint)}" data-tip="${esc(it.hint)}">?</span>`:''}</span>
             <span class="num">
-              <input type="number" class="qpf" aria-label="${esc(it.lab)} — količina (kom)" min="0" step="${it.qtyStep||1}" value="${store[it.qtyId]}"><span class="unit">kom</span>
+              <input type="number" class="qpf" aria-label="${esc(it.lab)} — količina (${qU})" min="0" step="${it.qtyStep||1}" value="${store[it.qtyId]}"><span class="unit">${qU}</span>
               <span class="qpx">×</span>
-              <input type="number" class="qpf" aria-label="${esc(it.lab)} — cijena (KM)" min="0" step="${it.priceStep||1}" value="${store[it.priceId]}"><span class="unit">KM</span>
+              <input type="number" class="qpf" aria-label="${esc(it.lab)} — cijena (${pU})" min="0" step="${it.priceStep||1}" value="${store[it.priceId]}"><span class="unit">${pU}</span>
               <span class="qpx">=</span><span class="qpsum"></span>
             </span>
           </div>`;
@@ -700,7 +697,7 @@ function refreshGroupSums(){
   const groups=(mode==='A')?A_GROUPS:B_GROUP, store=(mode==='A')?valA:valB;
   groups.forEach(g=>{ if(groupSumEls[g.key]&&g.sum) groupSumEls[g.key].textContent=g.sum(store);
     g.items.forEach(it=>{
-      if(it.qp&&qpSumEls[it.qtyId]) qpSumEls[it.qtyId].el.textContent=fmt(store[it.priceId]*store[it.qtyId]);
+      if(it.qp&&qpSumEls[it.qtyId]) qpSumEls[it.qtyId].el.textContent=fmt(store[it.priceId]*store[it.qtyId])+(it.sumSuffix||'');
       else if(it.note&&rowNoteEls[it.id]) rowNoteEls[it.id].textContent=it.note(store);
     }); });
 }
@@ -1340,19 +1337,29 @@ function updateCost(){ refreshCostSums(); renderCost(); saveState(); }
   const pb=document.getElementById('cPrintBtn'); if(pb) pb.onclick=()=>window.print();
 })();
 
-/* ---------- Vlasnička struktura: prijedlog (anonimno, samo e-mail — anketa parkirana za sad) ---------- */
+/* ---------- Vlasnička struktura: prijedlog → e-mail (FormSubmit, slanje sa servera; bez backenda) ---------- */
 const OWN_EMAIL='darko.krezic@zapp.io';
+const OWN_FORM='https://formsubmit.co/ajax/'+OWN_EMAIL;   /* server šalje e-mail; PRVI put FormSubmit traži jednokratnu potvrdu na OWN_EMAIL, poslije radi bez interakcije */
 function ownStatus(msg,ok){ const s=document.getElementById('ownStatus'); if(!s)return; s.textContent=msg||''; s.classList.toggle('ok',!!ok); }
 (function initOwn(){
   const send=document.getElementById('ownSendBtn'), copy=document.getElementById('ownCopyBtn');
   const read=()=>({ name:(document.getElementById('ownName').value||'').trim(), msg:(document.getElementById('ownMsg').value||'').trim() });
-  if(send) send.onclick=()=>{
+  function mailtoFallback(name,msg){
+    const body='Ime i prezime / Ime firme: '+(name||'(anonimno)')+'\n\nPrijedlog:\n'+msg+'\n\n— Poslano iz Zapp franšiznog kalkulatora';
+    location.href='mailto:'+OWN_EMAIL+'?subject='+encodeURIComponent('Prijedlog — Vlasnička struktura (Zapp franšiza)')+'&body='+encodeURIComponent(body);
+  }
+  if(send) send.onclick=async()=>{
     const {name,msg}=read();
     if(!msg){ ownStatus('Upišite prijedlog prije slanja.',false); document.getElementById('ownMsg').focus(); return; }
-    const subject='Prijedlog — Vlasnička struktura (Zapp franšiza)';
-    const body='Ime i prezime / Ime firme: '+(name||'(anonimno)')+'\n\nPrijedlog:\n'+msg+'\n\n— Poslano iz Zapp franšiznog kalkulatora';
-    ownStatus('Otvaram e-mail za slanje na '+OWN_EMAIL+' …',true);
-    location.href='mailto:'+OWN_EMAIL+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+    send.disabled=true; ownStatus('Šaljem prijedlog…',true);
+    try{
+      const r=await fetch(OWN_FORM,{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},
+        body:JSON.stringify({_subject:'Prijedlog — Vlasnička struktura (Zapp franšiza)',_template:'table',_captcha:'false','Ime / firma':(name||'(anonimno)'),'Prijedlog':msg})});
+      const d=await r.json().catch(()=>({}));
+      if(r.ok && String(d.success)==='true'){ ownStatus('✓ Prijedlog poslan. Hvala!',true); document.getElementById('ownMsg').value=''; document.getElementById('ownName').value=''; }
+      else { ownStatus('Slanje sa servera nije uspjelo — otvaram e-mail aplikaciju kao rezervu…',false); mailtoFallback(name,msg); }
+    }catch(e){ ownStatus('Nema veze sa serverom — otvaram e-mail aplikaciju kao rezervu…',false); mailtoFallback(name,msg); }
+    finally{ send.disabled=false; }
   };
   if(copy) copy.onclick=async()=>{
     const {name,msg}=read();
