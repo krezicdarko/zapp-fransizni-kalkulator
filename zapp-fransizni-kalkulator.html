@@ -1347,7 +1347,7 @@ function updateOverview(){
   setIn('ovPrihodPdC',revPd); setIn('ovTrosakLogPdC',logPd); setIn('ovTrosakOffPdC',offPd);
   if(custom){ document.querySelectorAll('#overView .ovc-inp').forEach(inp=>{const k=inp.dataset.ovc; if(!k)return; if(document.activeElement!==inp) inp.value=ovG(ovcMj[k]||0);}); }
   const cpEl=document.getElementById('ovCardPct'); if(cpEl&&document.activeElement!==cpEl) cpEl.value=Math.round(cardPct*100)/100;
-  const cvEl=document.getElementById('ovCardVol'); if(cvEl&&document.activeElement!==cvEl) cvEl.value=cardVol;
+  const cvEl=document.getElementById('ovCardVol'); if(cvEl&&document.activeElement!==cvEl) cvEl.value=Math.round(cardVol*100)/100;
   if(custom){ const sbSelf=v.aov*om;
     const spcE=document.getElementById('ovSelfPctC'); if(spcE&&document.activeElement!==spcE) spcE.value=sbSelf>0?Math.round((ovcMj.self||0)/sbSelf*1000)/10:0;
     const cmjE=document.getElementById('ovCardMjC'); if(cmjE&&document.activeElement!==cmjE) cmjE.value=ovG(karticeMj); }
@@ -1398,7 +1398,7 @@ function updateOverview(){
   const spcI=document.getElementById('ovSelfPctC');
   if(spcI) spcI.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(!isFinite(n))return;const om=(valA.ordersDay*valA.workDays)||1;ovcMj.self=Math.max(0,n)/100*valA.aov*om;updateOverview();saveState();});
   const cmjI=document.getElementById('ovCardMjC');
-  if(cmjI) cmjI.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=ovPI(raw);if(!isFinite(n))return;const om=(valA.ordersDay*valA.workDays)||1;const base=(valA.aov+valA.delFee)*(cardVol/100)*om;if(base>0)cardPct=Math.max(0,n)/base*100;updateOverview();saveState();});
+  if(cmjI) cmjI.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=ovPI(raw);if(!isFinite(n))return;const om=(valA.ordersDay*valA.workDays)||1;const base=(valA.aov+valA.delFee)*(cardPct/100)*om;if(base>0)cardVol=Math.max(0,n)/base*100;updateOverview();saveState();});  // edit iznosa karticnih → mijenja OBIM (% prometa), provizija% fiksna
   document.querySelectorAll('#ovModeSeg button').forEach(b=>b.onclick=()=>{
     ovMode=b.dataset.ovm;
     if(ovMode==='custom' && !ovcSeeded){ const v=valA, om=v.ordersDay*v.workDays, franComm=Math.max(0,v.restComm-3), log=(logSrc==='3pl'?(pl3Price||0):courierCostPerDelivery(v));
