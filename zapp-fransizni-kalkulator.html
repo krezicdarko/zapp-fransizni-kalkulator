@@ -335,6 +335,12 @@
   .own-why li{margin-bottom:4px}
   .own-note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.55;border-top:1px solid var(--line);padding-top:12px}
   .own-foot{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .own-adv{margin-top:20px;border-top:1px solid var(--line);padding-top:4px}
+  .own-adv>summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--muted);padding:9px 0;list-style:none}
+  .own-adv>summary::-webkit-details-marker{display:none}
+  .own-adv>summary:before{content:'▸ ';color:var(--zapp-dark)}
+  .own-adv[open]>summary:before{content:'▾ '}
+  .own-adv[open]>summary{color:var(--ink)}
   @media(max-width:560px){ .own-bar-row{grid-template-columns:84px 1fr 46px} table.own-tbl{font-size:12px} table.own-tbl th,table.own-tbl td{padding:7px 5px} }
 
   /* print */
@@ -597,48 +603,30 @@
     <div class="own-wrap">
 
       <div class="seg ov-modeseg own-seg no-print" id="ownSeg" role="group" aria-label="Pregled vlasničke strukture">
-        <button data-ov2="prop" class="active" aria-pressed="true">💡 Prijedlog</button>
-        <button data-ov2="struct" aria-pressed="false">🏛️ Vlasnička struktura</button>
+        <button data-ov2="struct" class="active" aria-pressed="true">📊 Udjeli vlasnika</button>
+        <button data-ov2="prop" aria-pressed="false">✉️ Pošalji prijedlog</button>
       </div>
 
       <div id="ownStructView" style="display:none">
 
-      <div class="card own-gate" id="ownGate">
-        <h3>🔒 Vlasnička struktura — interni izračun</h3>
-        <p class="own-lock">Ovaj dio je vidljiv samo uz šifru. Prikazuje prijedlog raspodjele vlasništva za restorane označene kvačicom <b>👤 vlasnik</b> u tabu „Top restorani".</p>
-        <label class="own-fld">Šifra
-          <input type="password" id="ownPass" placeholder="Unesite šifru" autocomplete="off">
-        </label>
-        <div class="own-actions">
-          <button class="btn zapp" id="ownUnlockBtn" type="button">Otključaj</button>
-        </div>
-        <div class="own-status" id="ownGateStatus" role="status" aria-live="polite"></div>
-      </div>
-
       <div class="card" id="ownPanel">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <h3 style="margin:0;font-size:16px">🏛️ Prijedlog vlasničke strukture</h3>
-          <span style="flex:1"></span>
-          <button class="btn ghost" id="ownLockBtn" type="button" style="font-size:12px;padding:7px 12px">🔒 Zaključaj</button>
-        </div>
-        <p class="own-lock" style="margin-top:8px">Udjeli se računaju iz ekonomskog doprinosa svakog restorana zajedničkoj franšizi (podaci iz „Top restorani"). Označi restorane kvačicom <b>👤 vlasnik</b> da uđu u izračun. Omjere faktora možeš podesiti klizačima.</p>
-
-        <div class="own-secthead">⚖️ Omjer faktora (težine)</div>
-        <div class="own-metrics" id="ownWeights"></div>
-        <div class="own-wsum" id="ownWsum"></div>
-
-        <div class="own-secthead">📊 Prijedlog 1 — ponderisani (neto + bruto + narudžbe)</div>
-        <div id="ownResults"></div>
-
-        <div class="own-secthead">💯 Prijedlog 2 — samo po neto doprinosu (Mj. neto)</div>
-        <p class="own-lock" style="margin-top:0">Najjednostavnija raspodjela: udjel svakog vlasnika = njegov udio u <b>ukupnom mjesečnom neto profitu</b> koji svi označeni restorani donose franšizi. Bez težina i bez zaštita (min/max) — čisti doprinos.</p>
+        <h3 style="margin:0 0 6px;font-size:16px">🏛️ Vlasnička struktura — udjeli po neto doprinosu</h3>
+        <p class="own-lock">Udjel svakog vlasnika = njegov udio u <b>ukupnom mjesečnom neto profitu (Mj. neto)</b> koji svi označeni lokali donose franšizi. Označi lokal kvačicom <b>👤 vlasnik</b> u tabu „Top restorani" — pojavit će se ovdje s neto doprinosom i postotkom. Čisti doprinos, bez težina i zaštita (npr. lokal koji donosi <b>10.000</b> i lokal koji donosi <b>90.000 KM</b> → <b>10 %</b> vs <b>90 %</b>).</p>
         <div id="ownResults2"></div>
 
-        <div class="own-why" id="ownWhy"></div>
-
-        <div class="own-foot">
-          <button class="btn ghost" id="ownResetW" type="button">↺ Vrati zadane omjere</button>
-        </div>
+        <details class="own-adv">
+          <summary>⚖️ Napredno: alternativni ponderisani prijedlog</summary>
+          <p class="own-lock" style="margin-top:10px">Ovdje se udjeli računaju ponderisano (neto + bruto promet + broj narudžbi), uz moguće min/max zaštite. Omjere faktora podesi klizačima.</p>
+          <div class="own-secthead">⚖️ Omjer faktora (težine)</div>
+          <div class="own-metrics" id="ownWeights"></div>
+          <div class="own-wsum" id="ownWsum"></div>
+          <div class="own-secthead">📊 Ponderisani prijedlog</div>
+          <div id="ownResults"></div>
+          <div class="own-why" id="ownWhy"></div>
+          <div class="own-foot">
+            <button class="btn ghost" id="ownResetW" type="button">↺ Vrati zadane omjere</button>
+          </div>
+        </details>
       </div>
 
       </div><!-- /ownStructView -->
@@ -1831,8 +1819,8 @@ function ownRenderResults2(){
   const trs=rows.map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+fmt(o.net)+'</td><td class="own-share">'+(o.share*100).toFixed(1)+'%</td></tr>').join('');
   out.innerHTML='<div class="own-bars">'+bars+'</div><div style="overflow-x:auto"><table class="own-tbl"><thead><tr><th>Restoran (vlasnik)</th><th>Neto/mj</th><th>Udjel</th></tr></thead><tbody>'+trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>'+fmt(tot)+'</td><td>100%</td></tr></tfoot></table></div>';
 }
-function ownRenderAll(){ ownBuildControls(); ownBuildWhy(); ownRenderResults(); ownRenderResults2(); }
-function ownStructEnter(){ if(ownUnlocked()){ ownShowPanel(true); ownRenderAll(); } else { ownShowPanel(false); } }
+function ownRenderAll(){ ownRenderResults2(); ownBuildControls(); ownBuildWhy(); ownRenderResults(); }
+function ownStructEnter(){ ownShowPanel(true); ownRenderAll(); }
 /* pod-prikaz unutar mod V (kao Pregled: seg „Prijedlog" | „Vlasnička struktura"); default = Prijedlog */
 function ownSetView(which){
   const struct=(which==='struct');
@@ -1842,14 +1830,11 @@ function ownSetView(which){
   document.querySelectorAll('#ownSeg button').forEach(b=>{const on=(b.dataset.ov2===which);b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   if(struct) ownStructEnter(); else ownStatus('');
 }
-function ownEnter(){ ownSetView('prop'); }
+function ownEnter(){ ownSetView('struct'); }
 (function initOwnGate(){
-  const u=document.getElementById('ownUnlockBtn'); if(u) u.onclick=ownDoUnlock;
-  const p=document.getElementById('ownPass'); if(p) p.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); ownDoUnlock(); } });
-  const l=document.getElementById('ownLockBtn'); if(l) l.onclick=ownDoLock;
   document.querySelectorAll('#ownSeg button').forEach(b=>b.onclick=()=>ownSetView(b.dataset.ov2));
   const rw=document.getElementById('ownResetW'); if(rw) rw.onclick=()=>{ OWN_METRICS.forEach(M=>ownWeights[M.key]=M.w); ownFloor=2; ownCap=35; ownCapAuto=true; ownSaveCfg(); const wrap=document.getElementById('ownWeights'); if(wrap){ wrap._built=false; ownBuildControls(); } ownRenderResults(); };
-  if(ownUnlocked()){ ownShowPanel(true); } else { ownShowPanel(false); }
+  ownShowPanel(true);
 })();
 
 /* ---------- Events ---------- */
