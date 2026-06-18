@@ -230,10 +230,12 @@
   #overView.ov-custom .ov-calc-val{display:none}
   #overView.ov-custom .ov-cust-val{display:block}
   #overView.ov-custom .ov-calc-only{display:none}
+  .ov-cust-pct{display:none}
+  #overView.ov-custom .ov-cust-pct{display:inline}
   .ov-cust-val input[data-ovcpd]{width:90px;text-align:right;font-family:inherit;font-size:23px;font-weight:800;letter-spacing:-.5px;border:1px solid #D9DCE0;border-radius:8px;padding:2px 6px;color:var(--ink);background:#FAFAFB}
   .ovc-inp{width:104px;text-align:right;font-family:inherit;font-size:14px;font-weight:700;border:1px solid #D9DCE0;border-radius:6px;padding:2px 5px;color:var(--ink);background:#FAFAFB}
-  .ovc-inp[data-ovc=prov],.ovc-inp[data-ovc=dost],.ovc-inp[data-ovc=mkt]{color:var(--green)}
-  .ovc-inp[data-ovc=log],.ovc-inp[data-ovc=ured],.ovc-inp[data-ovc=card],.ovc-inp[data-ovc=pdv]{color:var(--red)}
+  .ovc-inp[data-ovc=prov],.ovc-inp[data-ovc=dost],.ovc-inp[data-ovc=mkt],.ovc-inp[data-ovc=self]{color:var(--green)}
+  .ovc-inp[data-ovc=log],.ovc-inp[data-ovc=ured],.ovc-inp[data-ovc=card],.ovc-inp[data-ovc=pdv],#ovCardMjC{color:var(--red)}
   #overView .ov-cust-val input:focus{outline:none;border-color:var(--zapp);background:#FFFBF4}
   #overView.ov-custom .bd .ov-cust-val{display:inline-flex;align-items:center;gap:4px}
   .bd .ov-cust-val::after{content:'KM';font-size:12px;color:var(--muted);font-weight:600}
@@ -431,7 +433,7 @@
       <div class="card">
         <h3>📥 Prihod (mjesečno)</h3>
         <div class="bd"><span>Provizija</span><span class="v pos ov-calc-val" id="ovProvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="prov"></span></div>
-        <div class="bd"><span>Provizija (sami voze) <b id="ovSelfPct">—</b></span><span class="v pos" id="ovSelfProvMj">—</span></div>
+        <div class="bd"><span>Provizija (sami voze) <b class="ov-calc-val" id="ovSelfPct">—</b><span class="ov-cust-pct"><input type="number" id="ovSelfPctC" min="0" step="0.1" style="width:48px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">%</span></span><span class="v pos ov-calc-val" id="ovSelfProvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="self"></span></div>
         <div class="bd"><span>Naknada za dostavu</span><span class="v pos ov-calc-val" id="ovDostMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="dost"></span></div>
         <div class="bd"><span>Marketing</span><span class="v pos ov-calc-val" id="ovMarketingMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="mkt"></span></div>
         <div class="bd tot"><span>Ukupan prihod</span><span class="v pos" id="ovPrihodMj">—</span></div>
@@ -440,7 +442,7 @@
         <h3>📤 Rashod (mjesečno)</h3>
         <div class="bd"><span>Trošak po dostavi (logistika)</span><span class="v neg ov-calc-val" id="ovRashodLogMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="log"></span></div>
         <div class="bd"><span>Trošak po dostavi (ured)</span><span class="v neg ov-calc-val" id="ovRashodOffMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="ured"></span></div>
-        <div class="bd"><span>Kartične uplate <span><span class="abbr" data-tip="Iznos provizije — kartična/procesorska naknada koja se naplaćuje na kartične transakcije.">(provizija)</span> <input type="number" id="ovCardPct" value="3.5" min="0" step="0.1" style="width:48px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% na <span class="abbr" data-tip="Obim — koliki dio PROMETA je plaćen karticom. Promet = ukupan promet (PVN × narudžbe) + ukupna dostava (naknada × narudžbe). Od toga se uzme ovaj %, pa se na njega obračuna provizija.">obim</span> <input type="number" id="ovCardVol" value="10" min="0" max="100" step="1" style="width:44px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% prometa</span></span><span class="v neg" id="ovKarticeMj">—</span></div>
+        <div class="bd"><span>Kartične uplate <span><span class="abbr" data-tip="Iznos provizije — kartična/procesorska naknada koja se naplaćuje na kartične transakcije.">(provizija)</span> <input type="number" id="ovCardPct" value="3.5" min="0" step="0.1" style="width:48px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% na <span class="abbr" data-tip="Obim — koliki dio PROMETA je plaćen karticom. Promet = ukupan promet (PVN × narudžbe) + ukupna dostava (naknada × narudžbe). Od toga se uzme ovaj %, pa se na njega obračuna provizija.">obim</span> <input type="number" id="ovCardVol" value="10" min="0" max="100" step="1" style="width:44px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">% prometa</span></span><span class="v neg ov-calc-val" id="ovKarticeMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" id="ovCardMjC"></span></div>
         <div class="bd"><span>PDV</span><span class="v neg ov-calc-val" id="ovPdvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="pdv"></span></div>
         <div class="bd tot"><span>Ukupan rashod</span><span class="v neg" id="ovRashodMj">—</span></div>
       </div>
@@ -731,7 +733,7 @@ const valT={...defT};   /* Mod T: trošak logistike po dostavi (samostalan store
 let ovMode='calc', ovCustomRev=null, ovCustomCostLog=null, ovCustomCostOff=null;   /* Pregled: izvor podataka calc|custom + ručne vrijednosti (logistika/ured) */
 let logSrc='3pl', pl3Price=4;   /* Pregled logistika (calc mod): 'fleet'=izračun | '3pl'=dogovorena cijena, default 4 KM */
 let cardPct=3.5, cardVol=10;   /* Pregled kartične uplate: iznos provizije % (3.5) i obim % prometa plaćen karticom (10) */
-let ovcMj={prov:0,dost:0,mkt:0,log:0,ured:0,card:0,pdv:0}, ovcSeeded=false;   /* Ručni unos: mjesečni iznosi (upisivi); seedani iz Izračunato pri prvom prelasku */
+let ovcMj={prov:0,dost:0,mkt:0,log:0,ured:0,card:0,pdv:0,self:null}, ovcSeeded=false;   /* Ručni unos: mjesečni iznosi (upisivi); seedani iz Izračunato pri prvom prelasku */
 const refs={A:{},B:{}};
 const openState={invest:false,staff:false,fixed:false,courier:false,volume:false,restB:true,
   tPeople:true,tVehicle:true,tGear:false,tVar:false,tCap:true};  /* Fransizer kategorije: sve zatvorene po defaultu (prikaz sume, klik otvara) */
@@ -1295,7 +1297,8 @@ function updateOverview(){
   let revPd, logPd, offPd, karticePerDel, prihodMj, logMj, offMj, karticeMj, marketingMj, dostMj, provMj, pdvMj, rashodMj, profitMj;
   if(custom){
     // RUČNI UNOS: mjesečni iznosi (upisivi) su izvor; po-dostavi se izvodi (÷ narudžbe)
-    if(!ovcSeeded){ ovcMj={prov:Math.round(v.aov*(franComm/100)*ordersMonth), dost:Math.round(v.delFee*ordersMonth), mkt:0, log:Math.round((use3pl?(pl3Price||0):calcLog)*ordersMonth), ured:Math.round(officeMonthly), card:Math.round((v.aov+v.delFee)*(cardVol/100)*(cardPct/100)*ordersMonth), pdv:0}; ovcSeeded=true; }
+    if(!ovcSeeded){ ovcMj={prov:Math.round(v.aov*(franComm/100)*ordersMonth), dost:Math.round(v.delFee*ordersMonth), mkt:0, log:Math.round((use3pl?(pl3Price||0):calcLog)*ordersMonth), ured:Math.round(officeMonthly), card:Math.round((v.aov+v.delFee)*(cardVol/100)*(cardPct/100)*ordersMonth), pdv:0, self:Math.round(v.aov*Math.max(0,selfCommV()-3)/100*ordersMonth)}; ovcSeeded=true; }
+    if(ovcMj.self==null) ovcMj.self=Math.round(v.aov*Math.max(0,selfCommV()-3)/100*ordersMonth);  // re-seed za stari spremljeni state bez self
     provMj=ovcMj.prov; dostMj=ovcMj.dost; marketingMj=ovcMj.mkt; logMj=ovcMj.log; offMj=ovcMj.ured; karticeMj=(v.aov+v.delFee)*(cardVol/100)*(cardPct/100)*ordersMonth; pdvMj=ovcMj.pdv;  // kartice = % provizije na % obima prometa (kao Izračunato), upravljano poljima ovCardPct/ovCardVol
     prihodMj=provMj+dostMj+marketingMj; rashodMj=logMj+offMj+karticeMj+pdvMj; profitMj=prihodMj-rashodMj;
     revPd=prihodMj/om; logPd=logMj/om; offPd=offMj/om; karticePerDel=karticeMj/om;
@@ -1323,9 +1326,12 @@ function updateOverview(){
   set('ovRashodMj',fmt(rashodMj)); set('ovProfitMj',fmt(profitMj));
   const setIn=(id,val)=>{const e=document.getElementById(id); if(e&&document.activeElement!==e) e.value=ovD(val);};
   setIn('ovPrihodPdC',revPd); setIn('ovTrosakLogPdC',logPd); setIn('ovTrosakOffPdC',offPd);
-  if(custom){ document.querySelectorAll('#overView .ovc-inp').forEach(inp=>{const k=inp.dataset.ovc; if(document.activeElement!==inp) inp.value=ovG(ovcMj[k]||0);}); }
-  const cpEl=document.getElementById('ovCardPct'); if(cpEl&&document.activeElement!==cpEl) cpEl.value=cardPct;
+  if(custom){ document.querySelectorAll('#overView .ovc-inp').forEach(inp=>{const k=inp.dataset.ovc; if(!k)return; if(document.activeElement!==inp) inp.value=ovG(ovcMj[k]||0);}); }
+  const cpEl=document.getElementById('ovCardPct'); if(cpEl&&document.activeElement!==cpEl) cpEl.value=Math.round(cardPct*100)/100;
   const cvEl=document.getElementById('ovCardVol'); if(cvEl&&document.activeElement!==cvEl) cvEl.value=cardVol;
+  if(custom){ const sbSelf=v.aov*om;
+    const spcE=document.getElementById('ovSelfPctC'); if(spcE&&document.activeElement!==spcE) spcE.value=sbSelf>0?Math.round((ovcMj.self||0)/sbSelf*1000)/10:0;
+    const cmjE=document.getElementById('ovCardMjC'); if(cmjE&&document.activeElement!==cmjE) cmjE.value=ovG(karticeMj); }
   const pmj=document.getElementById('ovProfitMj'); if(pmj) pmj.className='v '+(profitMj>=0?'pos':'neg');
   const ri=document.getElementById('ovCustomRevInp'), li=document.getElementById('ovCustomCostLogInp'), oi=document.getElementById('ovCustomCostOffInp');
   if(ri&&document.activeElement!==ri&&ovCustomRev!=null) ri.value=ovCustomRev;
@@ -1365,17 +1371,21 @@ function updateOverview(){
   const cvi=document.getElementById('ovCardVol');
   if(cvi) cvi.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(isFinite(n))cardVol=Math.max(0,n);updateOverview();saveState();});
   const ovEl=document.getElementById('overView');
-  if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('.ovc-inp'); if(!inp)return; const k=inp.dataset.ovc; const raw=inp.value; if(raw==='')return; const n=ovPI(raw); if(isFinite(n))ovcMj[k]=Math.max(0,n); updateOverview(); saveState();});
+  if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('.ovc-inp'); if(!inp)return; const k=inp.dataset.ovc; if(!k)return; const raw=inp.value; if(raw==='')return; const n=ovPI(raw); if(isFinite(n))ovcMj[k]=Math.max(0,n); updateOverview(); saveState();});
   if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('[data-ovcpd]'); if(!inp)return; const k=inp.dataset.ovcpd; const raw=inp.value; if(raw==='')return; const n=ovPD(raw); if(!isFinite(n))return; const om=(valA.ordersDay*valA.workDays)||1; const x=Math.max(0,n);
     if(k==='log') ovcMj.log=x*om; else if(k==='ured') ovcMj.ured=x*om; else if(k==='rev') ovcMj.prov=Math.max(0, x*om - ovcMj.dost - ovcMj.mkt);
     updateOverview(); saveState();});
   if(ovEl) ovEl.addEventListener('focusout',e=>{const t=e.target; if(t&&t.matches&&t.matches('.ovc-inp,[data-ovcpd]')) updateOverview();});
+  const spcI=document.getElementById('ovSelfPctC');
+  if(spcI) spcI.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(!isFinite(n))return;const om=(valA.ordersDay*valA.workDays)||1;ovcMj.self=Math.max(0,n)/100*valA.aov*om;updateOverview();saveState();});
+  const cmjI=document.getElementById('ovCardMjC');
+  if(cmjI) cmjI.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=ovPI(raw);if(!isFinite(n))return;const om=(valA.ordersDay*valA.workDays)||1;const base=(valA.aov+valA.delFee)*(cardVol/100)*om;if(base>0)cardPct=Math.max(0,n)/base*100;updateOverview();saveState();});
   document.querySelectorAll('#ovModeSeg button').forEach(b=>b.onclick=()=>{
     ovMode=b.dataset.ovm;
     if(ovMode==='custom' && !ovcSeeded){ const v=valA, om=v.ordersDay*v.workDays, franComm=Math.max(0,v.restComm-3), log=(logSrc==='3pl'?(pl3Price||0):courierCostPerDelivery(v));
       const officeMonthly=(v.director+v.manager+v.finance+v.opsSal*v.opsCount)+(v.rent+v.mktg+v.insurance+v.utils+v.software);
       const cardMj=(v.aov+v.delFee)*(cardVol/100)*(cardPct/100)*om;
-      ovcMj={prov:Math.round(v.aov*(franComm/100)*om), dost:Math.round(v.delFee*om), mkt:0, log:Math.round(log*om), ured:Math.round(officeMonthly), card:Math.round(cardMj), pdv:0};
+      ovcMj={prov:Math.round(v.aov*(franComm/100)*om), dost:Math.round(v.delFee*om), mkt:0, log:Math.round(log*om), ured:Math.round(officeMonthly), card:Math.round(cardMj), pdv:0, self:Math.round(v.aov*Math.max(0,selfCommV()-3)/100*om)};
       ovcSeeded=true; }
     updateOverview(); saveState();
   });
