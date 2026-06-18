@@ -554,10 +554,10 @@
           <th class="sortable" data-sort="ord"><span class="abbr" data-tip="Nar./dan — narudžbi po danu, izvedeno: Nar./mj ÷ radnih dana.">Nar./dan</span></th>
           <th class="sortable" data-sort="aov"><span class="abbr" data-tip="PVN — prosječna vrijednost narudžbe (prosječan iznos jedne narudžbe u KM).">PVN (KM)</span></th>
           <th><span class="abbr" data-tip="Prov. % — provizija: procenat vrijednosti narudžbe koji restoran plaća platformi.">Prov. %</span></th><th><span class="abbr" data-tip="Dostava (KM) — naknada za dostavu po narudžbi, u KM.">Dostava (KM)</span></th>
-          <th class="sortable" data-sort="pd"><span class="abbr" data-tip="Prihod/dost. — prihod po dostavi = PVN × provizija% + naknada za dostavu.">Prihod/dost.</span></th>
+          <th class="sortable" data-sort="pd"><span class="abbr" data-tip="Prihod/dost. — franšizerski prihod po dostavi = PVN × (provizija − 3% Zapp) + naknada za dostavu.">Prihod/dost.</span></th>
           <th class="sortable" data-sort="net"><span class="abbr" data-tip="Neto/dost. — neto po dostavi = prihod − trošak kurira po dostavi (iz taba „Fransizer").">Neto/dost.</span></th>
           <th class="sortable" data-sort="mbruto"><span class="abbr" data-tip="Mj. bruto — mjesečni bruto = Prihod/dost. × Nar./mj (prije troška kurira).">Mj. bruto</span></th>
-          <th class="sortable" data-sort="mr"><span class="abbr" data-tip="Mj. neto — mjesečni neto = Neto/dost. × Nar./mj (prije fiksnih troškova i royaltyja).">Mj. neto</span></th>
+          <th class="sortable" data-sort="mr"><span class="abbr" data-tip="Mj. neto — mjesečni neto = Neto/dost. × Nar./mj (prije fiksnih troškova).">Mj. neto</span></th>
           <th class="no-print"></th>
         </tr></thead>
         <tbody id="rtbody"></tbody>
@@ -573,7 +573,7 @@
       <button class="btn ghost" id="rAddBtn">+ Dodaj restoran</button>
       <button class="btn ghost" id="rAddGroupBtn">+ Dodaj grupu restorana</button>
     </div>
-    <div class="rnote no-print"><b>Sve ćelije su uredive</b> — uključujući naziv restorana (klikni i prepiši). Klik na zaglavlje kolone sortira (ponovni klik mijenja smjer ▲▼); zadano je sortirano po prometu/mj, opadajuće. <b>„Nar./mj" (Glovo: broj narudžbi za 90 dana ÷ 3) je pokretač svih izračuna</b> — uredi ga stvarnim brojem. „Nar./dan" se <b>izvodi</b> = Nar./mj ÷ radnih dana (nije za ručni unos). „Promet KM/mj" = PVN × Nar./mj (novčani promet kroz platformu). „Prihod/dost." = PVN × provizija% + dostava. „Neto/dost." = prihod − <b>trošak kurira po dostavi</b> (iz taba „Fransizer"). „Mj. bruto" = Prihod/dost. × Nar./mj (prije troška kurira); „Mj. neto" = Neto/dost. × Nar./mj (prije fiksnih troškova i royaltyja fransizera). <br><b>🚗 „Sam vozi"</b> (in-house restoran s vlastitom dostavom): provizija je niža (default <b>6%</b>, <b>izmjenjiva po restoranu</b>), <b>naknadu za dostavu naplaćuje i zadržava restoran</b>, pa se franšizeru <b>ne obračunava trošak kurira</b> — u koloni „Prihod/Neto" računa se <b>franšizerski dio provizije = provizija − 3% (Zapp dio)</b> od PVN-a, bez dostave (npr. 6% → franšizeru 3%; 3% → 0). (Promet KM/mj i dalje teče kroz platformu.) <br><b>📊 Grupa restorana (L2, L3…)</b>: zbirni red za sve restorane iste provizije (zadano L2 = 22%, L3 = 25%). Unesi <b>zbirni</b> Nar./mj i prosječan PVN grupe — računa se kao i pojedinačni restoran i sumira u totale (grupe su uvijek na dnu tabele). Za isti promet koristi <b>ILI</b> pojedinačne restorane <b>ILI</b> grupu, da izbjegneš dvostruko brojanje.</div>
+    <div class="rnote no-print"><b>Sve ćelije su uredive</b> — uključujući naziv restorana (klikni i prepiši). Klik na zaglavlje kolone sortira (ponovni klik mijenja smjer ▲▼); zadano je sortirano po prometu/mj, opadajuće. <b>„Nar./mj" (Glovo: broj narudžbi za 90 dana ÷ 3) je pokretač svih izračuna</b> — uredi ga stvarnim brojem. „Nar./dan" se <b>izvodi</b> = Nar./mj ÷ radnih dana (nije za ručni unos). „Promet KM/mj" = PVN × Nar./mj (novčani promet kroz platformu). „Prihod/dost." = PVN × (provizija − 3% Zapp) + dostava. „Neto/dost." = prihod − <b>trošak kurira po dostavi</b> (iz taba „Fransizer"). „Mj. bruto" = Prihod/dost. × Nar./mj (prije troška kurira); „Mj. neto" = Neto/dost. × Nar./mj (prije fiksnih troškova fransizera). <br><b>🚗 „Sam vozi"</b> (in-house restoran s vlastitom dostavom): provizija je niža (default <b>6%</b>, <b>izmjenjiva po restoranu</b>), <b>naknadu za dostavu naplaćuje i zadržava restoran</b>, pa se franšizeru <b>ne obračunava trošak kurira</b> — u koloni „Prihod/Neto" računa se <b>franšizerski dio provizije = provizija − 3% (Zapp dio)</b> od PVN-a, bez dostave (npr. 6% → franšizeru 3%; 3% → 0). (Promet KM/mj i dalje teče kroz platformu.) <br><b>📊 Grupa restorana (L2, L3…)</b>: zbirni red za sve restorane iste provizije (zadano L2 = 22%, L3 = 25%). Unesi <b>zbirni</b> Nar./mj i prosječan PVN grupe — računa se kao i pojedinačni restoran i sumira u totale (grupe su uvijek na dnu tabele). Za isti promet koristi <b>ILI</b> pojedinačne restorane <b>ILI</b> grupu, da izbjegneš dvostruko brojanje.</div>
   </div>
 
   <div id="costView">
@@ -1308,7 +1308,7 @@ function recomputeResto(){
     let pd,npd;
     if(r.group)nGroup++;
     if(r.self){ pd=r.aov*selfFranRate(r)/100; npd=pd; nSelf++; }   // per-red sam vozi: franšizeru ide selfComm − 3% Zapp; dostava ide restoranu, nema troška kurira
-    else { pd=r.aov*(r.comm/100)+r.del; npd=pd-cpd; }
+    else { pd=r.aov*(Math.max(0,r.comm-ZAPP_SELF_CUT)/100)+r.del; npd=pd-cpd; }
     const mbruto=pd*npm, mnet=npd*npm;
     tr.querySelector('.c-gmv').textContent=fmt(gmv);
     tr.querySelector('.c-gmvd').textContent=fmt(gmv/wd);
@@ -1347,7 +1347,7 @@ function recomputeResto(){
   saveState();
 }
 function valForR(r,f){const wd=rWD(), cpd=restoCpd(), npm=+r.npm||0;
-  const pd = r.self ? r.aov*selfFranRate(r)/100 : r.aov*(r.comm/100)+r.del;
+  const pd = r.self ? r.aov*selfFranRate(r)/100 : r.aov*(Math.max(0,r.comm-ZAPP_SELF_CUT)/100)+r.del;
   const npd = r.self ? pd : pd-cpd;
   if(f==='pd')return pd;
   if(f==='net')return npd;
@@ -1382,7 +1382,7 @@ document.getElementById('rCsvBtn').onclick=()=>{
   const lines=[head.join(';')];
   rRows.forEach(r=>{
     const npm=+r.npm||0, ord=npm/wd, gmv=r.aov*npm, gmvd=gmv/wd;
-    const pd = r.self ? r.aov*selfFranRate(r)/100 : r.aov*(r.comm/100)+r.del;
+    const pd = r.self ? r.aov*selfFranRate(r)/100 : r.aov*(Math.max(0,r.comm-ZAPP_SELF_CUT)/100)+r.del;
     const npd = r.self ? pd : pd-cpd, mbruto=pd*npm, net=npd*npm;
     const commCsv = r.self ? (+r.selfComm||0) : r.comm, delCsv = r.self ? 0 : r.del, trCsv = r.self ? 0 : cpd;
     lines.push([r.name,(r.group?'Grupa':'Restoran'),(r.self?'DA':'NE'),gmv.toFixed(0),gmvd.toFixed(0),npm,ord.toFixed(1),r.aov,commCsv,delCsv,pd.toFixed(2),trCsv.toFixed(2),npd.toFixed(2),mbruto.toFixed(0),net.toFixed(0)].join(';'));
