@@ -1,0 +1,23 @@
+# Store LF in the repo; auto-detect text vs binary
+* text=auto
+
+# Force LF in the working tree for source files (stops CRLF/BOM churn on Windows)
+*.html text eol=lf
+*.css  text eol=lf
+*.js   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.svg  text eol=lf
+
+# Binary assets — git must never touch their bytes
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.woff  binary
+*.woff2 binary
+
+# One-time (from ONE machine, no other pending edits), if line endings ever drift:
+#   git add --renormalize . && git commit -m "Normalize line endings to LF" && git push
