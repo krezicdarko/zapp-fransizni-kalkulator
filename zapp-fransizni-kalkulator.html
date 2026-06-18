@@ -452,10 +452,10 @@
         </div>
         <div class="ov-pct-row">
           <span class="ov-lab" style="font-size:13px;white-space:nowrap">Udio obima</span>
-          <input type="range" id="ovCalcPctRng" min="0" max="100" step="5" class="ov-range" aria-label="Udio obima (%)">
-          <span style="white-space:nowrap"><input type="number" id="ovCalcPctNum" min="0" max="100" step="5" class="ov-num">%</span>
+          <input type="range" id="ovCalcPctRng" min="0" max="200" step="5" class="ov-range" aria-label="Udio obima (%)">
+          <span style="white-space:nowrap"><input type="number" id="ovCalcPctNum" min="0" max="200" step="5" class="ov-num">%</span>
         </div>
-        <div class="ov-sub">Bazni obim je fiksan — zbroj svih narudžbi iz „Top restorani" (<b id="ovOrdBase">—</b> nar./dan = 100%). „Udio obima" je pomoćni alat: npr. 50% računa s polovinom obima. PVN, provizija, dostava i troškovi se povlače iz „Top restorani" i „Fransizer".</div>
+        <div class="ov-sub">Bazni obim je fiksan — zbroj svih narudžbi iz „Top restorani" (<b id="ovOrdBase">—</b> nar./dan = 100%, sredina klizača). „Udio obima" je pomoćni alat (0–200%): npr. 50% računa s pola obima, 200% s dvostrukim (rast). PVN, provizija, dostava i troškovi se povlače iz „Top restorani" i „Fransizer".</div>
       </div>
       <!-- ✍️ Ručni unos: ručni broj narudžbi (steppere ubacuje JS) -->
       <div class="ov-cust-only">
@@ -1417,7 +1417,7 @@ function updateOverview(){
 }
 (function(){
   // Izračunato: udio obima % (pomoćni alat — skalira fiksni obim iz „Top restorani")
-  const setCalcPct=n=>{ if(!isFinite(n))return; ovCalcPct=Math.max(0,Math.min(100,n)); updateOverview(); saveState(); };
+  const setCalcPct=n=>{ if(!isFinite(n))return; ovCalcPct=Math.max(0,Math.min(200,n)); updateOverview(); saveState(); };
   const cpr=document.getElementById('ovCalcPctRng'), cpn=document.getElementById('ovCalcPctNum');
   if(cpr) cpr.addEventListener('input',e=>setCalcPct(parseFloat(e.target.value)));
   if(cpn) cpn.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;setCalcPct(parseFloat(raw));});
@@ -1819,7 +1819,7 @@ function loadState(){
   if(s.targetType==='profit'||s.targetType==='payback') targetType=s.targetType;
   if(typeof s.targetValue==='number') targetValue=s.targetValue;
   if(s.ovMode==='calc'||s.ovMode==='custom') ovMode=s.ovMode;
-  if(typeof s.ovCalcPct==='number') ovCalcPct=Math.max(0,Math.min(100,s.ovCalcPct));
+  if(typeof s.ovCalcPct==='number') ovCalcPct=Math.max(0,Math.min(200,s.ovCalcPct));
   if(typeof s.ovCustOrders==='number') ovCustOrders=Math.max(0,s.ovCustOrders);
   if(s.logSrc==='fleet'||s.logSrc==='3pl') logSrc=s.logSrc;
   if(typeof s.pl3Price==='number') pl3Price=s.pl3Price;

@@ -452,10 +452,10 @@
         </div>
         <div class="ov-pct-row">
           <span class="ov-lab" style="font-size:13px;white-space:nowrap">Udio obima</span>
-          <input type="range" id="ovCalcPctRng" min="0" max="100" step="5" class="ov-range" aria-label="Udio obima (%)">
-          <span style="white-space:nowrap"><input type="number" id="ovCalcPctNum" min="0" max="100" step="5" class="ov-num">%</span>
+          <input type="range" id="ovCalcPctRng" min="0" max="200" step="5" class="ov-range" aria-label="Udio obima (%)">
+          <span style="white-space:nowrap"><input type="number" id="ovCalcPctNum" min="0" max="200" step="5" class="ov-num">%</span>
         </div>
-        <div class="ov-sub">Bazni obim je fiksan — zbroj svih narudžbi iz „Top restorani" (<b id="ovOrdBase">—</b> nar./dan = 100%). „Udio obima" je pomoćni alat: npr. 50% računa s polovinom obima. PVN, provizija, dostava i troškovi se povlače iz „Top restorani" i „Fransizer".</div>
+        <div class="ov-sub">Bazni obim je fiksan — zbroj svih narudžbi iz „Top restorani" (<b id="ovOrdBase">—</b> nar./dan = 100%, sredina klizača). „Udio obima" je pomoćni alat (0–200%): npr. 50% računa s pola obima, 200% s dvostrukim (rast). PVN, provizija, dostava i troškovi se povlače iz „Top restorani" i „Fransizer".</div>
       </div>
       <!-- ✍️ Ručni unos: ručni broj narudžbi (steppere ubacuje JS) -->
       <div class="ov-cust-only">
@@ -664,6 +664,23 @@ const ovD = n => new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumF
 const ovPI = s => { const d=String(s).replace(/[^0-9]/g,''); return d===''?NaN:parseInt(d,10); };                // "23.358" → 23358
 const ovPD = s => { s=String(s).replace(/\s/g,''); if(s==='')return NaN; if(s.indexOf(',')>=0){s=s.replace(/\./g,'').replace(',','.');} else if((s.match(/\./g)||[]).length>1){s=s.replace(/\./g,'');} return parseFloat(s); }; // "6,89"/"6.89" → 6.89
 const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- PDV (BiH — jedinstvena stopa 17%) ---------- */
+const VAT_RATE=0.17;                              // standardna stopa PDV-a u BiH
+const NETv = x => (x||0)/(1+VAT_RATE);            // bruto → neto osnovica (bez PDV-a)
+const PDVv = x => (x||0)*VAT_RATE/(1+VAT_RATE);   // PDV sadržan u bruto iznosu (= ×14,53%)
+let vatView='both';                              // prikaz: 'both' (bruto + neto u zagradi) | 'gross' | 'net'
+// fmtV/fmt2V: formatira KM iznos prema prekidaču; hasVat=true → stavka nosi PDV (neto = bruto/1,17)
+function fmtV(g,hasVat){
+  if(vatView==='net') return fmt(hasVat?NETv(g):g);
+  if(vatView==='gross'||!hasVat) return fmt(g);
+  return fmt(g)+' <span class="netp">(neto '+fmt(NETv(g))+')</span>';
+}
+function fmt2V(g,hasVat){
+  if(vatView==='net') return fmt2(hasVat?NETv(g):g);
+  if(vatView==='gross'||!hasVat) return fmt2(g);
+  return fmt2(g)+' <span class="netp">(neto '+fmt2(NETv(g))+')</span>';
+}
 
 /* ---------- Input configs (val = Procjena BiH) ---------- */
 const A_GROUPS = [
@@ -1417,7 +1434,7 @@ function updateOverview(){
 }
 (function(){
   // Izračunato: udio obima % (pomoćni alat — skalira fiksni obim iz „Top restorani")
-  const setCalcPct=n=>{ if(!isFinite(n))return; ovCalcPct=Math.max(0,Math.min(100,n)); updateOverview(); saveState(); };
+  const setCalcPct=n=>{ if(!isFinite(n))return; ovCalcPct=Math.max(0,Math.min(200,n)); updateOverview(); saveState(); };
   const cpr=document.getElementById('ovCalcPctRng'), cpn=document.getElementById('ovCalcPctNum');
   if(cpr) cpr.addEventListener('input',e=>setCalcPct(parseFloat(e.target.value)));
   if(cpn) cpn.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;setCalcPct(parseFloat(raw));});
@@ -1819,7 +1836,7 @@ function loadState(){
   if(s.targetType==='profit'||s.targetType==='payback') targetType=s.targetType;
   if(typeof s.targetValue==='number') targetValue=s.targetValue;
   if(s.ovMode==='calc'||s.ovMode==='custom') ovMode=s.ovMode;
-  if(typeof s.ovCalcPct==='number') ovCalcPct=Math.max(0,Math.min(100,s.ovCalcPct));
+  if(typeof s.ovCalcPct==='number') ovCalcPct=Math.max(0,Math.min(200,s.ovCalcPct));
   if(typeof s.ovCustOrders==='number') ovCustOrders=Math.max(0,s.ovCustOrders);
   if(s.logSrc==='fleet'||s.logSrc==='3pl') logSrc=s.logSrc;
   if(typeof s.pl3Price==='number') pl3Price=s.pl3Price;
