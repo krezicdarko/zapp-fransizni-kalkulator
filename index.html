@@ -627,8 +627,12 @@
         <div class="own-metrics" id="ownWeights"></div>
         <div class="own-wsum" id="ownWsum"></div>
 
-        <div class="own-secthead">📊 Prijedlog udjela</div>
+        <div class="own-secthead">📊 Prijedlog 1 — ponderisani (neto + bruto + narudžbe)</div>
         <div id="ownResults"></div>
+
+        <div class="own-secthead">💯 Prijedlog 2 — samo po neto doprinosu (Mj. neto)</div>
+        <p class="own-lock" style="margin-top:0">Najjednostavnija raspodjela: udjel svakog vlasnika = njegov udio u <b>ukupnom mjesečnom neto profitu</b> koji svi označeni restorani donose franšizi. Bez težina i bez zaštita (min/max) — čisti doprinos.</p>
+        <div id="ownResults2"></div>
 
         <div class="own-why" id="ownWhy"></div>
 
@@ -1811,7 +1815,21 @@ function ownRenderResults(){
   const trs=rows.map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+num(o.m.npm)+'</td><td>'+fmt(o.m.gmv)+'</td><td>'+fmt(o.m.mbruto)+'</td><td>'+fmt(o.m.mr)+'</td><td class="own-share">'+(o.share*100).toFixed(1)+'%</td></tr>').join('');
   out.innerHTML='<div class="own-bars">'+bars+'</div><div style="overflow-x:auto"><table class="own-tbl"><thead><tr><th>Restoran (vlasnik)</th><th>Nar./mj</th><th>Promet KM/mj</th><th>Prihod dost./mj</th><th>Neto/mj</th><th>Udjel</th></tr></thead><tbody>'+trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>'+num(tot.npm)+'</td><td>'+fmt(tot.gmv)+'</td><td>'+fmt(tot.mbruto)+'</td><td>'+fmt(tot.mr)+'</td><td>100%</td></tr></tfoot></table></div>';
 }
-function ownRenderAll(){ ownBuildControls(); ownBuildWhy(); ownRenderResults(); }
+/* Prijedlog 2: čista raspodjela po udjelu u ukupnom Mj. neto (bez težina i zaštita) */
+function ownRenderResults2(){
+  const out=document.getElementById('ownResults2'); if(!out) return;
+  const owners=rRows.filter(r=>r.owner&&!r.group), N=owners.length;
+  if(!N){ out.innerHTML='<div class="own-empty">Označi restorane <b>👤 vlasnik</b> u „Top restorani" da se pojave i ovdje.</div>'; return; }
+  const rows=owners.map(r=>({name:r.name, net:Math.max(0,valForR(r,'mr'))}));
+  const tot=rows.reduce((s,o)=>s+o.net,0);
+  rows.forEach(o=>o.share = tot>0 ? o.net/tot : 1/N);
+  rows.sort((a,b)=>b.share-a.share);
+  const maxShare=Math.max.apply(null,rows.map(o=>o.share).concat(0.0001));
+  const bars=rows.map(o=>'<div class="own-bar-row"><span class="nm" title="'+esc(o.name)+'">'+esc(o.name)+'</span><div class="own-bar-track"><div class="own-bar" style="width:'+(o.share/maxShare*100).toFixed(1)+'%"></div></div><span class="pc">'+(o.share*100).toFixed(1)+'%</span></div>').join('');
+  const trs=rows.map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+fmt(o.net)+'</td><td class="own-share">'+(o.share*100).toFixed(1)+'%</td></tr>').join('');
+  out.innerHTML='<div class="own-bars">'+bars+'</div><div style="overflow-x:auto"><table class="own-tbl"><thead><tr><th>Restoran (vlasnik)</th><th>Neto/mj</th><th>Udjel</th></tr></thead><tbody>'+trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>'+fmt(tot)+'</td><td>100%</td></tr></tfoot></table></div>';
+}
+function ownRenderAll(){ ownBuildControls(); ownBuildWhy(); ownRenderResults(); ownRenderResults2(); }
 function ownStructEnter(){ if(ownUnlocked()){ ownShowPanel(true); ownRenderAll(); } else { ownShowPanel(false); } }
 /* pod-prikaz unutar mod V (kao Pregled: seg „Prijedlog" | „Vlasnička struktura"); default = Prijedlog */
 function ownSetView(which){
