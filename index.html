@@ -76,6 +76,14 @@
   .row .lab .unit{font-size:12px;color:var(--muted);font-weight:600;min-width:20px}
   input[type=range]{width:100%;accent-color:var(--zapp);height:4px;cursor:pointer}
 
+  /* Mod B — checkbox „Objekat sam vozi" + posivljeno polje koje ne utječe */
+  .selfdel{display:flex;align-items:center;gap:9px;padding:11px 12px;margin-bottom:14px;border:1px solid var(--line);border-radius:10px;background:#FBF4E9;cursor:pointer}
+  .selfdel input[type=checkbox]{width:17px;height:17px;accent-color:var(--zapp);cursor:pointer;flex:none}
+  .selfdel .sl{font-size:13px;font-weight:700;color:#374151}
+  .selfdel .sh{font-size:11px;font-weight:600;color:var(--muted);margin-left:auto;text-align:right}
+  .row.dim{opacity:.45}
+  .row.dim input{cursor:not-allowed}
+
   .seg{display:flex;gap:6px;background:#F1F1F3;padding:4px;border-radius:10px;width:max-content;max-width:100%;flex-wrap:wrap}
   .seg button{border:0;background:transparent;font-weight:700;font-size:12px;color:var(--muted);padding:6px 12px;border-radius:8px;cursor:pointer}
   .seg button.active{background:#fff;color:var(--ink);box-shadow:var(--shadow)}
@@ -640,13 +648,14 @@ const A_GROUPS = [
 const B_GROUP = [
   { title:'Tvoj restoran na Zapp platformi', key:'restB',
     sum:v=>`${num(v.ordersDay)} nar./dan · PVN ${fmt(v.aov)}`, items:[
-    {id:'aov',       lab:'Prosječna vrijednost narudžbe (PVN)', min:5,max:120,step:.5,val:22,unit:'KM'},
-    {id:'ordersDay', lab:'Zapp narudžbi / dan', min:0,max:200,step:1,val:12,unit:'nar',nomax:true,smax:200},
+    {id:'aov',       lab:'Prosječna vrijednost narudžbe (PVN)', min:5,max:120,step:.5,val:23,unit:'KM'},
+    {id:'ordersDay', lab:'Zapp narudžbi / dan', min:0,max:200,step:1,val:50,unit:'nar',nomax:true,smax:200},
     {id:'workDays',  lab:'Radnih dana / mjesec', min:20,max:31,step:1,val:30,unit:'dan'},
-    {id:'comm',      lab:'Provizija Zappu', min:0,max:40,step:.5,val:28,unit:'%',hint:'Procenat narudžbe koji restoran plaća Zappu.'},
+    {id:'comm',      lab:'Provizija Zappu', min:0,max:40,step:.5,val:20,unit:'%',hint:'Procenat narudžbe koji restoran plaća Zappu.'},
     {id:'foodCost',  lab:'Food cost (trošak hrane)', min:0,max:70,step:1,val:35,unit:'%',hint:'Udio troška namirnica u cijeni jela.'},
     {id:'packaging', lab:'Trošak pakovanja po narudžbi', min:0,max:8,step:.1,val:.7,unit:'KM'},
     {id:'promo',     lab:'Budžet za promociju / mjesec', min:0,max:2000,step:50,val:0,unit:'KM'},
+    {id:'delFee',    lab:'Cijena dostave', min:0,max:15,step:.1,val:3,unit:'KM',selfOnly:true,hint:'Cijena dostave koju kupac plaća po narudžbi. Ako objekat sam vozi — to je prihod restorana i ulazi u izračun. Ako vozi Zapp — prihod ide Zappu i ne utječe na ovaj izračun.'},
   ]},
 ];
 
@@ -683,7 +692,7 @@ const T_GROUPS = [
 
 /* dataset presets — "custom" je placeholder (isti kao BiH) dok ne ubacimo stvarne brojeve */
 const defA={}; A_GROUPS.forEach(g=>g.items.forEach(i=>{ if(i.qp){defA[i.priceId]=i.priceVal; defA[i.qtyId]=i.qtyVal;} else defA[i.id]=i.val; }));
-const defB={}; B_GROUP.forEach(g=>g.items.forEach(i=>defB[i.id]=i.val));
+const defB={selfDelivery:false}; B_GROUP.forEach(g=>g.items.forEach(i=>defB[i.id]=i.val));
 const defT={}; T_GROUPS.forEach(g=>g.items.forEach(i=>defT[i.id]=i.val));
 const DATA = {
   A:{ bih:{...defA}, custom:{...defA} },   /* TODO: zamijeni DATA.A.custom stvarnim brojevima */
@@ -715,6 +724,12 @@ function buildInputs(){
   const panel=document.getElementById('inputPanel'); panel.innerHTML=''; groupSumEls={}; rowNoteEls={}; qpSumEls={};
   const groups=(mode==='A')?A_GROUPS:B_GROUP;
   const store=(mode==='A')?valA:valB; refs[mode]={};
+  if(mode==='B'){
+    const sd=document.createElement('label'); sd.className='selfdel';
+    sd.innerHTML=`<input type="checkbox" id="selfDelChk" ${valB.selfDelivery?'checked':''}><span class="sl">Objekat sam vozi</span><span class="sh">dostavu vrši restoran</span>`;
+    sd.querySelector('input').addEventListener('change',e=>{ valB.selfDelivery=e.target.checked; applySelfDelB(); update(); });
+    panel.appendChild(sd);
+  }
   groups.forEach(g=>{
     const open = openState[g.key]!==false;
     const gWrap=document.createElement('div'); gWrap.className='group collapsible'+(open?'':' collapsed');
@@ -783,6 +798,13 @@ function buildInputs(){
     gWrap.appendChild(head); gWrap.appendChild(body); panel.appendChild(gWrap);
   });
   refreshGroupSums();
+  if(mode==='B') applySelfDelB();
+}
+function applySelfDelB(){
+  if(mode!=='B') return;
+  const on=!!valB.selfDelivery, ref=refs.B&&refs.B.delFee;
+  if(ref&&ref.range){ const row=ref.range.closest('.row'); if(row) row.classList.toggle('dim',!on); ref.range.disabled=!on; ref.number.disabled=!on; }
+  const chk=document.getElementById('selfDelChk'); if(chk) chk.checked=on;
 }
 function refreshGroupSums(){
   const groups=(mode==='A')?A_GROUPS:B_GROUP, store=(mode==='A')?valA:valB;
@@ -855,9 +877,11 @@ function computeB(){
   const commission=gross*(v.comm/100);
   const netAfterComm=gross-commission-v.promo;
   const foodCost=gross*(v.foodCost/100), packaging=orders*v.packaging;
-  const netProfit=netAfterComm-foodCost-packaging;
+  const selfDel=!!v.selfDelivery;                       // objekat sam vozi → naplaćena dostava je prihod restorana
+  const delIncome=selfDel?orders*(v.delFee||0):0;       // ako vozi Zapp → dostava je prihod Zappu, ne ulazi ovdje
+  const netProfit=netAfterComm-foodCost-packaging+delIncome;
   const ppo=orders?netProfit/orders:0;
-  return {orders,gross,commission,netAfterComm,foodCost,packaging,netProfit,profitPerOrder:ppo,
+  return {orders,gross,commission,netAfterComm,foodCost,packaging,selfDel,delIncome,netProfit,profitPerOrder:ppo,
           annual:netProfit*12,
           margin:gross?netProfit/gross*100:0};
 }
@@ -995,6 +1019,7 @@ function renderB(){
         <div class="bd tot"><span>Neto nakon provizije</span><span class="v">${fmt(r.netAfterComm)}</span></div>
         <div class="bd" style="margin-top:10px"><span>− <span class="abbr" data-tip="Food cost — trošak namirnica (sirovina) izražen kao % cijene jela.">Food cost</span> (${num(v.foodCost)}%)</span><span class="v neg">−${fmt(r.foodCost)}</span></div>
         <div class="bd"><span>− Pakovanje</span><span class="v neg">−${fmt(r.packaging)}</span></div>
+        ${r.selfDel?`<div class="bd"><span>+ Prihod od dostave (sam vozi)</span><span class="v pos">+${fmt(r.delIncome)}</span></div>`:''}
         <div class="bd tot"><span>Neto dobit / mjesec</span><span class="v ${ok?'pos':'neg'}">${fmt(r.netProfit)}</span></div>
       </div>
       <div class="card">
