@@ -166,6 +166,11 @@
   .rate{display:inline-block;background:#EAF7EF;color:#1C7A45;font-weight:800;font-size:11px;padding:1px 6px;border-radius:6px;margin-left:4px}
   #restoView .c-pd{font-weight:800;color:#9A5A12} #restoView .c-net,#restoView .c-mr{font-weight:800;color:var(--green)} #restoView .c-gmv,#restoView .c-gmvd,#restoView .c-mb{font-weight:800;color:#374151}
   #restoView td.c-ord{font-weight:700;color:var(--muted)}
+  /* mod C: Trošak po dostavi — toggle Vlastita ↔ 3PL */
+  #restoView:not(.log-3pl) .rlp-3pl{display:none}
+  #restoView.log-3pl .rlp-fleet{display:none}
+  .rlp-3pl input{width:74px;font-size:20px;font-weight:800;border:1px solid var(--zapp);border-radius:8px;padding:1px 7px;color:var(--ink);background:#FFFBF4;text-align:right}
+  .rlogkpi .lp-seg{margin-top:8px}
   .del{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:15px;font-weight:800;padding:2px 6px;border-radius:6px}
   .del:hover{background:#FDECEC;color:var(--red)}
   #restoView tfoot td{font-weight:800;border-top:2px solid var(--ink);border-bottom:0;font-size:14px;background:#FCFCFD}
@@ -459,7 +464,7 @@
       <div class="kpi"><div class="k-lab">Ukupno narudžbi / dan</div><div class="k-val" id="rkOrders">—</div><div class="k-sub" id="rkOrdersSub"></div></div>
       <div class="kpi"><div class="k-lab">Prosječna narudžba (<span class="abbr" data-tip="PVN — prosječna vrijednost narudžbe (prosječan iznos jedne narudžbe u KM).">PVN</span>)</div><div class="k-val" id="rkAov">—</div><div class="k-sub">ponderisano po prometu</div></div>
       <div class="kpi"><div class="k-lab">Ukupan promet (<span class="abbr" data-tip="GMV (Gross Merchandise Value) — ukupna vrijednost svih narudžbi kroz platformu, prije provizija i troškova.">GMV</span>) / mj</div><div class="k-val" id="rkGmv">—</div><div class="k-sub">kroz platformu</div></div>
-      <div class="kpi"><div class="k-lab">Trošak po dostavi (kuriri)</div><div class="k-val" id="rkCpd">—</div></div>
+      <div class="kpi rlogkpi"><div class="k-lab">Trošak po dostavi</div><div class="k-val"><span class="rlp-fleet" id="rkCpd">—</span><span class="rlp-3pl"><input type="number" id="rLog3plInp" step="0.1" min="0" aria-label="3PL cijena po dostavi"> KM</span></div><div class="k-sub" id="rkCpdSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg" id="rLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
       <div class="kpi"><div class="k-lab">Ukupan mjesečni bruto fransizera</div><div class="k-val" id="rkBruto">—</div><div class="k-sub">prije troška kurira</div></div>
       <div class="kpi good"><div class="k-lab">Ukupan mjesečni neto fransizera</div><div class="k-val" id="rkRev">—</div></div>
     </div>
@@ -587,9 +592,9 @@ const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&
 const A_GROUPS = [
   { title:'Početna investicija (jednokratno)', key:'invest',
     sum:v=>fmt(v.tabletPrice*v.tabletQty+v.bagPrice*v.bagQty+v.shirtPrice*v.shirtQty+v.hub+v.launch+v.legal+v.deposit), items:[
-    {qp:true, lab:'Tableti',     priceId:'tabletPrice', qtyId:'tabletQty', priceVal:300, qtyVal:30, priceStep:10, qtyStep:1},
-    {qp:true, lab:'Torbe',       priceId:'bagPrice',    qtyId:'bagQty',    priceVal:200, qtyVal:30, priceStep:10, qtyStep:1},
-    {qp:true, lab:'Majice',      priceId:'shirtPrice',  qtyId:'shirtQty',  priceVal:20,  qtyVal:60, priceStep:5,  qtyStep:1},
+    {qp:true, lab:'Tableti',     priceId:'tabletPrice', qtyId:'tabletQty', priceVal:300, qtyVal:30, priceStep:10, qtyStep:1, slider:'qty', sliderMax:100},
+    {qp:true, lab:'Torbe',       priceId:'bagPrice',    qtyId:'bagQty',    priceVal:200, qtyVal:30, priceStep:10, qtyStep:1, slider:'qty', sliderMax:100},
+    {qp:true, lab:'Majice',      priceId:'shirtPrice',  qtyId:'shirtQty',  priceVal:20,  qtyVal:60, priceStep:5,  qtyStep:1, slider:'qty', sliderMax:150},
     {id:'hub',      lab:'Postavljanje ureda', min:0,max:60000,step:500,val:0,unit:'KM',hint:'Adaptacija prostora, namještaj, oprema ureda za dispečing.'},
     {id:'launch',   lab:'Početni marketing', min:0,max:40000,step:500,val:6000,unit:'KM',hint:'Početna kampanja pri otvaranju grada (online, lokalno, akcije).'},
     {id:'legal',    lab:'Pravno / registracija firme', min:0,max:15000,step:250,val:2000,unit:'KM'},
@@ -599,7 +604,7 @@ const A_GROUPS = [
     sum:v=>fmt(v.director+v.manager+v.finance+v.opsSal*v.opsCount)+' /mj', items:[
     {id:'director',  lab:'Plata direktora', min:0,max:8000,step:50,val:4000,unit:'KM',hint:'Direktor / voditelj franšize — strateško vođenje, odnos sa Zappom, akvizicija restorana i partnera.'},
     {id:'manager',   lab:'Plata operativnog menadžera', min:0,max:6000,step:50,val:0,unit:'KM',hint:'Vođenje dnevne operative — kuriri, raspored, kvalitet i brzina dostave.'},
-    {qp:true, lab:'Dispečeri', priceId:'opsSal', qtyId:'opsCount', priceVal:1500, qtyVal:3, priceStep:50, qtyStep:1, qtyUnit:'os', priceUnit:'KM', hint:'Operativni tim (call centar = dispečing) — prima narudžbe i reklamacije te raspoređuje kurire u realnom vremenu. Broj osoba × plata po osobi /mj.'},
+    {qp:true, lab:'Dispečeri', priceId:'opsSal', qtyId:'opsCount', priceVal:1500, qtyVal:3, priceStep:50, qtyStep:1, qtyUnit:'os', priceUnit:'KM', hint:'Operativni tim (call centar = dispečing) — prima narudžbe i reklamacije te raspoređuje kurire u realnom vremenu. Broj osoba × plata po osobi /mj.', slider:'price', sliderMax:4000, sliderStep:50},
     {id:'finance',   lab:'Financije / računovodstvo', min:0,max:4000,step:50,val:2000,unit:'KM',hint:'Knjigovodstvo, fakturisanje i obračun plata — interno zaposlen ili vanjski servis.'},
   ]},
   { title:'Ostali fiksni troškovi (mjesečno)', key:'fixed',
@@ -726,6 +731,9 @@ function buildInputs(){
     g.items.forEach(it=>{
       if(it.qp){
         const qU=it.qtyUnit||'kom', pU=it.priceUnit||'KM';
+        const sField = it.slider==='price' ? it.priceId : it.qtyId;
+        const sMax = it.sliderMax || (it.slider==='price'?4000:100);
+        const sStep = it.sliderStep || (it.slider==='price'?50:1);
         const row=document.createElement('div'); row.className='row qp';
         row.innerHTML=`
           <div class="lab">
@@ -736,16 +744,19 @@ function buildInputs(){
               <input type="number" class="qpf" aria-label="${esc(it.lab)} — cijena (${pU})" min="0" step="${it.priceStep||1}" value="${store[it.priceId]}"><span class="unit">${pU}</span>
               <span class="qpx">=</span><span class="qpsum"></span>
             </span>
-          </div>`;
-        const qins=row.querySelectorAll('input'), qtyIn=qins[0], priceIn=qins[1];
+          </div>
+          ${it.slider?`<input type="range" class="qpr" aria-label="${esc(it.lab)} — klizač (${it.slider==='price'?pU:qU})" min="0" max="${sMax}" step="${sStep}" value="${store[sField]}">`:''}`;
+        const qins=row.querySelectorAll('input[type=number]'), qtyIn=qins[0], priceIn=qins[1];
+        const range=row.querySelector('input[type=range]');
         refs[mode][it.priceId]={number:priceIn}; refs[mode][it.qtyId]={number:qtyIn};
         qpSumEls[it.qtyId]={el:row.querySelector('.qpsum'),priceId:it.priceId,qtyId:it.qtyId};
         const bindQp=(inp,id)=>{
-          inp.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(!isFinite(n))return;store[id]=n;update();});
-          const clamp=()=>{let n=parseFloat(inp.value);if(!isFinite(n))n=store[id];n=Math.max(0,n);store[id]=n;inp.value=n;update();};
+          inp.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(!isFinite(n))return;store[id]=n;if(range&&id===sField)range.value=n;update();});
+          const clamp=()=>{let n=parseFloat(inp.value);if(!isFinite(n))n=store[id];n=Math.max(0,n);store[id]=n;inp.value=n;if(range&&id===sField)range.value=n;update();};
           inp.addEventListener('blur',clamp); inp.addEventListener('change',clamp);
         };
         bindQp(priceIn,it.priceId); bindQp(qtyIn,it.qtyId);
+        if(range){ range.addEventListener('input',e=>{let n=parseFloat(e.target.value);if(!isFinite(n))n=0;n=Math.max(0,n);store[sField]=n;const tgt=(sField===it.qtyId)?qtyIn:priceIn;tgt.value=n;update();}); }
         body.appendChild(row);
         return;
       }
@@ -1067,6 +1078,8 @@ valA.aov=avgRestoPVN();   // inicijalno: PVN = prosjek 20 restorana
 const rWD=()=>Math.max(1,parseFloat(document.getElementById('rWorkDays').value)||30);
 /* „Sam vozi" provizija: niža jedinstvena provizija; dostava ide restoranu, nema troška kurira */
 const selfCommV=()=>Math.max(0,parseFloat(document.getElementById('rSelfComm').value)||0);
+/* Trošak po dostavi koji ulazi u neto restorana: Vlastita flota (izračun iz Fransizera) ili 3PL (dogovorena cijena). Dijeli globalni logSrc/pl3Price s Pregledom. */
+const restoCpd=()=> (logSrc==='3pl') ? Math.max(0,pl3Price||0) : courierCostPerDelivery(valA);
 function renderResto(){
   sortRows();
   const tb=document.getElementById('rtbody'); tb.innerHTML='';
@@ -1121,7 +1134,7 @@ function updateSortIndicators(){
   });
 }
 function recomputeResto(){
-  const wd=rWD(), cpd=courierCostPerDelivery(valA);
+  const wd=rWD(), cpd=restoCpd(), fleetCpd=courierCostPerDelivery(valA), use3pl=(logSrc==='3pl');
   let sO=0,sRev=0,sNet=0,sNpm=0,sGmv=0,sBruto=0,sAovW=0,nSelf=0,nGroup=0;
   document.querySelectorAll('#rtbody tr').forEach(tr=>{
     const i=+tr.dataset.i, r=rRows[i];
@@ -1147,7 +1160,11 @@ function recomputeResto(){
   const os=document.getElementById('rkOrdersSub'); if(os) os.textContent=num(sNpm)+' /mj';
   document.getElementById('rkAov').textContent=fmt2(avgAov);
   document.getElementById('rkGmv').textContent=fmt(sGmv);
-  document.getElementById('rkCpd').textContent=fmt2(cpd);
+  document.getElementById('rkCpd').textContent=fmt2(fleetCpd);
+  const r3=document.getElementById('rLog3plInp'); if(r3&&document.activeElement!==r3) r3.value=pl3Price;
+  const rcs=document.getElementById('rkCpdSub'); if(rcs) rcs.textContent=use3pl?'3PL — dogovorena cijena':'kuriri, vozila, gorivo, oprema';
+  const rv=document.getElementById('restoView'); if(rv) rv.classList.toggle('log-3pl', use3pl);
+  document.querySelectorAll('#rLogSeg button').forEach(b=>{const on=b.dataset.lm===logSrc;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   const br=document.getElementById('rkBruto'); br.textContent=fmt(sBruto); br.style.color=sBruto<0?'var(--red)':'';
   const rev=document.getElementById('rkRev'); rev.textContent=fmt(sNet); rev.style.color=sNet<0?'var(--red)':'';
   document.getElementById('rtNpm').textContent=num(sNpm);
@@ -1161,7 +1178,7 @@ function recomputeResto(){
   const tm=document.getElementById('rtMr'); tm.textContent=fmt(sNet); tm.style.color=sNet<0?'var(--red)':'';
   saveState();
 }
-function valForR(r,f){const wd=rWD(), cpd=courierCostPerDelivery(valA), npm=+r.npm||0;
+function valForR(r,f){const wd=rWD(), cpd=restoCpd(), npm=+r.npm||0;
   const pd = r.self ? r.aov*((+r.selfComm||0)/100) : r.aov*(r.comm/100)+r.del;
   const npd = r.self ? pd : pd-cpd;
   if(f==='pd')return pd;
@@ -1181,6 +1198,9 @@ document.querySelectorAll('#restoView th.sortable').forEach(th=>th.onclick=()=>{
 document.getElementById('rApplyAll').onclick=()=>{const c=parseFloat(document.getElementById('rAllComm').value)||0,d=parseFloat(document.getElementById('rAllDel').value)||0,sc=selfCommV();rRows.forEach(r=>{if(r.group)return;r.comm=c;r.del=d;r.selfComm=sc;});renderResto();};  /* ne dira grupe (svaka ima svoju tier proviziju) */
 document.getElementById('rWorkDays').addEventListener('input',recomputeResto);
 document.getElementById('rSelfComm').addEventListener('input',saveState);
+document.querySelectorAll('#rLogSeg button').forEach(b=>b.onclick=()=>{ logSrc=b.dataset.lm; recomputeResto(); });   /* dijeli globalni logSrc s Pregledom */
+const rLog3plI=document.getElementById('rLog3plInp');
+if(rLog3plI) rLog3plI.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(isFinite(n))pl3Price=Math.max(0,n);recomputeResto();});
 document.getElementById('rResetBtn').onclick=()=>{rRows=defaultRows();rSortField='npm';rSortDir=-1;document.getElementById('rWorkDays').value=30;document.getElementById('rAllComm').value=20;document.getElementById('rAllDel').value=3;document.getElementById('rSelfComm').value=6;renderResto();};
 document.getElementById('rAddBtn').onclick=()=>{const nr={name:'Novi restoran',npm:450,aov:15,comm:parseFloat(document.getElementById('rAllComm').value)||20,del:parseFloat(document.getElementById('rAllDel').value)||3,self:false,selfComm:selfCommV()||6,owner:false};rRows.push(nr);renderResto();
   const tr=[...document.querySelectorAll('#rtbody tr')].find(t=>rRows[+t.dataset.i]===nr); const ni=tr&&tr.querySelector('input.rname'); if(ni){ni.scrollIntoView({block:'center'});ni.focus();ni.select();}};
@@ -1189,7 +1209,7 @@ document.getElementById('rAddGroupBtn').onclick=()=>{const nums=rRows.filter(r=>
   const tr=[...document.querySelectorAll('#rtbody tr')].find(t=>rRows[+t.dataset.i]===nr); const ni=tr&&tr.querySelector('input.rname'); if(ni){ni.scrollIntoView({block:'center'});ni.focus();ni.select();}};
 document.getElementById('rPrintBtn').onclick=()=>window.print();
 document.getElementById('rCsvBtn').onclick=()=>{
-  const wd=rWD(), cpd=courierCostPerDelivery(valA);
+  const wd=rWD(), cpd=restoCpd();
   const head=['Naziv','Tip','Sam vozi','Promet KM/mj','Promet KM/dan','Nar./mj','Nar/dan','PVN','Provizija %','Dostava','Prihod/dostava','Trošak/dostava','Neto/dostava','Mj. bruto','Mj. neto'];
   const lines=[head.join(';')];
   rRows.forEach(r=>{
