@@ -22,6 +22,10 @@
   .logo .ttl{font-weight:800;font-size:25px;letter-spacing:-.5px}
   .logo .ttl small{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0}
   .savectl{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .qrshare{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 10px;box-shadow:var(--shadow)}
+  .qrshare img{width:62px;height:62px;display:block;border-radius:4px;image-rendering:pixelated}
+  .qrshare .qrlab{font-size:11px;font-weight:700;color:var(--muted);line-height:1.3;white-space:nowrap}
+  @media (max-width:700px){.qrshare{display:none}}
   #saveBadge{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
   #saveBadge.on{color:var(--green)}
   .btn.mini{padding:7px 12px;font-size:12px}
@@ -370,6 +374,10 @@
       <span id="saveBadge">💾 Auto-spremanje</span>
       <button class="btn ghost mini" id="clearSaveBtn" title="Obriši lokalno spremljene podatke i vrati na početne vrijednosti">🗑 Obriši spremljeno</button>
     </div>
+    <a class="qrshare" href="https://krezicdarko.github.io/zapp-fransizni-kalkulator/" target="_blank" rel="noopener" title="Skeniraj telefonom da otvoriš kalkulator na svom mobitelu (ili klikni za link)">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsAQMAAABDsxw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABzklEQVRoge3XUW4DIQwEUG7mo+Gj+WZ0mTEsbElSqT+tNI5E0vCSD9fGpBSF4i9GbQgv1fvjesdai2LRn3uE2JH5XOt427gCmNgLdu06165rIK1h/YFnsbeM6Pqr1ySB2E9Yf3UtmV2xTyyxs5tZkHcji71g3BwJ9spGZnLxMbETG5Hl2ZBtm+X4DLF1u3G359qxb+joJbliD4ZOpmg5Pmxc8yBD7MQqanE0ddd833Lwji8T2xmhM7sF7Yx6HGO3iB1ZdXZxyROwYOqiHtcvE3uylj8nWhZnrBU5pdiBDeJ56csTECyK2Inl3MiqzGve7OX70iK2s5y5Pvho51mYIfYLhm0elBw3+T/4dvkR2xlSfPe+Yxd79yuxI8sR7ahO5JSzpm3ZFdsY+zkdu7qfknPQiB0ZgOePXpZlh4YJY7GelmIbYz2SXq9ybhjLcx6WYk92N3MPn6Ctp6DYkdWWOa6OOkwY661GbGUj5mlo876CG5/YmbEYGw/CvlpOXJBZl2JP5lwrcY+5b5wjYkeGVuYQwRThpmU/i31gziOxAQTOP5an2Ft2lyVSalOInVmuOASvD8SYGijNEHvB0Lbo45HbLMhYh7PYgykU/zS+AFUQQ9hmlxsnAAAAAElFTkSuQmCC" alt="QR kod — otvori kalkulator na telefonu" width="62" height="62">
+      <span class="qrlab">📱 Skeniraj<br>za mobitel</span>
+    </a>
   </header>
 
   <div class="modebar no-print" id="modebar" role="group" aria-label="Izbor moda">
