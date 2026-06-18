@@ -486,9 +486,9 @@
     <div class="cards2">
       <div class="card">
         <h3>📥 Prihod (mjesečno)</h3>
-        <div class="bd"><span>Provizija</span><span class="v pos ov-calc-val" id="ovProvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="prov"></span></div>
+        <div class="bd"><span>Provizija <span class="ov-calc-val abbr" data-tip="Ponderisani prosjek provizija svih restorana koje Zapp vozi (iz „Top restorani"), ponderisan prometom (PVN × narudžbe). Restorani koji „sami voze" nisu uključeni — imaju svoj red." style="font-weight:600;color:var(--muted);font-size:12px">ⓘ <b id="ovProvPct">—</b> ponderisano</span></span><span class="v pos ov-calc-val" id="ovProvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="prov"></span></div>
         <div class="bd"><span>Provizija (sami voze) <b class="ov-calc-val" id="ovSelfPct">—</b><span class="ov-cust-pct"><input type="number" id="ovSelfPctC" min="0" step="0.1" style="width:48px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">%</span></span><span class="v pos ov-calc-val" id="ovSelfProvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="self"></span></div>
-        <div class="bd"><span>Naknada za dostavu</span><span class="v pos ov-calc-val" id="ovDostMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="dost"></span></div>
+        <div class="bd"><span>Naknada za dostavu <span class="ov-calc-val abbr" data-tip="Ponderisani prosjek naknade za dostavu (iz „Top restorani"), ponderisan brojem narudžbi. Restorani koji „sami voze" nisu uključeni (dostavu naplaćuje restoran)." style="font-weight:600;color:var(--muted);font-size:12px">ⓘ <b id="ovDostAvg">—</b> ponderisano</span></span><span class="v pos ov-calc-val" id="ovDostMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="dost"></span></div>
         <div class="bd"><span>Marketing</span><span class="v pos ov-calc-val" id="ovMarketingMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="mkt"></span></div>
         <div class="bd tot"><span>Ukupan prihod</span><span class="v pos" id="ovPrihodMj">—</span></div>
       </div>
@@ -691,6 +691,21 @@ function fmt2V(g,hasVat){
   if(vatView==='net') return fmt2(hasVat?NETv(g):g);
   if(vatView==='gross'||!hasVat) return fmt2(g);
   return fmt2(g)+' <span class="netp">(neto '+fmt2(NETv(g))+')</span>';
+}
+// za MIJEŠANE troškove (npr. vlastita flota): neto = bruto − odbitni ulazni PDV (vatIn). Za čiste PDV stavke vatIn=bruto×14,53% → neto=bruto/1,17.
+function fmtVcost(g,vatIn){
+  if(!(vatIn>0)) return fmt(g);
+  const net=g-vatIn;
+  if(vatView==='net') return fmt(net);
+  if(vatView==='gross') return fmt(g);
+  return fmt(g)+' <span class="netp">(neto '+fmt(net)+')</span>';
+}
+function fmt2Vcost(g,vatIn){
+  if(!(vatIn>0)) return fmt2(g);
+  const net=g-vatIn;
+  if(vatView==='net') return fmt2(net);
+  if(vatView==='gross') return fmt2(g);
+  return fmt2(g)+' <span class="netp">(neto '+fmt2(net)+')</span>';
 }
 
 /* ---------- Input configs (val = Procjena BiH) ---------- */
@@ -947,6 +962,19 @@ function paybackForOrdersDay(od0){
 }
 function avgRestoPVN(){ if(!rRows||!rRows.length) return 18; const o=rRows.reduce((s,r)=>s+(+r.npm||0),0); if(!o) return 18; const gmv=rRows.reduce((s,r)=>s+(+r.aov||0)*(+r.npm||0),0); return Math.round(gmv/o*10)/10; }  /* ponderisano: Σ(PVN×Nar./mj) ÷ Σ Nar./mj */
 function restoNpmTotal(){ return (rRows||[]).reduce((s,r)=>s+(+r.npm||0),0); }  /* ukupan mjesečni broj narudžbi iz „Top restorani" (Σ npm) — fiksni obim za Izračunato */
+function restoFranEconomics(){   /* ponderisana ekonomija provizije/dostave iz „Top restorani" — SAMO restorani koje Zapp vozi (self=false; grupe uključene) */
+  let gmv=0, orders=0, commRev=0, delRev=0;
+  (rRows||[]).forEach(r=>{
+    if(r.self) return;                          // „sami voze" → zaseban red, ne ulaze u glavnu proviziju/dostavu
+    const npm=+r.npm||0, g=(+r.aov||0)*npm;       // promet restorana (PVN × narudžbe)
+    gmv+=g; orders+=npm;
+    commRev+=g*((+r.comm||0)/100);               // bruto provizija (prije −3% Zapp)
+    delRev+=npm*(+r.del||0);                      // naknada za dostavu (po narudžbi)
+  });
+  return {gmv, orders, commRev, delRev,
+    commPct: gmv>0?commRev/gmv*100:0,            // PONDERISANA provizija % (ponder = promet PVN×narudžbe)
+    delAvg: orders>0?delRev/orders:0};           // PONDERISANA naknada/dostava KM (ponder = broj narudžbi)
+}
 function computeA(){
   valA.aov=avgRestoPVN();   // PVN = prosjek PVN-a iz 20 restorana (tab „Top restorani")
   const v=valA, inv=investmentA(), m1=aMonth(v.ordersDay);
@@ -1372,8 +1400,11 @@ function updateOverview(){
   const ov=document.getElementById('overView');
   if(ov) ov.classList.toggle('ov-custom', custom);
   document.querySelectorAll('#ovModeSeg button').forEach(b=>{const on=b.dataset.ovm===ovMode;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
-  const franComm=Math.max(0, v.restComm-3);                        // fransizeru ide provizija restorana MINUS 3% (Zapp dio)
-  const calcRev=v.aov*(franComm/100)+v.delFee;
+  const eco=restoFranEconomics();                                  // ponderisana provizija/dostava iz „Top restorani" (samo restorani koje Zapp vozi)
+  const blendedComm=eco.commPct;                                   // ponderisana provizija % (bruto), ponder = promet (PVN × narudžbe)
+  const franComm=Math.max(0, blendedComm-3);                       // fransizeru ide ponderisana provizija MINUS 3% (Zapp dio)
+  const delEff=eco.delAvg;                                         // ponderisana naknada za dostavu (KM/narudžba), ponder = broj narudžbi
+  const calcRev=eco.orders>0 ? (eco.gmv*(franComm/100)+eco.delRev)/eco.orders : (v.aov*(franComm/100)+delEff);  // prihod fransizera po dostavi (ponderisano)
   const calcLog=courierCostPerDelivery(v);                          // logistika: kuriri, vozila, gorivo, oprema
   const ordersMonth=v.ordersDay*v.workDays;
   const officeMonthly=(v.director+v.manager+v.finance+v.opsSal*v.opsCount)+(v.rent+v.mktg+v.insurance+v.utils+v.software);  // ured = Osoblje + Ostali fiksni troškovi (bez kurira, bez procesiranja/royaltyja)
@@ -1381,18 +1412,18 @@ function updateOverview(){
   const noOrders=(!custom && ordersMonth<=0);                       // calc mod bez narudžbi: po-dostavi metrike nedefinirane, fiksni troškovi ostaju
   const use3pl=(logSrc==='3pl');                                    // izvor logistike (calc mod): vlastita flota (izračun) vs 3PL dogovorena cijena
   const om = ordersMonth>0?ordersMonth:1;
-  let revPd, logPd, offPd, karticePerDel, prihodMj, logMj, offMj, karticeMj, marketingMj, dostMj, provMj, pdvMj, rashodMj, profitMj;
+  let revPd, logPd, offPd, karticePerDel, prihodMj, logMj, offMj, karticeMj, marketingMj, dostMj, provMj, pdvMj, rashodMj, profitMj, logVatIn=0, offVatIn=0;
   if(custom){
     // RUČNI UNOS: mjesečni iznosi (upisivi) su izvor; po-dostavi se izvodi (÷ narudžbe)
-    if(!ovcSeeded){ ovcMj={prov:Math.round(v.aov*(franComm/100)*ordersMonth), dost:Math.round(v.delFee*ordersMonth), mkt:0, log:Math.round((use3pl?(pl3Price||0):calcLog)*ordersMonth), ured:Math.round(officeMonthly), card:Math.round((v.aov+v.delFee)*(cardVol/100)*(cardPct/100)*ordersMonth), pdv:0, self:Math.round(v.aov*Math.max(0,selfCommV()-3)/100*ordersMonth)}; ovcSeeded=true; }
+    if(!ovcSeeded){ ovcMj={prov:Math.round(eco.gmv*(franComm/100)*(ovCalcPct/100)), dost:Math.round(eco.delRev*(ovCalcPct/100)), mkt:0, log:Math.round((use3pl?(pl3Price||0):calcLog)*ordersMonth), ured:Math.round(officeMonthly), card:Math.round((v.aov+v.delFee)*(cardVol/100)*(cardPct/100)*ordersMonth), pdv:0, self:Math.round(v.aov*Math.max(0,selfCommV()-3)/100*ordersMonth)}; ovcSeeded=true; }
     if(ovcMj.self==null) ovcMj.self=Math.round(v.aov*Math.max(0,selfCommV()-3)/100*ordersMonth);  // re-seed za stari spremljeni state bez self
     provMj=ovcMj.prov; dostMj=ovcMj.dost; marketingMj=ovcMj.mkt; logMj=ovcMj.log; offMj=ovcMj.ured; karticeMj=(v.aov+v.delFee)*(cardVol/100)*(cardPct/100)*ordersMonth; pdvMj=(vatView==='gross')?0:ovcMj.pdv;  // kartice = % provizije na % obima prometa (kao Izračunato), upravljano poljima ovCardPct/ovCardVol
     prihodMj=provMj+dostMj+marketingMj; rashodMj=logMj+offMj+karticeMj+pdvMj; profitMj=prihodMj-rashodMj;
     revPd=prihodMj/om; logPd=logMj/om; offPd=offMj/om; karticePerDel=karticeMj/om;
   } else {
     revPd=calcRev; logPd=(use3pl?(pl3Price||0):calcLog); offPd=calcOff;
-    karticePerDel=(v.aov+v.delFee)*(cardVol/100)*(cardPct/100);   // kartična provizija po dostavi: (promet+dostava) × obim% × provizija%
-    provMj=v.aov*(franComm/100)*ordersMonth; dostMj=v.delFee*ordersMonth; marketingMj=0;
+    karticePerDel=(v.aov+delEff)*(cardVol/100)*(cardPct/100);   // kartična provizija po dostavi: (promet+dostava) × obim% × provizija%
+    provMj=eco.gmv*(franComm/100)*(ovCalcPct/100); dostMj=eco.delRev*(ovCalcPct/100); marketingMj=0;   // ponderisana provizija/dostava (non-self) × udio obima
     logMj=logPd*ordersMonth; offMj=officeMonthly; karticeMj=karticePerDel*ordersMonth;
     // PDV obaveza (neto) = izlazni PDV (provizija+dostava+marketing) − ulazni PDV (oporezivi dio logistike + ureda)
     const perCourierMo=(v.delPerHour||0)*(v.hoursDay||0)*(v.workDays||0);
@@ -1400,7 +1431,8 @@ function updateOverview(){
     const fuelTaxPd=ordersMonth>0?(v.fuel||0)/ordersMonth:0;                            // gorivo (dostavna vozila → ulazni PDV odbitan)
     const logTaxPd=use3pl?(pl3Price||0):(fleetTaxPd+fuelTaxPd);                         // 3PL = puni PDV; vlastita flota = samo oporezivi dio
     const taxOfficeMj=v.rent+v.mktg+v.utils+v.software;                                 // ured: najam+marketing+režije+softver (osiguranje oslob., plaće bez PDV)
-    const outVatMj=PDVv(provMj+dostMj+marketingMj), inVatMj=PDVv(logTaxPd*ordersMonth)+PDVv(taxOfficeMj);
+    logVatIn=PDVv(logTaxPd*ordersMonth); offVatIn=PDVv(taxOfficeMj);
+    const outVatMj=PDVv(provMj+dostMj+marketingMj), inVatMj=logVatIn+offVatIn;
     pdvMj=(vatView==='gross')?0:(outVatMj-inVatMj);                                     // u „Bruto" prikazu se PDV gasi (kao prije)
     prihodMj=provMj+dostMj; rashodMj=logMj+offMj+karticeMj+pdvMj; profitMj=prihodMj-rashodMj;
   }
@@ -1415,11 +1447,12 @@ function updateOverview(){
   const l3=document.getElementById('ovLog3plInp'); if(l3&&document.activeElement!==l3) l3.value=pl3Price;
   set('ovTrosakOffPd', noOrders?'—':fmt2(calcOff));
   set('ovProfitPd', noOrders?'—':fmt2(profPd)); set('ovNeto',fmt(neto));
-  set('ovPrihodSub','PVN '+fmt2(v.aov)+' → provizija fransizeru '+fmt2(v.aov*(franComm/100))+' ('+num(v.restComm)+'% − 3% Zapp = '+num(franComm)+'%) + dostava '+fmt2(v.delFee));
+  set('ovPrihodSub','PVN '+fmt2(v.aov)+' · provizija '+pct(blendedComm)+' ponderisano (− 3% Zapp = '+pct(franComm)+') · naknada '+fmt2(delEff)+' ponderisano — iz „Top restorani"');
   setH('ovProvMj',fmtV(provMj,true)); setH('ovDostMj',fmtV(dostMj,true)); setH('ovPrihodMj',fmtV(prihodMj,true));
+  set('ovProvPct', pct(blendedComm)); set('ovDostAvg', fmt2(delEff));   // ponderisana provizija % i naknada/dostava (info u redovima)
   const selfRate=selfCommV(), selfFran=Math.max(0, selfRate-3);    // sinkronizirano s Top restorani „Sam vozi" provizijom (rSelfComm), fransizeru ide − 3% Zapp
   set('ovSelfPct', num(selfFran)+'%'); setH('ovSelfProvMj', fmtV(v.aov*selfFran/100*ordersMonth,true));
-  setH('ovRashodLogMj',fmtV(logMj,use3pl)); set('ovRashodOffMj',fmt(offMj)); set('ovKarticeMj',fmt(karticeMj));
+  setH('ovRashodLogMj',fmtVcost(logMj,logVatIn)); setH('ovRashodOffMj',fmtVcost(offMj,offVatIn)); set('ovKarticeMj',fmt(karticeMj));
   set('ovPdvMj', vatView==='gross'?'—':fmt(pdvMj));
   set('ovRashodMj',fmt(rashodMj)); set('ovProfitMj',fmt(profitMj));
   const setIn=(id,val)=>{const e=document.getElementById(id); if(e&&document.activeElement!==e) e.value=ovD(val);};
@@ -1500,10 +1533,10 @@ function updateOverview(){
   if(cmjI) cmjI.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=ovPI(raw);if(!isFinite(n))return;const om=(valA.ordersDay*valA.workDays)||1;const base=(valA.aov+valA.delFee)*(cardPct/100)*om;if(base>0)cardVol=Math.max(0,n)/base*100;updateOverview();saveState();});  // edit iznosa karticnih → mijenja OBIM (% prometa), provizija% fiksna
   document.querySelectorAll('#ovModeSeg button').forEach(b=>b.onclick=()=>{
     ovMode=b.dataset.ovm;
-    if(ovMode==='custom' && !ovcSeeded){ const v=valA, om=v.ordersDay*v.workDays, franComm=Math.max(0,v.restComm-3), log=(logSrc==='3pl'?(pl3Price||0):courierCostPerDelivery(v));
+    if(ovMode==='custom' && !ovcSeeded){ const v=valA, om=v.ordersDay*v.workDays, eco=restoFranEconomics(), franComm=Math.max(0,eco.commPct-3), log=(logSrc==='3pl'?(pl3Price||0):courierCostPerDelivery(v));
       const officeMonthly=(v.director+v.manager+v.finance+v.opsSal*v.opsCount)+(v.rent+v.mktg+v.insurance+v.utils+v.software);
-      const cardMj=(v.aov+v.delFee)*(cardVol/100)*(cardPct/100)*om;
-      ovcMj={prov:Math.round(v.aov*(franComm/100)*om), dost:Math.round(v.delFee*om), mkt:0, log:Math.round(log*om), ured:Math.round(officeMonthly), card:Math.round(cardMj), pdv:0, self:Math.round(v.aov*Math.max(0,selfCommV()-3)/100*om)};
+      const cardMj=(v.aov+eco.delAvg)*(cardVol/100)*(cardPct/100)*om;
+      ovcMj={prov:Math.round(eco.gmv*(franComm/100)*(ovCalcPct/100)), dost:Math.round(eco.delRev*(ovCalcPct/100)), mkt:0, log:Math.round(log*om), ured:Math.round(officeMonthly), card:Math.round(cardMj), pdv:0, self:Math.round(v.aov*Math.max(0,selfCommV()-3)/100*om)};
       ovcSeeded=true; }
     updateOverview(); saveState();
   });
