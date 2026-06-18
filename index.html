@@ -484,7 +484,7 @@
     </div>
     <div class="kpis">
       <div class="kpi"><div class="k-lab">Prihod po dostavi</div><div class="k-val ov-calc-val" id="ovPrihodPd">—</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovPrihodPdC" data-ovcpd="rev"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovPrihodSub"></div><div class="k-sub ov-cust-val" style="color:var(--muted)">ukupan prihod ÷ narudžbe</div></div>
-      <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-calc-val"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl"><input type="number" id="ovLog3plInp" step="0.1" min="0"><span class="ov-unit">KM</span></span></div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakLogPdC" data-ovcpd="log"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovLogSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg ov-calc-only" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
+      <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-calc-val"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl"><input type="number" id="ovLog3plInp" step="0.1" min="0"><span class="ov-unit">KM</span> <span class="netp" id="ovLog3plNet"></span></span></div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakLogPdC" data-ovcpd="log"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovLogSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg ov-calc-only" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
       <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-calc-val" id="ovTrosakOffPd">—</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakOffPdC" data-ovcpd="ured"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only">osoblje + ostali fiksni troškovi</div></div>
       <div class="kpi" id="ovProfitCard"><div class="k-lab">Profit po dostavi</div><div class="k-val" id="ovProfitPd">—</div></div>
     </div>
@@ -1445,11 +1445,14 @@ function updateOverview(){
   const costPd=logPd+offPd+karticePerDel+pdvPd, profPd=revPd-costPd, neto=profitMj;
   const set=(id,t)=>{const e=document.getElementById(id); if(e)e.textContent=t;};
   const setH=(id,h)=>{const e=document.getElementById(id); if(e)e.innerHTML=h;};
-  setH('ovPrihodPd',fmt2V(calcRev,true)); set('ovTrosakLogPd',fmt2(calcLog));
+  const perCdel=(v.delPerHour||0)*(v.hoursDay||0)*(v.workDays||0);
+  const fleetVatPd=PDVv((perCdel>0?(v.vehAmort+v.vehMaint+v.equip)/perCdel:0)+(ordersMonth>0?(v.fuel||0)/ordersMonth:0));
+  setH('ovPrihodPd',fmt2V(calcRev,true)); setH('ovTrosakLogPd',fmt2Vcost(calcLog,fleetVatPd));
   set('ovLogSub', use3pl?'3PL — dogovorena cijena':'kuriri, vozila, gorivo, oprema');
   if(ov) ov.classList.toggle('log-3pl', use3pl);
   document.querySelectorAll('#ovLogSeg button').forEach(b=>{const on=b.dataset.lm===logSrc;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   const l3=document.getElementById('ovLog3plInp'); if(l3&&document.activeElement!==l3) l3.value=pl3Price;
+  const l3n=document.getElementById('ovLog3plNet'); if(l3n) l3n.textContent=(vatView!=='gross')?('(neto '+fmt2(NETv(pl3Price))+')'):'';
   set('ovTrosakOffPd', noOrders?'—':fmt2(calcOff));
   set('ovProfitPd', noOrders?'—':fmt2(profPd)); set('ovNeto',fmt(neto));
   set('ovPrihodSub','PVN '+fmt2(v.aov)+' · provizija '+pct(blendedComm)+' ponderisano (− 3% Zapp = '+pct(franComm)+') · naknada '+fmt2(delEff)+' ponderisano — iz „Top restorani"');
