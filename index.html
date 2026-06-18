@@ -22,10 +22,20 @@
   .logo .ttl{font-weight:800;font-size:25px;letter-spacing:-.5px}
   .logo .ttl small{display:block;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:0}
   .savectl{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .qrshare{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 10px;box-shadow:var(--shadow)}
+  .qrshare{display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 10px;box-shadow:var(--shadow);cursor:pointer;font:inherit;color:inherit;text-align:left}
+  .qrshare:hover{border-color:var(--zapp)}
   .qrshare img{width:62px;height:62px;display:block;border-radius:4px;image-rendering:pixelated}
   .qrshare .qrlab{font-size:11px;font-weight:700;color:var(--muted);line-height:1.3;white-space:nowrap}
   @media (max-width:700px){.qrshare{display:none}}
+  /* QR — veliki overlay (klik na QR) za skeniranje iz daljine / s TV-a */
+  .qrmodal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;background:rgba(15,20,30,.82);padding:24px}
+  .qrmodal[hidden]{display:none}
+  .qrmodal .qrbox{position:relative;background:#fff;border-radius:18px;padding:26px 26px 20px;box-shadow:var(--shadow);text-align:center;max-width:92vw}
+  .qrmodal #qrBig{width:min(74vmin,560px);height:min(74vmin,560px);display:block;margin:0 auto;image-rendering:pixelated;border-radius:6px}
+  .qrmodal .qrm-ttl{font-weight:800;font-size:19px;margin:16px 0 4px;color:var(--ink)}
+  .qrmodal .qrm-url{display:inline-block;font-size:13px;color:var(--muted);word-break:break-all;text-decoration:none}
+  .qrmodal .qrm-url:hover{color:var(--ink);text-decoration:underline}
+  .qrmodal .qrm-close{position:fixed;top:18px;right:20px;width:46px;height:46px;border-radius:50%;border:0;background:#fff;color:var(--ink);font-size:22px;font-weight:800;cursor:pointer;box-shadow:var(--shadow)}
   #saveBadge{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
   #saveBadge.on{color:var(--green)}
   .btn.mini{padding:7px 12px;font-size:12px}
@@ -376,11 +386,20 @@
       <span id="saveBadge">💾 Auto-spremanje</span>
       <button class="btn ghost mini" id="clearSaveBtn" title="Obriši lokalno spremljene podatke i vrati na početne vrijednosti">🗑 Obriši spremljeno</button>
     </div>
-    <a class="qrshare" href="https://krezicdarko.github.io/zapp-fransizni-kalkulator/" target="_blank" rel="noopener" title="Skeniraj telefonom da otvoriš kalkulator na svom mobitelu (ili klikni za link)">
+    <button type="button" class="qrshare" id="qrOpen" title="Klikni za VELIKI QR — za skeniranje iz daljine / s TV-a">
       <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsAQMAAABDsxw2AAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABzklEQVRoge3XUW4DIQwEUG7mo+Gj+WZ0mTEsbElSqT+tNI5E0vCSD9fGpBSF4i9GbQgv1fvjesdai2LRn3uE2JH5XOt427gCmNgLdu06165rIK1h/YFnsbeM6Pqr1ySB2E9Yf3UtmV2xTyyxs5tZkHcji71g3BwJ9spGZnLxMbETG5Hl2ZBtm+X4DLF1u3G359qxb+joJbliD4ZOpmg5Pmxc8yBD7MQqanE0ddd833Lwji8T2xmhM7sF7Yx6HGO3iB1ZdXZxyROwYOqiHtcvE3uylj8nWhZnrBU5pdiBDeJ56csTECyK2Inl3MiqzGve7OX70iK2s5y5Pvho51mYIfYLhm0elBw3+T/4dvkR2xlSfPe+Yxd79yuxI8sR7ahO5JSzpm3ZFdsY+zkdu7qfknPQiB0ZgOePXpZlh4YJY7GelmIbYz2SXq9ybhjLcx6WYk92N3MPn6Ctp6DYkdWWOa6OOkwY661GbGUj5mlo876CG5/YmbEYGw/CvlpOXJBZl2JP5lwrcY+5b5wjYkeGVuYQwRThpmU/i31gziOxAQTOP5an2Ft2lyVSalOInVmuOASvD8SYGijNEHvB0Lbo45HbLMhYh7PYgykU/zS+AFUQQ9hmlxsnAAAAAElFTkSuQmCC" alt="QR kod — otvori kalkulator na telefonu" width="62" height="62">
-      <span class="qrlab">📱 Skeniraj<br>za mobitel</span>
-    </a>
+      <span class="qrlab">📱 Klikni za<br>veliki QR</span>
+    </button>
   </header>
+
+  <div id="qrModal" class="qrmodal no-print" hidden>
+    <button type="button" class="qrm-close" id="qrModalClose" aria-label="Zatvori">✕</button>
+    <div class="qrbox">
+      <img id="qrBig" src="" alt="QR kod — skeniraj telefonom da otvoriš kalkulator">
+      <div class="qrm-ttl">📱 Skeniraj telefonom da otvoriš kalkulator</div>
+      <a class="qrm-url" href="https://krezicdarko.github.io/zapp-fransizni-kalkulator/" target="_blank" rel="noopener">krezicdarko.github.io/zapp-fransizni-kalkulator</a>
+    </div>
+  </div>
 
   <div class="modebar no-print" id="modebar" role="group" aria-label="Izbor moda">
     <button data-mode="O" class="active" aria-pressed="true">📊 Pregled</button>
@@ -1705,6 +1724,20 @@ document.addEventListener('focusout',e=>{const h=e.target.closest&&e.target.clos
 document.addEventListener('click',e=>{const h=e.target.closest&&e.target.closest('[data-tip]'); if(h&&!h.closest('th.sortable')&&h.tagName!=='BUTTON'){tipFor===h?hideTip():showTip(h);}else if(tipFor)hideTip();});
 document.addEventListener('keydown',e=>{const a=document.activeElement; if(e.key==='Escape'){hideTip();return;}
   if((e.key==='Enter'||e.key===' ')&&a&&a.classList&&a.classList.contains('hint')){e.preventDefault(); tipFor===a?hideTip():showTip(a);}});
+
+/* QR — veliki prikaz (klik na QR u headeru) za skeniranje iz daljine / s TV-a */
+(function(){
+  const btn=document.getElementById('qrOpen'), modal=document.getElementById('qrModal'),
+        big=document.getElementById('qrBig'), closeBtn=document.getElementById('qrModalClose');
+  if(!btn||!modal||!big) return;
+  const srcImg=btn.querySelector('img');
+  const open=()=>{ if(srcImg) big.src=srcImg.src; modal.hidden=false; };
+  const close=()=>{ modal.hidden=true; };
+  btn.addEventListener('click',open);
+  if(closeBtn) closeBtn.addEventListener('click',close);
+  modal.addEventListener('click',e=>{ if(e.target===modal) close(); });
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!modal.hidden) close(); });
+})();
 
 /* ---------- Auto-spremanje (localStorage — lokalno na ovom uređaju/browseru) ---------- */
 const SAVE_KEY='zapp-kalkulator-v2';
