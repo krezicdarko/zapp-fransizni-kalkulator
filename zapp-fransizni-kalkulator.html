@@ -1626,7 +1626,7 @@ function renderCost(){
       Uključuje plaće s doprinosima, vozila, opremu i varijabilne troškove — razliveno na <b>${num(r.totalDel)}</b> dostava mjesečno (${num(r.couriers)} kurira / ${num(r.vehicles)} vozila, ${num(r.perCourierDel)} dost./kuriru).
     </div>
     <div class="kpis">
-      ${kpi('Trošak logistike po dostavi',fmt2(r.cpd),'puni — svi troškovi')}
+      ${kpi('Trošak logistike po dostavi',fmt2Vcost(r.cpd, r.totalDel>0?inVatT/r.totalDel:0),'puni — svi troškovi')}
       ${kpi('Ukupni mjesečni trošak',fmt(r.monthlyTotal),num(r.totalDel)+' dostava')}
       ${kpi('Trošak po kuriru / mj',fmt(r.perCourier),'prosjek (uklj. dio vozila)')}
       ${kpi('Dostava / dan (ukupno)',num(r.delPerDay),num(r.couriers)+' kurira')}
@@ -1647,8 +1647,8 @@ function renderCost(){
         <div class="bd"><span>Vozila (${num(r.vehicles)} kom, gorivo uklj.)</span><span class="v neg">−${fmt(r.vehicleTot)}</span></div>
         <div class="bd"><span>Oprema kurira</span><span class="v neg">−${fmtV(r.gearTot,true)}</span></div>
         <div class="bd"><span>Varijabilni (${fmt2(r.varPerDel)}/dost.)</span><span class="v neg">−${fmt(r.varPerDel*r.totalDel)}</span></div>
-        <div class="bd tot"><span>Ukupan mjesečni trošak</span><span class="v neg">−${fmt(r.monthlyTotal)}</span></div>
-        ${vatView!=='gross'?`<div class="bd" style="margin-top:6px"><span>Odbitni ulazni PDV <span class="abbr" data-tip="PDV sadržan u nabavkama koje nose PDV (oprema, vozila bez osiguranja/registracije, gorivo, ambalaža) — PDV obveznik ga odbija. Plaće i procesiranje plaćanja ne nose PDV.">?</span></span><span class="v pos">+${fmt(inVatT)}</span></div><div class="bd tot"><span>Neto trošak (bez odbitnog PDV-a)</span><span class="v">−${fmt(netCostT)}</span></div>`:''}
+        <div class="bd tot"><span>Ukupan mjesečni trošak</span><span class="v neg">−${fmtVcost(r.monthlyTotal,inVatT)}</span></div>
+        ${vatView!=='gross'?`<div class="bd"><span>od toga odbitni ulazni PDV <span class="abbr" data-tip="PDV sadržan u nabavkama koje nose PDV (oprema, vozila bez osiguranja/registracije, gorivo, ambalaža) — PDV obveznik ga odbija i vraća. Plaće i procesiranje plaćanja ne nose PDV.">?</span></span><span class="v pos">${fmt(inVatT)}</span></div>`:''}
         <div class="warn" style="margin-top:14px">Pojednostavljena procjena (tab „Fransizer") je <b>${fmt2(simple)}</b> po dostavi. Razlika dolazi od detaljnijih pretpostavki o samoj dostavi (neto plaća, doprinosi, topli obrok, oprema, varijabilni). <b>Režijski troškovi</b> (ured, dispečing, softver) se vode u tabu „Fransizer", ne ovdje.</div>
       </div>
     </div>
