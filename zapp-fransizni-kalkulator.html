@@ -486,7 +486,7 @@
       <div class="kpi"><div class="k-lab">Prihod po dostavi</div><div class="k-val ov-calc-val" id="ovPrihodPd">—</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovPrihodPdC" data-ovcpd="rev"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovPrihodSub"></div><div class="k-sub ov-cust-val" style="color:var(--muted)">ukupan prihod ÷ narudžbe</div></div>
       <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-calc-val"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl"><input type="number" id="ovLog3plInp" step="0.1" min="0"><span class="ov-unit">KM</span> <span class="netp" id="ovLog3plNet"></span></span></div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakLogPdC" data-ovcpd="log"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovLogSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg ov-calc-only" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
       <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-calc-val" id="ovTrosakOffPd">—</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakOffPdC" data-ovcpd="ured"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only">osoblje + ostali fiksni troškovi</div></div>
-      <div class="kpi" id="ovProfitCard"><div class="k-lab">Profit po dostavi</div><div class="k-val" id="ovProfitPd">—</div></div>
+      <div class="kpi" id="ovProfitCard"><div class="k-lab"><span class="abbr" data-tip="U prikazu „Bruto" = operativni profit PRIJE PDV obaveze. U „Bruto + neto / Neto" = stvarni profit NAKON PDV obaveze (ono što ostaje). Razlika bruto − neto je upravo PDV obaveza.">Profit po dostavi</span></div><div class="k-val" id="ovProfitPd">—</div></div>
     </div>
     <div class="cards2">
       <div class="card">
@@ -507,7 +507,7 @@
       </div>
     </div>
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-      <h3 style="margin:0">💰 Profit (mjesečno)</h3>
+      <h3 style="margin:0">💰 <span class="abbr" data-tip="U prikazu „Bruto" = profit prije PDV obaveze. U „Bruto + neto / Neto" = stvarni profit nakon PDV obaveze. Razlika je PDV obaveza.">Profit (mjesečno)</span></h3>
       <span class="v pos" id="ovProfitMj" style="font-size:26px;font-weight:800">—</span>
     </div>
     <div class="card">
@@ -712,6 +712,9 @@ function fmt2Vcost(g,vatIn){
   if(vatView==='gross') return fmt2(g);
   return fmt2(g)+' <span class="netp">(neto '+fmt2(net)+')</span>';
 }
+// PROFIT: bruto-osnova (prije PDV obaveze) = net+pdv; neto (stvarni, nakon PDV obaveze) = net. Razlika = PDV obaveza.
+function fmtProfit(net,pdv){ return (vatView==='both') ? fmt(net+pdv)+' <span class="netp">(neto '+fmt(net)+')</span>' : fmt(net); }
+function fmt2Profit(net,pdv){ return (vatView==='both') ? fmt2(net+pdv)+' <span class="netp">(neto '+fmt2(net)+')</span>' : fmt2(net); }
 
 /* ---------- Input configs (val = Procjena BiH) ---------- */
 const A_GROUPS = [
@@ -1454,7 +1457,7 @@ function updateOverview(){
   const l3=document.getElementById('ovLog3plInp'); if(l3&&document.activeElement!==l3) l3.value=pl3Price;
   const l3n=document.getElementById('ovLog3plNet'); if(l3n) l3n.textContent=(vatView!=='gross')?('(neto '+fmt2(NETv(pl3Price))+')'):'';
   set('ovTrosakOffPd', noOrders?'—':fmt2(calcOff));
-  set('ovProfitPd', noOrders?'—':fmt2(profPd)); set('ovNeto',fmt(neto));
+  setH('ovProfitPd', noOrders?'—':fmt2Profit(profPd,pdvPd)); set('ovNeto',fmt(neto));
   set('ovPrihodSub','PVN '+fmt2(v.aov)+' · provizija '+pct(blendedComm)+' ponderisano (− 3% Zapp = '+pct(franComm)+') · naknada '+fmt2(delEff)+' ponderisano — iz „Top restorani"');
   setH('ovProvMj',fmtV(provMj,true)); setH('ovDostMj',fmtV(dostMj,true)); setH('ovPrihodMj',fmtV(prihodMj,true));
   set('ovProvPct', pct(blendedComm)); set('ovDostAvg', fmt2(delEff));   // ponderisana provizija % i naknada/dostava (info u redovima)
@@ -1462,7 +1465,7 @@ function updateOverview(){
   set('ovSelfPct', num(selfFran)+'%'); setH('ovSelfProvMj', fmtV(v.aov*selfFran/100*ordersMonth,true));
   setH('ovRashodLogMj',fmtVcost(logMj,logVatIn)); setH('ovRashodOffMj',fmtVcost(offMj,offVatIn)); set('ovKarticeMj',fmt(karticeMj));
   set('ovPdvMj', vatView==='gross'?'—':fmt(pdvMj));
-  set('ovRashodMj',fmt(rashodMj)); set('ovProfitMj',fmt(profitMj));
+  set('ovRashodMj',fmt(rashodMj)); setH('ovProfitMj',fmtProfit(profitMj,pdvMj));
   const setIn=(id,val)=>{const e=document.getElementById(id); if(e&&document.activeElement!==e) e.value=ovD(val);};
   setIn('ovPrihodPdC',revPd); setIn('ovTrosakLogPdC',logPd); setIn('ovTrosakOffPdC',offPd);
   if(custom){ document.querySelectorAll('#overView .ovc-inp').forEach(inp=>{const k=inp.dataset.ovc; if(!k)return; if(document.activeElement!==inp) inp.value=ovG(ovcMj[k]||0);}); }
