@@ -267,10 +267,15 @@
   .ov-pct-row{display:flex;align-items:center;gap:12px;margin:8px 0 2px}
   .ov-pct-row .ov-range{flex:1}
   .ov-pct-row .ov-num{width:78px;font-size:18px}
-  .stp{display:inline-flex;align-items:center;gap:3px}
-  .stp-btn{width:24px;height:26px;flex:0 0 auto;border:1px solid #D9DCE0;border-radius:6px;background:#F1F2F4;color:var(--ink);font-size:16px;font-weight:800;line-height:1;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none}
-  .stp-btn:hover{background:var(--zapp);border-color:var(--zapp)}
-  .stp-btn:active{transform:translateY(1px)}
+  /* stepperi izgledaju kao native ▲▼ spinneri (kao u Izračunato) — vertikalno zalijepljeni uz desni rub polja */
+  .stp{display:inline-flex;align-items:stretch;vertical-align:middle}
+  .stp>input{border-top-right-radius:0!important;border-bottom-right-radius:0!important;border-right:0!important}
+  .stp-ar{display:flex;flex-direction:column;width:17px;flex:0 0 auto;border:1px solid #D9DCE0;border-left:0;border-radius:0 6px 6px 0;overflow:hidden;background:#F1F2F4}
+  .stp-btn{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:var(--muted);font-size:8px;line-height:1;cursor:pointer;padding:0;width:100%;-webkit-user-select:none;user-select:none}
+  .stp-btn.stp-up{border-bottom:1px solid #D9DCE0}
+  .stp-btn:hover{background:var(--zapp);color:var(--ink)}
+  .stp-btn:active{background:#E89A2B}
+  .stp:focus-within .stp-ar{border-color:var(--zapp)}
 
   /* mod T: Trošak logistike po dostavi (integrirani tab) */
   #costView{display:none}
@@ -1349,7 +1354,7 @@ document.querySelectorAll('#restoView th.sortable').forEach(th=>th.onclick=()=>{
   const f=th.dataset.sort; if(rSortField===f)rSortDir*=-1; else{rSortField=f;rSortDir=(f==='name')?1:-1;}
   renderResto();
 });
-document.getElementById('rApplyAll').onclick=()=>{const c=parseFloat(document.getElementById('rAllComm').value)||0,d=parseFloat(document.getElementById('rAllDel').value)||0,sc=selfCommV();rRows.forEach(r=>{if(r.group)return;r.comm=c;r.del=d;r.selfComm=sc;});renderResto();};  /* ne dira grupe (svaka ima svoju tier proviziju) */
+document.getElementById('rApplyAll').onclick=()=>{const c=parseFloat(document.getElementById('rAllComm').value)||0,d=parseFloat(document.getElementById('rAllDel').value)||0,sc=selfCommV();rRows.forEach(r=>{r.comm=c;r.del=d;r.selfComm=sc;});renderResto();};  /* primjenjuje na SVE redove, uključujući grupe */
 document.getElementById('rWorkDays').addEventListener('input',recomputeResto);
 document.getElementById('rSelfComm').addEventListener('input',saveState);
 document.querySelectorAll('#rLogSeg button').forEach(b=>b.onclick=()=>{ logSrc=b.dataset.lm; recomputeResto(); });   /* dijeli globalni logSrc s Pregledom */
@@ -1501,9 +1506,11 @@ function updateOverview(){
   // Steppere (−/+) ubaci uz sva ručna polja (per-dostavi, mjesečni iznosi, ručni broj narudžbi) — type=text izgubio native spinnere
   const wrapStepper=inp=>{ if(!inp||inp.closest('.stp'))return; const dec=inp.hasAttribute('data-ovcpd'); const isOrd=inp.id==='ovCustOrdersInp'; const step=isOrd?10:(dec?0.1:100);
     const wrap=document.createElement('span'); wrap.className='stp'; wrap.dataset.step=step; wrap.dataset.dec=dec?'1':'0';
-    const dn=document.createElement('button'); dn.type='button'; dn.className='stp-btn stp-dn'; dn.textContent='−'; dn.tabIndex=-1; dn.setAttribute('aria-label','smanji');
-    const up=document.createElement('button'); up.type='button'; up.className='stp-btn stp-up'; up.textContent='+'; up.tabIndex=-1; up.setAttribute('aria-label','povećaj');
-    inp.parentNode.insertBefore(wrap,inp); wrap.appendChild(dn); wrap.appendChild(inp); wrap.appendChild(up); };
+    const ar=document.createElement('span'); ar.className='stp-ar';
+    const up=document.createElement('button'); up.type='button'; up.className='stp-btn stp-up'; up.textContent='▲'; up.tabIndex=-1; up.setAttribute('aria-label','povećaj');
+    const dn=document.createElement('button'); dn.type='button'; dn.className='stp-btn stp-dn'; dn.textContent='▼'; dn.tabIndex=-1; dn.setAttribute('aria-label','smanji');
+    ar.appendChild(up); ar.appendChild(dn);
+    inp.parentNode.insertBefore(wrap,inp); wrap.appendChild(inp); wrap.appendChild(ar); };
   document.querySelectorAll('#overView .ovc-inp, #overView [data-ovcpd], #ovCustOrdersInp').forEach(wrapStepper);
   const ovStpEl=document.getElementById('overView');
   if(ovStpEl) ovStpEl.addEventListener('click',e=>{ const btn=e.target.closest&&e.target.closest('.stp-btn'); if(!btn)return; const wrap=btn.closest('.stp'); const inp=wrap&&wrap.querySelector('input'); if(!inp)return;
