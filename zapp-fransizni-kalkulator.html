@@ -307,7 +307,7 @@
   .own-status.ok{color:var(--green)}
   /* mod V: interni (zaključani) panel za vlasničku strukturu */
   .own-lock{font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55}
-  #ownPanel{display:none}
+  #ownPanel1{display:none}
   .own-secthead{font-weight:800;font-size:13px;margin:18px 0 8px;color:var(--ink)}
   .own-metrics{display:grid;gap:14px;margin:6px 0 2px}
   .own-w label{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;font-size:13px;gap:10px}
@@ -329,18 +329,8 @@
   .own-bar{height:18px;border-radius:6px 0 0 6px;background:var(--zapp);min-width:2px}
   .own-bar-row .pc{font-weight:800;text-align:right;color:var(--zapp-dark)}
   .own-empty{color:var(--muted);font-size:14px;padding:10px 0;line-height:1.6}
-  .own-why{font-size:13px;color:var(--ink);line-height:1.6;margin-top:6px}
-  .own-why h4{margin:16px 0 6px;font-size:13.5px}
-  .own-why ul{margin:6px 0;padding-left:20px}
-  .own-why li{margin-bottom:4px}
   .own-note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.55;border-top:1px solid var(--line);padding-top:12px}
   .own-foot{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-  .own-adv{margin-top:20px;border-top:1px solid var(--line);padding-top:4px}
-  .own-adv>summary{cursor:pointer;font-weight:800;font-size:13px;color:var(--muted);padding:9px 0;list-style:none}
-  .own-adv>summary::-webkit-details-marker{display:none}
-  .own-adv>summary:before{content:'▸ ';color:var(--zapp-dark)}
-  .own-adv[open]>summary:before{content:'▾ '}
-  .own-adv[open]>summary{color:var(--ink)}
   @media(max-width:560px){ .own-bar-row{grid-template-columns:84px 1fr 46px} table.own-tbl{font-size:12px} table.own-tbl th,table.own-tbl td{padding:7px 5px} }
 
   /* print */
@@ -603,33 +593,54 @@
     <div class="own-wrap">
 
       <div class="seg ov-modeseg own-seg no-print" id="ownSeg" role="group" aria-label="Pregled vlasničke strukture">
-        <button data-ov2="struct" class="active" aria-pressed="true">📊 Udjeli vlasnika</button>
+        <button data-ov2="v1" class="active" aria-pressed="true">🔒 Udjel vlasnika 1</button>
+        <button data-ov2="v2" aria-pressed="false">📊 Udjel vlasnika 2</button>
         <button data-ov2="prop" aria-pressed="false">✉️ Pošalji prijedlog</button>
       </div>
 
-      <div id="ownStructView" style="display:none">
+      <!-- ===== Udjel vlasnika 1 — po neto doprinosu (zaključano) ===== -->
+      <div id="ownV1View" style="display:none">
 
-      <div class="card" id="ownPanel">
-        <h3 style="margin:0 0 6px;font-size:16px">🏛️ Vlasnička struktura — udjeli po neto doprinosu</h3>
-        <p class="own-lock">Udjel svakog vlasnika = njegov udio u <b>ukupnom mjesečnom neto profitu (Mj. neto)</b> koji svi označeni lokali donose franšizi. Označi lokal kvačicom <b>👤 vlasnik</b> u tabu „Top restorani" — pojavit će se ovdje s neto doprinosom i postotkom. Čisti doprinos, bez težina i zaštita (npr. lokal koji donosi <b>10.000</b> i lokal koji donosi <b>90.000 KM</b> → <b>10 %</b> vs <b>90 %</b>).</p>
-        <div id="ownResults2"></div>
+        <div class="card own-gate" id="ownGate">
+          <h3>🔒 Udjel vlasnika 1 — zaključano</h3>
+          <p class="own-lock">Interni prikaz, vidljiv samo uz šifru. Udjel se računa <b>isključivo po mjesečnom neto doprinosu</b> svakog lokala označenog kao 👤 vlasnik (npr. <b>10.000</b> vs <b>90.000 KM</b> → <b>10 %</b> vs <b>90 %</b>).</p>
+          <label class="own-fld">Šifra
+            <input type="password" id="ownPass" placeholder="Unesite šifru" autocomplete="off">
+          </label>
+          <div class="own-actions">
+            <button class="btn zapp" id="ownUnlockBtn" type="button">Otključaj</button>
+          </div>
+          <div class="own-status" id="ownGateStatus" role="status" aria-live="polite"></div>
+        </div>
 
-        <details class="own-adv">
-          <summary>⚖️ Napredno: alternativni ponderisani prijedlog</summary>
-          <p class="own-lock" style="margin-top:10px">Ovdje se udjeli računaju ponderisano (neto + bruto promet + broj narudžbi), uz moguće min/max zaštite. Omjere faktora podesi klizačima.</p>
-          <div class="own-secthead">⚖️ Omjer faktora (težine)</div>
+        <div class="card" id="ownPanel1">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <h3 style="margin:0;font-size:16px">💯 Udjel vlasnika 1 — po mjesečnom neto doprinosu</h3>
+            <span style="flex:1"></span>
+            <button class="btn ghost" id="ownLockBtn" type="button" style="font-size:12px;padding:7px 12px">🔒 Zaključaj</button>
+          </div>
+          <p class="own-lock" style="margin-top:8px">Udjel = udio lokala u <b>ukupnom Mj. neto</b> koji svi označeni lokali donose franšizi. Čisti doprinos, bez težina i zaštita (npr. <b>10.000</b> vs <b>90.000 KM</b> → <b>10 %</b> vs <b>90 %</b>). Označi lokal kvačicom 👤 vlasnik u tabu „Top restorani".</p>
+          <div id="ownNetoResults"></div>
+        </div>
+
+      </div><!-- /ownV1View -->
+
+      <!-- ===== Udjel vlasnika 2 — ponderisani (više faktora) ===== -->
+      <div id="ownV2View" style="display:none">
+
+        <div class="card" id="ownPanel2">
+          <h3 style="margin:0 0 6px;font-size:16px">📊 Udjel vlasnika 2 — ponderisani (više faktora)</h3>
+          <p class="own-lock">Udjel se računa iz <b>više faktora</b> — svaki nosi koliko mu daš bodova (%): <b>ukupan promet</b>, <b>broj narudžbi</b> i <b>neto doprinos</b>. Zbroj se automatski normalizira na 100%. Vlasnici = lokali označeni 👤 vlasnik u „Top restorani".</p>
+          <div class="own-secthead">⚖️ Faktori i koliko nose (%)</div>
           <div class="own-metrics" id="ownWeights"></div>
           <div class="own-wsum" id="ownWsum"></div>
-          <div class="own-secthead">📊 Ponderisani prijedlog</div>
-          <div id="ownResults"></div>
-          <div class="own-why" id="ownWhy"></div>
+          <div id="ownWeightedResults"></div>
           <div class="own-foot">
             <button class="btn ghost" id="ownResetW" type="button">↺ Vrati zadane omjere</button>
           </div>
-        </details>
-      </div>
+        </div>
 
-      </div><!-- /ownStructView -->
+      </div><!-- /ownV2View -->
 
       <div id="ownPropView">
 
@@ -1197,30 +1208,31 @@ function lineChart(proj,payback){
 
 /* ---------- Top restorani (Banja Luka) — integrirani tab (mod C) ---------- */
 /* STVARNI Glovo podaci: n90 = promet (broj narudžbi) za 90 dana → npm = mjesečni prosjek (n90 ÷ 3) = POKRETAČ izračuna.
-   Nar./dan = npm ÷ radnih dana (izvedeno). aov = stvarni PVN EUR→KM (×1,95583). „Promet KM/mj" = PVN × npm. */
+   Nar./dan = npm ÷ radnih dana (izvedeno). aov = stvarni PVN EUR→KM (×1,95583). „Promet KM/mj" = PVN × npm.
+   comm = provizija %, stvarni ugovoreni iznos S PDV-om (osnovica × 1,17). Restorani bez navedene provizije ostaju na zadanih 20. */
 const RESTO_DEFAULT=[
-  {name:'Giros SOLUNAC', n90:26019, aov:20.9, ord:289},
-  {name:'Marcello Pekara & Fast Food', n90:11558, aov:20.4, ord:128},
-  {name:'Le Coq', n90:7863, aov:27.8, ord:87},
-  {name:'Indeks sendvič bar', n90:6092, aov:20.8, ord:68},
-  {name:'Pastirska kuća', n90:5638, aov:26.7, ord:63},
-  {name:'Cap - Cap', n90:5412, aov:17.6, ord:60},
-  {name:'Burger King', n90:4513, aov:25.4, ord:50},
-  {name:'Venecia', n90:4144, aov:24.7, ord:46},
-  {name:'Šah Mat Burger', n90:4099, aov:29.5, ord:46},
-  {name:'Pekara & roštilj Marcello', n90:3456, aov:19.4, ord:38},
-  {name:'Maletić pizza', n90:3229, aov:18.9, ord:36},
-  {name:'Kloopizza', n90:3038, aov:20.4, ord:34},
-  {name:'Roštiljnica A&D', n90:2989, aov:25.1, ord:33},
-  {name:'Leskovački roštilj 016', n90:2987, aov:26.7, ord:33},
-  {name:'Popaj Zdrava hrana', n90:2514, aov:22.7, ord:28},
-  {name:'Lukijan Pizza Cafe', n90:2479, aov:28.1, ord:28},
-  {name:'Trio Wraps', n90:2474, aov:26.5, ord:27},
-  {name:'Healthy', n90:2383, aov:20.0, ord:26},
-  {name:'Kodiak burger & steak', n90:2359, aov:29.6, ord:26},
-  {name:'JS Doner Kebab', n90:2329, aov:22.6, ord:26},
+  {name:'Giros SOLUNAC', n90:26019, aov:20.9, ord:289, comm:19.89},
+  {name:'Marcello Pekara & Fast Food', n90:11558, aov:20.4, ord:128, comm:22.23},
+  {name:'Le Coq', n90:7863, aov:27.8, ord:87, comm:9.36},
+  {name:'Indeks sendvič bar', n90:6092, aov:20.8, ord:68, comm:23.4},
+  {name:'Pastirska kuća', n90:5638, aov:26.7, ord:63, comm:20},
+  {name:'Cap - Cap', n90:5412, aov:17.6, ord:60, comm:23.4},
+  {name:'Burger King', n90:4513, aov:25.4, ord:50, comm:17.55},
+  {name:'Venecia', n90:4144, aov:24.7, ord:46, comm:10.53},
+  {name:'Šah Mat Burger', n90:4099, aov:29.5, ord:46, comm:21.06},
+  {name:'Pekara & roštilj Marcello', n90:3456, aov:19.4, ord:38, comm:21.06},
+  {name:'Maletić pizza', n90:3229, aov:18.9, ord:36, comm:23.4},
+  {name:'Kloopizza', n90:3038, aov:20.4, ord:34, comm:14.04},
+  {name:'Roštiljnica A&D', n90:2989, aov:25.1, ord:33, comm:20},
+  {name:'Leskovački roštilj 016', n90:2987, aov:26.7, ord:33, comm:23.4},
+  {name:'Popaj Zdrava hrana', n90:2514, aov:22.7, ord:28, comm:23.4},
+  {name:'Lukijan Pizza Cafe', n90:2479, aov:28.1, ord:28, comm:25.74},
+  {name:'Trio Wraps', n90:2474, aov:26.5, ord:27, comm:23.4},
+  {name:'Healthy', n90:2383, aov:20.0, ord:26, comm:20},
+  {name:'Kodiak burger & steak', n90:2359, aov:29.6, ord:26, comm:23.4},
+  {name:'JS Doner Kebab', n90:2329, aov:22.6, ord:26, comm:20},
 ];
-const cloneR=a=>a.map(({n90,ord,...r})=>({...r,npm:Math.round(n90/3),comm:20,del:3,self:false,selfComm:6,owner:false}));  /* n90 (90 dana) → npm = Glovo mjesečni prosjek (pokretač); nar/dan se izvodi iz npm */
+const cloneR=a=>a.map(({n90,ord,...r})=>({...r,npm:Math.round(n90/3),comm:r.comm??20,del:3,self:false,selfComm:6,owner:false}));  /* n90 (90 dana) → npm = Glovo mjesečni prosjek (pokretač); nar/dan se izvodi iz npm */
 /* Grupe restorana = zbirni redovi po proviziji (unesi zbirne podatke za sve restorane iste provizije). Zadano: L2=22%, L3=25% */
 const GROUP_DEFAULT=[{name:'L2',comm:22},{name:'L3',comm:25}];
 const groupRows=()=>GROUP_DEFAULT.map(g=>({name:g.name,npm:0,aov:20,comm:g.comm,del:3,self:false,selfComm:6,group:true}));
@@ -1712,25 +1724,24 @@ function ownStatus(msg,ok){ const s=document.getElementById('ownStatus'); if(!s)
 function ownHash(str,seed){seed=seed||0;let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);}
 const OWN_PASS_HASH='2g0cawbifdg';   /* cyrb53('vlasnik2026') — promjenu šifre traži od mene (preračunam hash) */
 const OWN_METRICS=[
-  {key:'mr',     label:'Neto doprinos',       sub:'Mj. neto — stvarni profit franšizi nakon kurira',   w:55, tip:'Mjesečni NETO profit koji lokal donosi franšizi: (provizija + dostava − trošak kurira) × broj narudžbi. Jedina brojka jednaka stvarnoj zaradi zajedničke firme — najpravičnije sidro (kao EBITDA pri vrednovanju franšiza). Negativan neto računa se kao 0.'},
-  {key:'mbruto', label:'Prihod od dostave',   sub:'Mj. bruto — provizija prije troška kurira',          w:25, tip:'Bruto prihod franšize od lokala: (provizija + dostava) × broj narudžbi, prije troška kurira. Vidljivo i teško za manipulaciju — služi kao kontrolna provjera neta (royalty-baza).'},
-  {key:'npm',    label:'Broj narudžbi',       sub:'Nar./mj — mrežna gustoća i baza kupaca',            w:20, tip:'Broj narudžbi mjesečno (Glovo prosjek). Pokazuje ko drži kurire i mrežu zaposlenima — mrežni efekt koji čista zarada ne uhvati. Niža težina jer ne razlikuje vrijednost narudžbe.'},
-  {key:'gmv',    label:'Ukupni promet (GMV)', sub:'Promet KM/mj — vrijednost narudžbi (informativno)', w:0,  tip:'Ukupna vrijednost narudžbi u KM (PVN × broj narudžbi). Novac RESTORANA koji samo prolazi kroz platformu — franšiza zadrži tek mali %. Default 0%: dva lokala s istim prometom mogu franšizi donijeti drastično različit profit.'},
+  {key:'gmv',  label:'Ukupan promet', sub:'Promet KM/mj — ukupna vrijednost narudžbi',        w:30, fmt:'km',  tip:'Ukupna vrijednost narudžbi u KM (PVN × broj narudžbi) koje lokal generiše kroz platformu. Koliko mu daš bodova (%), toliko ukupan promet utiče na udjel.'},
+  {key:'npm',  label:'Broj narudžbi', sub:'Nar./mj — mrežna gustoća i baza kupaca',            w:30, fmt:'num', tip:'Broj narudžbi mjesečno (Glovo prosjek). Pokazuje ko drži mrežu i kurire zaposlenima. Koliko mu daš bodova (%), toliko broj narudžbi utiče na udjel.'},
+  {key:'mr',   label:'Neto doprinos', sub:'Mj. neto — stvarni profit franšizi nakon kurira',   w:40, fmt:'km',  tip:'Mjesečni NETO profit koji lokal donosi franšizi: (provizija + dostava − trošak kurira) × broj narudžbi. Negativan neto računa se kao 0. Koliko mu daš bodova (%), toliko neto doprinos utiče na udjel.'},
 ];
-const OWN_CFG_KEY='zapp-own-cfg';
+const OWN_CFG_KEY='zapp-own-cfg-v2';
 let ownWeights={}, ownFloor=2, ownCap=35, ownCapAuto=true;
 OWN_METRICS.forEach(M=>ownWeights[M.key]=M.w);
 (function loadOwnCfg(){ try{ const c=JSON.parse(localStorage.getItem(OWN_CFG_KEY)); if(c&&typeof c==='object'){ if(c.w&&typeof c.w==='object') OWN_METRICS.forEach(M=>{ if(typeof c.w[M.key]==='number') ownWeights[M.key]=c.w[M.key]; }); if(typeof c.floor==='number') ownFloor=c.floor; if(typeof c.cap==='number') ownCap=c.cap; if(typeof c.capAuto==='boolean') ownCapAuto=c.capAuto; } }catch(e){} })();
 function ownSaveCfg(){ try{ localStorage.setItem(OWN_CFG_KEY, JSON.stringify({w:ownWeights,floor:ownFloor,cap:ownCap,capAuto:ownCapAuto})); }catch(e){} }
 function ownUnlocked(){ try{ return sessionStorage.getItem('zapp-own-unlocked')==='1'; }catch(e){ return false; } }
-function ownShowPanel(show){ const g=document.getElementById('ownGate'), p=document.getElementById('ownPanel'); if(g) g.style.display=show?'none':''; if(p) p.style.display=show?'block':'none'; }
+function ownShowV1Panel(unlocked){ const g=document.getElementById('ownGate'), p=document.getElementById('ownPanel1'); if(g) g.style.display=unlocked?'none':''; if(p) p.style.display=unlocked?'block':'none'; }
 function ownGateStatus(msg){ const s=document.getElementById('ownGateStatus'); if(s){ s.textContent=msg||''; s.classList.remove('ok'); } }
-function ownDoUnlock(){ const inp=document.getElementById('ownPass'); const v=(inp&&inp.value)||''; if(ownHash(v)===OWN_PASS_HASH){ try{sessionStorage.setItem('zapp-own-unlocked','1');}catch(e){} if(inp) inp.value=''; ownGateStatus(''); ownShowPanel(true); ownRenderAll(); } else { ownGateStatus('Pogrešna šifra.'); } }
-function ownDoLock(){ try{sessionStorage.removeItem('zapp-own-unlocked');}catch(e){} ownShowPanel(false); }
+function ownDoUnlock(){ const inp=document.getElementById('ownPass'); const v=(inp&&inp.value)||''; if(ownHash(v)===OWN_PASS_HASH){ try{sessionStorage.setItem('zapp-own-unlocked','1');}catch(e){} if(inp) inp.value=''; ownGateStatus(''); ownShowV1Panel(true); ownRenderNeto(); } else { ownGateStatus('Pogrešna šifra.'); } }
+function ownDoLock(){ try{sessionStorage.removeItem('zapp-own-unlocked');}catch(e){} ownShowV1Panel(false); }
 /* clamp net at 0 — gubitaški lokal ne skuplja udio na tuđi račun */
 function ownMetricVal(r,key){ return Math.max(0, valForR(r,key)); }
 function ownCompute(owners){
-  const rows=owners.map(r=>({name:r.name, m:{ mr:ownMetricVal(r,'mr'), mbruto:ownMetricVal(r,'mbruto'), npm:ownMetricVal(r,'npm'), gmv:ownMetricVal(r,'gmv') }}));
+  const rows=owners.map(r=>{const m={}; OWN_METRICS.forEach(M=>m[M.key]=ownMetricVal(r,M.key)); return {name:r.name, m};});
   const totals={}; OWN_METRICS.forEach(M=>totals[M.key]=rows.reduce((s,o)=>s+o.m[M.key],0));
   let sumW=0, effW={};
   OWN_METRICS.forEach(M=>{ const w=(totals[M.key]>0)?(ownWeights[M.key]||0):0; effW[M.key]=w; sumW+=w; });
@@ -1761,55 +1772,36 @@ function ownBuildControls(){
     +'<div class="own-w"><label>Min. udjel po vlasniku <span class="wv" id="ownFloorV">'+ownFloor+'%</span></label><div class="own-wsub">Zaštita malih partnera — svako dobiva barem ovoliko.</div><input type="range" min="0" max="15" step="0.5" value="'+ownFloor+'" id="ownFloorR" aria-label="Minimalni udjel"></div>'
     +'<div class="own-w"><label>Max. udjel po vlasniku <span class="wv" id="ownCapV"></span></label><div class="own-wsub">Niko ne preuzima kontrolu nesrazmjernu doprinosu (water-filling).</div><input type="range" min="20" max="100" step="1" value="'+ownCap+'" id="ownCapR" aria-label="Maksimalni udjel"><label style="margin-top:8px;font-weight:600;font-size:12px;display:flex;gap:7px;align-items:center"><input type="checkbox" id="ownCapAuto"'+(ownCapAuto?' checked':'')+'> Automatski po broju vlasnika (preporučeno)</label></div>';
   wrap.innerHTML=metricHtml+guardHtml;
-  wrap.querySelectorAll('input[type=range][data-k]').forEach(s=>s.addEventListener('input',e=>{const k=e.target.dataset.k;ownWeights[k]=parseInt(e.target.value,10)||0;const wv=document.getElementById('ownwv-'+k);if(wv)wv.textContent=ownWeights[k]+'%';ownSaveCfg();ownRenderResults();}));
-  const fr=document.getElementById('ownFloorR'); if(fr) fr.addEventListener('input',e=>{ownFloor=parseFloat(e.target.value)||0;const v=document.getElementById('ownFloorV');if(v)v.textContent=ownFloor+'%';ownSaveCfg();ownRenderResults();});
-  const cr=document.getElementById('ownCapR'); if(cr){ cr.disabled=ownCapAuto; cr.addEventListener('input',e=>{ownCap=parseFloat(e.target.value)||35;ownSaveCfg();ownRenderResults();}); }
-  const ca=document.getElementById('ownCapAuto'); if(ca) ca.addEventListener('change',e=>{ownCapAuto=e.target.checked;const c2=document.getElementById('ownCapR');if(c2)c2.disabled=ownCapAuto;ownSaveCfg();ownRenderResults();});
+  wrap.querySelectorAll('input[type=range][data-k]').forEach(s=>s.addEventListener('input',e=>{const k=e.target.dataset.k;ownWeights[k]=parseInt(e.target.value,10)||0;const wv=document.getElementById('ownwv-'+k);if(wv)wv.textContent=ownWeights[k]+'%';ownSaveCfg();ownRenderWeighted();}));
+  const fr=document.getElementById('ownFloorR'); if(fr) fr.addEventListener('input',e=>{ownFloor=parseFloat(e.target.value)||0;const v=document.getElementById('ownFloorV');if(v)v.textContent=ownFloor+'%';ownSaveCfg();ownRenderWeighted();});
+  const cr=document.getElementById('ownCapR'); if(cr){ cr.disabled=ownCapAuto; cr.addEventListener('input',e=>{ownCap=parseFloat(e.target.value)||35;ownSaveCfg();ownRenderWeighted();}); }
+  const ca=document.getElementById('ownCapAuto'); if(ca) ca.addEventListener('change',e=>{ownCapAuto=e.target.checked;const c2=document.getElementById('ownCapR');if(c2)c2.disabled=ownCapAuto;ownSaveCfg();ownRenderWeighted();});
 }
-function ownBuildWhy(){
-  const el=document.getElementById('ownWhy'); if(!el||el._built) return; el._built=true;
-  el.innerHTML=''
-    +'<h4>Zašto se vlasništvo NE dijeli po prometu (GMV)</h4>'
-    +'<p>Promet restorana (GMV) je novac koji samo <b>prolazi</b> kroz Zapp — pripada vama i vraća se vama. Platforma zadrži samo proviziju po dostavi, a od toga, nakon kurira, ostane neto zarada. Zato dva restorana s istim prometom mogu franšizi donijeti potpuno različitu zaradu. Vlasništvo zato prati ono što firma <b>stvarno zaradi</b> zbog vas, ne koliki je restoran.</p>'
-    +'<h4>Predloženo pravilo (svjetski standard: udio ∝ doprinosu)</h4>'
-    +'<ul>'
-    +'<li><b>55% — Mj. neto</b>: čista zarada franšize nakon kurira. „Posjeduješ srazmjerno profitu koji donosiš" — kao što se multi-unit franšize vrednuju po profitu (EBITDA), ne po prometu.</li>'
-    +'<li><b>25% — Mj. bruto</b>: provizija prije troška kurira. Vidljivo, teško se vara — kontrolna provjera neta.</li>'
-    +'<li><b>20% — broj narudžbi</b>: ko drži mrežu i kurire zaposlenima (mrežna gustoća).</li>'
-    +'<li><b>0% — GMV/promet</b>: samo informativno (novac restorana, ne franšize).</li>'
-    +'</ul>'
-    +'<h4>Ugrađene zaštite</h4>'
-    +'<ul>'
-    +'<li><b>Granice udjela</b> računaju se „water-filling" metodom (zamrzni najvećeg na granici, ostatak pravično rasporedi) — granica stvarno drži; u maloj grupi se prilagođava broju vlasnika.</li>'
-    +'<li><b>Negativan neto</b> računa se kao 0 — gubitaški restoran ne skuplja udio na tuđi račun.</li>'
-    +'<li><b>Uloženi novac (kapital)</b> NIJE vlasništvo — vraća se <b>prvi</b>, kao prioritetni povrat/zajam s opadajućim saldom. Veći ulog kupuje raniji povrat novca, ne trajnu kontrolu. (Dogovara se zasebno, izvan ove formule.)</li>'
-    +'<li><b>Operativna tranša</b> (npr. 5–10% „sa vrha") za onoga ko vodi dnevni rad — po dogovoru, prije raspodjele.</li>'
-    +'<li><b>Glasanje</b>: preporuka jedan član = jedan glas (nezavisno od ekonomskog udjela), uz super-većinu za ključne odluke (prodaja, izmjena formule).</li>'
-    +'</ul>'
-    +'<p class="own-note">Polazni prijedlog po svjetskim standardima (contribution-based equity / Slicing Pie; valuacija po profitu). Podesi težine i granice klizačima i provjeri na stvarnim Glovo brojkama prije dogovora. Preporuka: sve upisati u ugovor zajedno s primjerom računa, da svako sam provjeri rezultat.</p>';
-}
-function ownRenderResults(){
-  const out=document.getElementById('ownResults'); if(!out) return;
+function ownRenderWeighted(){
+  const out=document.getElementById('ownWeightedResults'); if(!out) return;
   const owners=rRows.filter(r=>r.owner&&!r.group), N=owners.length;
   const totW=OWN_METRICS.reduce((s,M)=>s+(ownWeights[M.key]||0),0);
   const capPct=ownCapAuto?Math.max(35,Math.round(160/Math.max(1,N))):ownCap;
   const cv=document.getElementById('ownCapV'); if(cv) cv.textContent=capPct+'%'+(ownCapAuto?' (auto)':'');
-  const wsum=document.getElementById('ownWsum'); if(wsum) wsum.innerHTML='Zbroj težina: <b>'+totW+'%</b> — '+(totW===100?'omjeri se primjenjuju direktno.':'omjeri se automatski normaliziraju na 100%.');
-  if(!N){ out.innerHTML='<div class="own-empty">Nijedan restoran nije označen kao <b>👤 vlasnik</b>.<br>Otvori tab <b>„Top restorani"</b> i kvačicom 👤 označi restorane čiji vlasnici ulaze u franšizu — pojavit će se ovdje.</div>'; return; }
+  const wsum=document.getElementById('ownWsum'); if(wsum) wsum.innerHTML='Zbroj bodova: <b>'+totW+'%</b> — '+(totW===100?'omjeri se primjenjuju direktno.':'omjeri se automatski normaliziraju na 100%.');
+  if(!N){ out.innerHTML='<div class="own-empty">Nijedan lokal nije označen kao <b>👤 vlasnik</b>.<br>Otvori tab <b>„Top restorani"</b> i kvačicom 👤 označi lokale čiji vlasnici ulaze u franšizu — pojavit će se ovdje.</div>'; return; }
   const {rows}=ownCompute(owners);
   ownWaterfill(rows,(ownFloor||0)/100,capPct/100);
   rows.sort((a,b)=>b.share-a.share);
-  const tot={mr:0,mbruto:0,npm:0,gmv:0}; rows.forEach(o=>OWN_METRICS.forEach(M=>tot[M.key]+=o.m[M.key]));
+  const tot={}; OWN_METRICS.forEach(M=>tot[M.key]=rows.reduce((s,o)=>s+o.m[M.key],0));
+  const fmtM=(M,v)=> M.fmt==='num' ? num(v) : fmt(v);
   const maxShare=Math.max.apply(null,rows.map(o=>o.share).concat(0.0001));
   const bars=rows.map(o=>'<div class="own-bar-row"><span class="nm" title="'+esc(o.name)+'">'+esc(o.name)+'</span><div class="own-bar-track"><div class="own-bar" style="width:'+(o.share/maxShare*100).toFixed(1)+'%"></div></div><span class="pc">'+(o.share*100).toFixed(1)+'%</span></div>').join('');
-  const trs=rows.map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+num(o.m.npm)+'</td><td>'+fmt(o.m.gmv)+'</td><td>'+fmt(o.m.mbruto)+'</td><td>'+fmt(o.m.mr)+'</td><td class="own-share">'+(o.share*100).toFixed(1)+'%</td></tr>').join('');
-  out.innerHTML='<div class="own-bars">'+bars+'</div><div style="overflow-x:auto"><table class="own-tbl"><thead><tr><th>Restoran (vlasnik)</th><th>Nar./mj</th><th>Promet KM/mj</th><th>Prihod dost./mj</th><th>Neto/mj</th><th>Udjel</th></tr></thead><tbody>'+trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>'+num(tot.npm)+'</td><td>'+fmt(tot.gmv)+'</td><td>'+fmt(tot.mbruto)+'</td><td>'+fmt(tot.mr)+'</td><td>100%</td></tr></tfoot></table></div>';
+  const th='<th>Lokal (vlasnik)</th>'+OWN_METRICS.map(M=>'<th>'+esc(M.label)+'</th>').join('')+'<th>Udjel</th>';
+  const trs=rows.map(o=>'<tr><td>'+esc(o.name)+'</td>'+OWN_METRICS.map(M=>'<td>'+fmtM(M,o.m[M.key])+'</td>').join('')+'<td class="own-share">'+(o.share*100).toFixed(1)+'%</td></tr>').join('');
+  const tf='<td>Ukupno ('+N+')</td>'+OWN_METRICS.map(M=>'<td>'+fmtM(M,tot[M.key])+'</td>').join('')+'<td>100%</td>';
+  out.innerHTML='<div class="own-bars">'+bars+'</div><div style="overflow-x:auto"><table class="own-tbl"><thead><tr>'+th+'</tr></thead><tbody>'+trs+'</tbody><tfoot><tr>'+tf+'</tr></tfoot></table></div>';
 }
-/* Prijedlog 2: čista raspodjela po udjelu u ukupnom Mj. neto (bez težina i zaštita) */
-function ownRenderResults2(){
-  const out=document.getElementById('ownResults2'); if(!out) return;
+/* Udjel vlasnika 1: čista raspodjela po udjelu u ukupnom Mj. neto (bez težina i zaštita) */
+function ownRenderNeto(){
+  const out=document.getElementById('ownNetoResults'); if(!out) return;
   const owners=rRows.filter(r=>r.owner&&!r.group), N=owners.length;
-  if(!N){ out.innerHTML='<div class="own-empty">Označi restorane <b>👤 vlasnik</b> u „Top restorani" da se pojave i ovdje.</div>'; return; }
+  if(!N){ out.innerHTML='<div class="own-empty">Označi lokale <b>👤 vlasnik</b> u „Top restorani" da se pojave ovdje.</div>'; return; }
   const rows=owners.map(r=>({name:r.name, net:Math.max(0,valForR(r,'mr'))}));
   const tot=rows.reduce((s,o)=>s+o.net,0);
   rows.forEach(o=>o.share = tot>0 ? o.net/tot : 1/N);
@@ -1817,24 +1809,30 @@ function ownRenderResults2(){
   const maxShare=Math.max.apply(null,rows.map(o=>o.share).concat(0.0001));
   const bars=rows.map(o=>'<div class="own-bar-row"><span class="nm" title="'+esc(o.name)+'">'+esc(o.name)+'</span><div class="own-bar-track"><div class="own-bar" style="width:'+(o.share/maxShare*100).toFixed(1)+'%"></div></div><span class="pc">'+(o.share*100).toFixed(1)+'%</span></div>').join('');
   const trs=rows.map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+fmt(o.net)+'</td><td class="own-share">'+(o.share*100).toFixed(1)+'%</td></tr>').join('');
-  out.innerHTML='<div class="own-bars">'+bars+'</div><div style="overflow-x:auto"><table class="own-tbl"><thead><tr><th>Restoran (vlasnik)</th><th>Neto/mj</th><th>Udjel</th></tr></thead><tbody>'+trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>'+fmt(tot)+'</td><td>100%</td></tr></tfoot></table></div>';
+  out.innerHTML='<div class="own-bars">'+bars+'</div><div style="overflow-x:auto"><table class="own-tbl"><thead><tr><th>Lokal (vlasnik)</th><th>Neto/mj</th><th>Udjel</th></tr></thead><tbody>'+trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>'+fmt(tot)+'</td><td>100%</td></tr></tfoot></table></div>';
 }
-function ownRenderAll(){ ownRenderResults2(); ownBuildControls(); ownBuildWhy(); ownRenderResults(); }
-function ownStructEnter(){ ownShowPanel(true); ownRenderAll(); }
-/* pod-prikaz unutar mod V (kao Pregled: seg „Prijedlog" | „Vlasnička struktura"); default = Prijedlog */
+/* Vlasnik 1 = zaključan prikaz po neto doprinosu; otključavanje šifrom */
+function ownV1Enter(){ if(ownUnlocked()){ ownShowV1Panel(true); ownRenderNeto(); } else { ownShowV1Panel(false); } }
+/* Vlasnik 2 = otvoreni ponderisani prikaz (više faktora) */
+function ownV2Enter(){ ownBuildControls(); ownRenderWeighted(); }
+/* pod-prikazi mod V: „🔒 Udjel vlasnika 1" | „📊 Udjel vlasnika 2" | „✉️ Pošalji prijedlog"; default = v1 */
 function ownSetView(which){
-  const struct=(which==='struct');
-  const pv=document.getElementById('ownPropView'), sv=document.getElementById('ownStructView');
-  if(pv) pv.style.display=struct?'none':'';
-  if(sv) sv.style.display=struct?'':'none';
+  const v1=document.getElementById('ownV1View'), v2=document.getElementById('ownV2View'), pv=document.getElementById('ownPropView');
+  if(v1) v1.style.display=(which==='v1')?'':'none';
+  if(v2) v2.style.display=(which==='v2')?'':'none';
+  if(pv) pv.style.display=(which==='prop')?'':'none';
   document.querySelectorAll('#ownSeg button').forEach(b=>{const on=(b.dataset.ov2===which);b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
-  if(struct) ownStructEnter(); else ownStatus('');
+  if(which==='v1') ownV1Enter();
+  else if(which==='v2') ownV2Enter();
+  else ownStatus('');
 }
-function ownEnter(){ ownSetView('struct'); }
+function ownEnter(){ ownSetView('v1'); }
 (function initOwnGate(){
+  const u=document.getElementById('ownUnlockBtn'); if(u) u.onclick=ownDoUnlock;
+  const p=document.getElementById('ownPass'); if(p) p.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); ownDoUnlock(); } });
+  const l=document.getElementById('ownLockBtn'); if(l) l.onclick=ownDoLock;
   document.querySelectorAll('#ownSeg button').forEach(b=>b.onclick=()=>ownSetView(b.dataset.ov2));
-  const rw=document.getElementById('ownResetW'); if(rw) rw.onclick=()=>{ OWN_METRICS.forEach(M=>ownWeights[M.key]=M.w); ownFloor=2; ownCap=35; ownCapAuto=true; ownSaveCfg(); const wrap=document.getElementById('ownWeights'); if(wrap){ wrap._built=false; ownBuildControls(); } ownRenderResults(); };
-  ownShowPanel(true);
+  const rw=document.getElementById('ownResetW'); if(rw) rw.onclick=()=>{ OWN_METRICS.forEach(M=>ownWeights[M.key]=M.w); ownFloor=2; ownCap=35; ownCapAuto=true; ownSaveCfg(); const wrap=document.getElementById('ownWeights'); if(wrap){ wrap._built=false; ownBuildControls(); } ownRenderWeighted(); };
 })();
 
 /* ---------- Events ---------- */
