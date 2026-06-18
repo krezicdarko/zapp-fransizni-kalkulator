@@ -680,7 +680,7 @@ const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&
 const VAT_RATE=0.17;                              // standardna stopa PDV-a u BiH
 const NETv = x => (x||0)/(1+VAT_RATE);            // bruto → neto osnovica (bez PDV-a)
 const PDVv = x => (x||0)*VAT_RATE/(1+VAT_RATE);   // PDV sadržan u bruto iznosu (= ×14,53%)
-let vatView='both';                              // prikaz: 'both' (bruto + neto u zagradi) | 'gross' | 'net'
+let vatView='gross';                             // default prikaz = Bruto; 'both' (bruto + neto u zagradi) | 'gross' | 'net'
 // fmtV/fmt2V: formatira KM iznos prema prekidaču; hasVat=true → stavka nosi PDV (neto = bruto/1,17)
 function fmtV(g,hasVat){
   if(vatView==='net') return fmt(hasVat?NETv(g):g);
