@@ -507,7 +507,8 @@
       <div class="pl-row"><span>+ Naknada za dostavu</span><b class="pos" id="ovPlDost">—</b></div>
       <div class="pl-row"><span>− Logistika <span class="seg lp-seg" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></span></span><b class="neg"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl">−<input type="number" id="ovLog3plInp" step="0.1" min="0"> KM <span class="netp" id="ovLog3plNet"></span></span></b></div>
       <div class="pl-row"><span>− Ured</span><b class="neg" id="ovTrosakOffPd">—</b></div>
-      <div class="pl-row"><span>− Kartice + PDV</span><b class="neg" id="ovPlCard">—</b></div>
+      <div class="pl-row"><span>− Kartice</span><b class="neg" id="ovPlCard">—</b></div>
+      <div class="pl-row"><span>− PDV obaveza</span><b class="neg" id="ovPlPdv">—</b></div>
       <div class="pl-row tot"><span>= Profit po dostavi</span><b id="ovPlProfit">—</b></div>
     </div>
     <div class="cards2">
@@ -1513,7 +1514,9 @@ function updateOverview(){
   const provNetPd=provBrutoPd-provZappPd;                                                              // ostaje franšizeru po dostavi (= provPd, „Prihod po dostavi (provizija)")
   set('ovBoxProvPct','('+pct(blendedComm)+')'); set('ovBoxZappPct','('+pct(zappRate2)+')');
   setH('ovBoxProvBruto',fmt2V(provBrutoPd,true)); setH('ovBoxProvZapp','−'+fmt2V(provZappPd,true)); setH('ovBoxProvNet',fmt2V(provNetPd,true));
-  setH('ovPlDost','+'+fmt2V(dostPd,true)); setH('ovPlCard', noOrders?'—':'−'+fmt2(karticePerDel+pdvPd)); setH('ovPlProfit', noOrders?'—':fmt2Profit(profPd,pdvPd));
+  setH('ovPlDost','+'+fmt2V(dostPd,true)); setH('ovPlCard', noOrders?'—':'−'+fmt2(karticePerDel));
+  setH('ovPlPdv', (noOrders||vatView==='gross')?'—':(pdvPd>=0?'−':'+')+fmt2(Math.abs(pdvPd)));   // PDV obaveza po dostavi; u „Bruto" prikazu ugašena (—), kao mjesečni red
+  setH('ovPlProfit', noOrders?'—':fmt2Profit(profPd,pdvPd));
   setH('ovProvMj',fmtV(provMj,true)); setH('ovDostMj',fmtV(dostMj,true)); setH('ovPrihodMj',fmtV(prihodMj,true));
   set('ovProvPct', pct(blendedComm)); set('ovDostAvg', fmt2(delEff));   // ponderisana provizija % i naknada/dostava (info u redovima)
   set('ovSelfPct', num(Math.round(selfEco.franPct*10)/10)+'%'); setH('ovSelfProvMj', fmtV(selfProvMj,true));   // SAMO in-house restorani: ponderisana neto self-stopa i njihov zbirni prihod (0 ako nijedan nije „sami voze")
