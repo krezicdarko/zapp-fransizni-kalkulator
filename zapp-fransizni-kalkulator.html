@@ -512,6 +512,16 @@
       <div class="pl-row"><span>− PDV obaveza</span><b class="neg" id="ovPlPdv">—</b></div>
       <div class="pl-row tot"><span>= Profit po dostavi</span><b id="ovPlProfit">—</b></div>
     </div>
+    <div class="ov-calc-only card ov-pl" id="ovInhCard">
+      <h3>🚗 Po jednoj dostavi — IN-HOUSE <span style="font-weight:600;color:var(--muted);font-size:13px">— restorani „sami voze" (samo provizija franšizeru; dostavu vozi i naplaćuje restoran)</span></h3>
+      <div class="pl-row"><span>Provizija (bruto) <b class="plsub" id="ovInhBrutoPct"></b></span><b class="pos" id="ovInhBruto">—</b></div>
+      <div class="pl-row"><span>− Zapp (royalty) <b class="plsub" id="ovInhZappPct"></b></span><b class="neg" id="ovInhZapp">—</b></div>
+      <div class="pl-row sub"><span>= Provizija (neto)</span><b class="pos" id="ovInhNet">—</b></div>
+      <div class="pl-row"><span>− Ured</span><b class="neg" id="ovInhUred">—</b></div>
+      <div class="pl-row"><span>− Kartice</span><b class="neg" id="ovInhCard2">—</b></div>
+      <div class="pl-row"><span>− PDV obaveza</span><b class="neg" id="ovInhPdv">—</b></div>
+      <div class="pl-row tot"><span>= Zarada po dostavi</span><b id="ovInhProfit">—</b></div>
+    </div>
     <div class="cards2">
       <div class="card">
         <h3>📥 Prihod (mjesečno)</h3>
@@ -1015,14 +1025,16 @@ function restoFranEconomics(){   /* ponderisana ekonomija provizije/dostave iz �
     delAvg: orders>0?delRev/orders:0};           // PONDERISANA naknada/dostava KM (ponder = broj narudžbi)
 }
 function restoSelfEconomics(){   /* ekonomija „sami voze" iz „Top restorani" — SAMO in-house restorani (self=true; grupe uključene) */
-  let gmv=0, orders=0, franRev=0;
+  let gmv=0, orders=0, franRev=0, grossRev=0;
   (rRows||[]).forEach(r=>{
     if(!r.self) return;                                            // samo restorani koji sami voze (ostali → restoFranEconomics)
     const npm=+r.npm||0, g=(+r.aov||0)*npm;                        // promet restorana (PVN × narudžbe)
     gmv+=g; orders+=npm;
+    grossRev+=g*Math.max(0,(+r.selfComm||0))/100;                  // bruto self-provizija (puna, prije Zapp dijela)
     franRev+=g*Math.max(0,(+r.selfComm||0)-ZAPP_SELF_CUT)/100;     // franšizerski dio = (self-provizija − 3pp Zapp) × promet, po objektu
   });
-  return {gmv, orders, franRev, franPct: gmv>0?franRev/gmv*100:0}; // franRev = mjesečni prihod od provizije in-house; franPct = ponderisana neto self-stopa
+  return {gmv, orders, franRev, grossRev, zappRev:grossRev-franRev,            // franRev = neto (franšizerov); grossRev = bruto; zappRev = Zapp dio (3pp)
+    franPct: gmv>0?franRev/gmv*100:0, grossPct: gmv>0?grossRev/gmv*100:0, zappPct: gmv>0?(grossRev-franRev)/gmv*100:0};
 }
 function computeA(){
   valA.aov=avgRestoPVN();   // PVN = prosjek PVN-a iz 20 restorana (tab „Top restorani")
@@ -1518,6 +1530,19 @@ function updateOverview(){
   setH('ovPlDost','+'+fmt2V(dostPd,true)); setH('ovPlPrihod',fmt2V(revPd,true)); setH('ovPlCard', noOrders?'—':'−'+fmt2(karticePerDel));
   setH('ovPlPdv', (noOrders||vatView==='gross')?'—':(pdvPd>=0?'−':'+')+fmt2(Math.abs(pdvPd)));   // PDV obaveza po dostavi; u „Bruto" prikazu ugašena (—), kao mjesečni red
   setH('ovPlProfit', noOrders?'—':fmt2Profit(profPd,pdvPd));
+  // IN-HOUSE lista (sami voze) — samo provizija franšizeru; bez dostave i logistike; troškovi (ured/kartice/PDV) preko checkboxa
+  (function(){
+    var so=selfEco.orders, has=so>0;
+    var brutoPd=has?selfEco.grossRev/so:0, zappPd=has?selfEco.zappRev/so:0, netPd=has?selfEco.franRev/so:0;
+    var avgPVN=has?selfEco.gmv/so:0;
+    var uredPd=offPd, cardPdInh=avgPVN*(cardVol/100)*(cardPct/100), pdvPdInh=(vatView==='gross')?0:PDVv(netPd);  // ured = isti raspored kao Zapp; kartice na PVN (bez dostave); PDV = izlazni na neto proviziju
+    var em='—';
+    set('ovInhBrutoPct', has?'('+pct(selfEco.grossPct)+')':''); set('ovInhZappPct', has?'('+pct(selfEco.zappPct)+')':'');
+    setH('ovInhBruto', has?fmt2V(brutoPd,true):em); setH('ovInhZapp', has?'−'+fmt2V(zappPd,true):em); setH('ovInhNet', has?fmt2V(netPd,true):em);
+    setH('ovInhUred', has?'−'+fmt2(uredPd):em); setH('ovInhCard2', has?'−'+fmt2(cardPdInh):em); setH('ovInhPdv', (!has||vatView==='gross')?em:'−'+fmt2(pdvPdInh));
+    var zarada=netPd-uredPd-cardPdInh-pdvPdInh;
+    setH('ovInhProfit', has?fmt2(zarada):em);
+  })();
   setH('ovProvMj',fmtV(provMj,true)); setH('ovDostMj',fmtV(dostMj,true)); setH('ovPrihodMj',fmtV(prihodMj,true));
   set('ovProvPct', pct(blendedComm)); set('ovDostAvg', fmt2(delEff));   // ponderisana provizija % i naknada/dostava (info u redovima)
   set('ovSelfPct', num(Math.round(selfEco.franPct*10)/10)+'%'); setH('ovSelfProvMj', fmtV(selfProvMj,true));   // SAMO in-house restorani: ponderisana neto self-stopa i njihov zbirni prihod (0 ako nijedan nije „sami voze")
