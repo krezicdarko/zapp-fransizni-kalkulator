@@ -503,7 +503,7 @@
     <div class="ov-calc-only ov-rev-recap" id="ovRevRecap"></div>
     <div class="ov-calc-only ov-boxes2">
       <div class="kpi ov-box">
-        <div class="k-lab">Provizija — razdvajanje (mjesečno) <span class="abbr" data-tip="Provizija od restorana koje ZAPP VOZI (bez „sami voze"). Bruto = ukupan promet (GMV) × ponderirana provizija. Zapp uzima fiksnih 3pp (royalty) — ostatak je franšizerov. Skalirano udjelom obima.">ⓘ</span></div>
+        <div class="k-lab">Provizija po dostavi — razdvajanje <span class="abbr" data-tip="Provizija po jednoj dostavi, od restorana koje ZAPP VOZI (bez „sami voze"). Bruto = PVN × ponderirana provizija. Zapp uzima fiksnih 3pp (royalty) — ostatak je franšizerov.">ⓘ</span></div>
         <div class="kpi-br">
           <div class="kpi-br-row"><span>Provizija (bruto) <b id="ovBoxProvPct" class="brsub"></b></span><b class="pos" id="ovBoxProvBruto">—</b></div>
           <div class="kpi-br-row"><span>− Zapp <b id="ovBoxZappPct" class="brsub"></b></span><b class="neg" id="ovBoxProvZapp">—</b></div>
@@ -1518,13 +1518,13 @@ function updateOverview(){
   set('ovPrihodProvSub','PVN '+fmt2(v.aov)+' · '+pct(blendedComm)+' ponderisano (− 3% Zapp = '+pct(franComm)+')');
   set('ovPrihodDostSub','naknada '+fmt2(delEff)+' ponderisano');
   setH('ovRevRecap','📥 Prihod po dostavi <b>'+fmt2(calcRev)+'</b> = provizija <b>'+fmt2(provPd)+'</b> + dostava <b>'+fmt2(dostPd)+'</b> — iz „Top restorani"');
-  // Dvije kocke (samo „Zapp vozi"): razdvajanje provizije (mjesečno) + operativa po dostavi
-  const zappRate2=Math.min(blendedComm, ZAPP_SELF_CUT);                      // Zapp uzima do 3pp provizije (royalty)
-  const provBrutoMj=eco.gmv*(blendedComm/100)*(ovCalcPct/100);              // ukupan promet (Zapp vozi) × ponderirana provizija (bruto)
-  const provZappMj=eco.gmv*(zappRate2/100)*(ovCalcPct/100);                 // Zapp dio = promet × 3pp
-  const provNetMj=provBrutoMj-provZappMj;                                    // ostaje franšizeru (= mjesečna „Provizija")
+  // Dvije kocke (samo „Zapp vozi"): razdvajanje provizije PO DOSTAVI + operativa po dostavi
+  const zappRate2=Math.min(blendedComm, ZAPP_SELF_CUT);                                                // Zapp uzima do 3pp provizije (royalty)
+  const provBrutoPd=eco.orders>0 ? eco.gmv*(blendedComm/100)/eco.orders : v.aov*(blendedComm/100);     // bruto provizija po dostavi = PVN × ponderirana provizija
+  const provZappPd=eco.orders>0 ? eco.gmv*(zappRate2/100)/eco.orders : v.aov*(zappRate2/100);          // Zapp dio po dostavi = PVN × 3pp
+  const provNetPd=provBrutoPd-provZappPd;                                                              // ostaje franšizeru po dostavi (= provPd, „Prihod po dostavi (provizija)")
   set('ovBoxProvPct','('+pct(blendedComm)+')'); set('ovBoxZappPct','('+pct(zappRate2)+')');
-  setH('ovBoxProvBruto',fmtV(provBrutoMj,true)); setH('ovBoxProvZapp','−'+fmtV(provZappMj,true)); setH('ovBoxProvNet',fmtV(provNetMj,true));
+  setH('ovBoxProvBruto',fmt2V(provBrutoPd,true)); setH('ovBoxProvZapp','−'+fmt2V(provZappPd,true)); setH('ovBoxProvNet',fmt2V(provNetPd,true));
   setH('ovBoxLogPd', noOrders?'—':'−'+fmt2(logPd)); setH('ovBoxOffPd', noOrders?'—':'−'+fmt2(offPd)); setH('ovBoxEarnPd', noOrders?'—':fmt2Profit(profPd,pdvPd));
   setH('ovProvMj',fmtV(provMj,true)); setH('ovDostMj',fmtV(dostMj,true)); setH('ovPrihodMj',fmtV(prihodMj,true));
   set('ovProvPct', pct(blendedComm)); set('ovDostAvg', fmt2(delEff));   // ponderisana provizija % i naknada/dostava (info u redovima)
