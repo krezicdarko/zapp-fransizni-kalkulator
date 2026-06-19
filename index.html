@@ -213,7 +213,7 @@
   .rest .rn{font-weight:800;font-size:13px}
   .rest .rm{font-size:11px;color:var(--muted)}
   .rate{display:inline-block;background:#EAF7EF;color:#1C7A45;font-weight:800;font-size:11px;padding:1px 6px;border-radius:6px;margin-left:4px}
-  #restoView .c-pd{font-weight:800;color:#9A5A12} #restoView .c-net,#restoView .c-mr{font-weight:800;color:var(--green)} #restoView .c-gmv,#restoView .c-gmvd,#restoView .c-mb{font-weight:800;color:#374151}
+  #restoView .c-pd{font-weight:800;color:#9A5A12} #restoView .c-net,#restoView .c-mr{font-weight:800;color:var(--green)} #restoView .c-gmv,#restoView .c-gmvd,#restoView .c-mb{font-weight:800;color:#374151} #restoView .c-zprov{font-weight:800;color:var(--zapp-dark)}
   #restoView td.c-ord{font-weight:700;color:var(--muted)}
   /* mod C: Trošak po dostavi — toggle Vlastita ↔ 3PL */
   #restoView:not(.log-3pl) .rlp-3pl{display:none}
@@ -600,6 +600,7 @@
           <th>#</th>
           <th class="sortable" data-sort="name">Restoran</th>
           <th class="sortable" data-sort="gmv"><span class="abbr" data-tip="Promet KM/mj — ukupni novčani promet kroz platformu mjesečno = PVN × Nar./mj.">Promet KM/mj</span></th>
+          <th class="sortable" data-sort="zprov"><span class="abbr" data-tip="Zapp provizija KM/mj — ukupna provizija koju restoran plaća Zapp platformi mjesečno = Promet KM/mj × Prov. % (za „sam vozi" računa se njihova niža provizija). Bruto, prije podjele s HQ-om (Zapp HQ uzima 3 pp, ostatak ide franšizeru).">Zapp provizija</span></th>
           <th class="sortable" data-sort="gmvd"><span class="abbr" data-tip="Promet KM/dan — dnevni novčani promet = PVN × Nar./dan (= Promet KM/mj ÷ radnih dana).">Promet KM/dan</span></th>
           <th class="sortable" data-sort="npm"><span class="abbr" data-tip="Nar./mj — broj narudžbi mjesečno (Glovo: broj narudžbi za 90 dana ÷ 3). Pokretač svih izračuna.">Nar./mj</span></th>
           <th class="sortable" data-sort="ord"><span class="abbr" data-tip="Nar./dan — narudžbi po danu, izvedeno: Nar./mj ÷ radnih dana.">Nar./dan</span></th>
@@ -614,7 +615,7 @@
         <tbody id="rtbody"></tbody>
         <tfoot><tr>
           <td></td><td class="lbl">Ukupno / prosjek</td>
-          <td class="c-gmv" id="rtGmv"></td><td class="c-gmvd" id="rtGmvd"></td><td id="rtNpm"></td>
+          <td class="c-gmv" id="rtGmv"></td><td class="c-zprov" id="rtZprov"></td><td class="c-gmvd" id="rtGmvd"></td><td id="rtNpm"></td>
           <td id="rtOrders"></td><td id="rtAvgAov"></td><td></td><td></td>
           <td class="c-pd" id="rtAvgPd"></td><td class="c-net" id="rtAvgNet"></td><td class="c-mb" id="rtMbruto"></td><td class="c-mr" id="rtMr"></td><td class="no-print"></td>
         </tr></tfoot>
@@ -1329,6 +1330,7 @@ function renderResto(){
       <td>${i+1}.</td>
       <td>${nameCell}</td>
       <td class="c-gmv"></td>
+      <td class="c-zprov"></td>
       <td class="c-gmvd"></td>
       <td><input type="number" data-f="npm" min="0" step="1" value="${r.npm}" aria-label="Broj narudžbi mjesečno (Glovo) ${esc(r.name)}"></td>
       <td class="c-ord" title="Izvedeno: Nar./mj ÷ radnih dana"></td>
@@ -1365,7 +1367,7 @@ function updateSortIndicators(){
 }
 function recomputeResto(){
   const wd=rWD(), cpd=restoCpd(), fleetCpd=courierCostPerDelivery(valA), use3pl=(logSrc==='3pl');
-  let sO=0,sRev=0,sNet=0,sNpm=0,sGmv=0,sBruto=0,sAovW=0,nSelf=0,nGroup=0;
+  let sO=0,sRev=0,sNet=0,sNpm=0,sGmv=0,sZprov=0,sBruto=0,sAovW=0,nSelf=0,nGroup=0;
   document.querySelectorAll('#rtbody tr').forEach(tr=>{
     const i=+tr.dataset.i, r=rRows[i];
     const npm=+r.npm||0, ord=npm/wd, gmv=r.aov*npm;   // Glovo mjesečni promet je pokretač; nar/dan izvedeno
@@ -1374,14 +1376,16 @@ function recomputeResto(){
     if(r.self){ pd=r.aov*selfFranRate(r)/100; npd=pd; nSelf++; }   // per-red sam vozi: franšizeru ide selfComm − 3% Zapp; dostava ide restoranu, nema troška kurira
     else { pd=r.aov*(Math.max(0,r.comm-ZAPP_SELF_CUT)/100)+r.del; npd=pd-cpd; }
     const mbruto=pd*npm, mnet=npd*npm;
+    const zprov=gmv*((r.self?(+r.selfComm||0):(+r.comm||0))/100);   // ukupna Zapp provizija (bruto, prije −3pp HQ); za „sam vozi" niža self-provizija
     tr.querySelector('.c-gmv').textContent=fmt(gmv);
+    tr.querySelector('.c-zprov').textContent=fmt(zprov);
     tr.querySelector('.c-gmvd').textContent=fmt(gmv/wd);
     tr.querySelector('.c-ord').textContent=num(ord);
     tr.querySelector('.c-pd').textContent=fmt2(pd);
     const ne=tr.querySelector('.c-net'); ne.textContent=fmt2(npd); ne.style.color=npd<0?'var(--red)':'';
     tr.querySelector('.c-mb').textContent=fmt(mbruto);
     const me=tr.querySelector('.c-mr'); me.textContent=fmt(mnet); me.style.color=mnet<0?'var(--red)':'';
-    sO+=ord; sRev+=pd*npm; sNet+=mnet; sNpm+=npm; sGmv+=gmv; sBruto+=mbruto; sAovW+=r.aov*npm;
+    sO+=ord; sRev+=pd*npm; sNet+=mnet; sNpm+=npm; sGmv+=gmv; sZprov+=zprov; sBruto+=mbruto; sAovW+=r.aov*npm;
   });
   const avgPd=sNpm?sRev/sNpm:0, avgNet=sNpm?sNet/sNpm:0, avgAov=sNpm?sAovW/sNpm:0;
   document.getElementById('rkCount').textContent=rRows.length-nGroup;
@@ -1401,6 +1405,7 @@ function recomputeResto(){
   const rev=document.getElementById('rkRev'); rev.textContent=fmt(sNet); rev.style.color=sNet<0?'var(--red)':'';
   document.getElementById('rtNpm').textContent=num(sNpm);
   document.getElementById('rtGmv').textContent=fmt(sGmv);
+  document.getElementById('rtZprov').textContent=fmt(sZprov);
   document.getElementById('rtGmvd').textContent=fmt(sGmv/wd);
   document.getElementById('rtAvgAov').textContent=fmt2(avgAov);
   document.getElementById('rtOrders').textContent=num(sO);
@@ -1419,6 +1424,7 @@ function valForR(r,f){const wd=rWD(), cpd=restoCpd(), npm=+r.npm||0;
   if(f==='mbruto')return pd*npm;
   if(f==='mr')return npd*npm;
   if(f==='gmv')return r.aov*npm;
+  if(f==='zprov')return r.aov*npm*((r.self?(+r.selfComm||0):(+r.comm||0))/100);
   if(f==='gmvd')return r.aov*npm/wd;
   if(f==='npm')return npm;
   if(f==='name')return r.name.toLowerCase();
@@ -1442,14 +1448,15 @@ document.getElementById('rAddGroupBtn').onclick=()=>{const nums=rRows.filter(r=>
 document.getElementById('rPrintBtn').onclick=()=>window.print();
 document.getElementById('rCsvBtn').onclick=()=>{
   const wd=rWD(), cpd=restoCpd();
-  const head=['Naziv','Tip','Sam vozi','Promet KM/mj','Promet KM/dan','Nar./mj','Nar/dan','PVN','Provizija %','Dostava','Prihod/dostava','Trošak/dostava','Neto/dostava','Mj. bruto','Mj. neto'];
+  const head=['Naziv','Tip','Sam vozi','Promet KM/mj','Zapp provizija KM/mj','Promet KM/dan','Nar./mj','Nar/dan','PVN','Provizija %','Dostava','Prihod/dostava','Trošak/dostava','Neto/dostava','Mj. bruto','Mj. neto'];
   const lines=[head.join(';')];
   rRows.forEach(r=>{
     const npm=+r.npm||0, ord=npm/wd, gmv=r.aov*npm, gmvd=gmv/wd;
     const pd = r.self ? r.aov*selfFranRate(r)/100 : r.aov*(Math.max(0,r.comm-ZAPP_SELF_CUT)/100)+r.del;
     const npd = r.self ? pd : pd-cpd, mbruto=pd*npm, net=npd*npm;
     const commCsv = r.self ? (+r.selfComm||0) : r.comm, delCsv = r.self ? 0 : r.del, trCsv = r.self ? 0 : cpd;
-    lines.push([r.name,(r.group?'Grupa':'Restoran'),(r.self?'DA':'NE'),gmv.toFixed(0),gmvd.toFixed(0),npm,ord.toFixed(1),r.aov,commCsv,delCsv,pd.toFixed(2),trCsv.toFixed(2),npd.toFixed(2),mbruto.toFixed(0),net.toFixed(0)].join(';'));
+    const zprovCsv = gmv*(commCsv/100);
+    lines.push([r.name,(r.group?'Grupa':'Restoran'),(r.self?'DA':'NE'),gmv.toFixed(0),zprovCsv.toFixed(0),gmvd.toFixed(0),npm,ord.toFixed(1),r.aov,commCsv,delCsv,pd.toFixed(2),trCsv.toFixed(2),npd.toFixed(2),mbruto.toFixed(0),net.toFixed(0)].join(';'));
   });
   const blob=new Blob(["﻿"+lines.join("\n")],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='zapp-top-restorani-bl.csv'; a.click();
