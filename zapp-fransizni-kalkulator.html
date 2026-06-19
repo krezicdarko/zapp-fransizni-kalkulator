@@ -213,7 +213,7 @@
   .rest .rn{font-weight:800;font-size:13px}
   .rest .rm{font-size:11px;color:var(--muted)}
   .rate{display:inline-block;background:#EAF7EF;color:#1C7A45;font-weight:800;font-size:11px;padding:1px 6px;border-radius:6px;margin-left:4px}
-  #restoView .c-pd{font-weight:800;color:#9A5A12} #restoView .c-net,#restoView .c-mr{font-weight:800;color:var(--green)} #restoView .c-gmv,#restoView .c-gmvd,#restoView .c-mb{font-weight:800;color:#374151} #restoView .c-zprov{font-weight:800;color:var(--zapp-dark)} #restoView .c-zhq{font-weight:800;color:var(--muted)}
+  #restoView .c-pd{font-weight:800;color:#9A5A12} #restoView .c-mr{font-weight:800;color:var(--green)} #restoView .c-gmv,#restoView .c-gmvd,#restoView .c-mb{font-weight:800;color:#374151} #restoView .c-zprov{font-weight:800;color:var(--zapp-dark)} #restoView .c-zhq{font-weight:800;color:var(--muted)}
   #restoView .c-pprov,#restoView .c-pdost{font-weight:600;color:var(--muted)} #restoView .c-log,#restoView .c-ured,#restoView .c-card,#restoView .c-pdv{font-weight:600;color:var(--red)} #restoView .c-prof,#restoView .c-mp{font-weight:800;color:var(--green)}
   #restoView td.c-ord{font-weight:700;color:var(--muted)}
   /* mod C: Trošak po dostavi — toggle Vlastita ↔ 3PL */
@@ -1327,7 +1327,7 @@ const restoCpd=()=> (logSrc==='3pl') ? Math.max(0,pl3Price||0) : courierCostPerD
 function restoExtraRates(){
   const v=valA, totalNpm=restoNpmTotal(), use3pl=(logSrc==='3pl');
   const officeMonthly=(v.director+v.manager+v.finance+v.opsSal*v.opsCount)+(v.rent+v.mktg+v.insurance+v.utils+v.software);  // ured = osoblje + fiksni (bez kurira/royaltyja)
-  const uredPd=totalNpm>0?officeMonthly/totalNpm:0;                                  // ured po dostavi = fiksni ÷ ukupno narudžbi (ravnomjerno, kao Pregled)
+  const uredPd=totalNpm>0?officeMonthly/totalNpm:0;                                  // ured po dostavi = fiksni ÷ ukupno narudžbi (cijeli univerzum, uklj. grupe). Jednako Pregledu na 100% obima i bez filtera; mod C nema te filtere pa je puna baza ispravna — NE „popravljati" na filtriranu bazu.
   const taxOfficeMj=v.rent+v.mktg+v.utils+v.software;                                // ured s ulaznim PDV-om (najam+marketing+režije+softver; plaće/osiguranje bez PDV)
   const perCourierMo=(v.delPerHour||0)*(v.hoursDay||0)*(v.workDays||0);
   const fleetTaxPd=perCourierMo>0?(v.vehAmort+v.vehMaint+v.equip)/perCourierMo:0;     // oporezivi dio flote po dostavi (vozila+oprema)
