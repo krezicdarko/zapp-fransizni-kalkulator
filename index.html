@@ -214,6 +214,7 @@
   .rest .rm{font-size:11px;color:var(--muted)}
   .rate{display:inline-block;background:#EAF7EF;color:#1C7A45;font-weight:800;font-size:11px;padding:1px 6px;border-radius:6px;margin-left:4px}
   #restoView .c-pd{font-weight:800;color:#9A5A12} #restoView .c-net,#restoView .c-mr{font-weight:800;color:var(--green)} #restoView .c-gmv,#restoView .c-gmvd,#restoView .c-mb{font-weight:800;color:#374151} #restoView .c-zprov{font-weight:800;color:var(--zapp-dark)} #restoView .c-zhq{font-weight:800;color:var(--muted)}
+  #restoView .c-pprov,#restoView .c-pdost{font-weight:600;color:var(--muted)} #restoView .c-log,#restoView .c-ured,#restoView .c-card,#restoView .c-pdv{font-weight:600;color:var(--red)} #restoView .c-prof,#restoView .c-mp{font-weight:800;color:var(--green)}
   #restoView td.c-ord{font-weight:700;color:var(--muted)}
   /* mod C: Trošak po dostavi — toggle Vlastita ↔ 3PL */
   #restoView:not(.log-3pl) .rlp-3pl{display:none}
@@ -538,7 +539,7 @@
     <div class="cards2">
       <div class="card">
         <h3>📥 Prihod (mjesečno)</h3>
-        <div class="bd"><span>Provizija <span class="ov-calc-val abbr" data-tip="Ponderisani prosjek provizija svih restorana koje Zapp vozi (iz „Top restorani"), ponderisan prometom (PVN × narudžbe). Restorani koji „sami voze" nisu uključeni — imaju svoj red." style="font-weight:600;color:var(--muted);font-size:12px">ⓘ <b id="ovProvPct">—</b> ponderisano</span></span><span class="v pos ov-calc-val" id="ovProvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="prov"></span></div>
+        <div class="bd"><span>Provizija <span class="ov-calc-val abbr" data-tip="Ponderisani prosjek provizija svih restorana koje Zapp vozi (iz „Top restorani"), ponderisan prometom (PVN × narudžbe). Iznos je obračunat po STVARNOJ stopi = ponderisano − 3% Zapp (royalty). Restorani koji „sami voze" nisu uključeni — imaju svoj red." style="font-weight:600;color:var(--muted);font-size:12px">ⓘ ponderisano <b id="ovProvPct">—</b></span></span><span class="v pos ov-calc-val" id="ovProvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="prov"></span></div>
         <div class="bd"><span>Provizija (sami voze) <span class="ov-calc-val abbr" data-tip="Zbroj provizije SAMO za restorane označene „sami voze" (in-house) u „Top restorani" — svaki sa svojom self-provizijom MINUS 3pp Zapp, ponderisano prometom. Dostavu naplaćuje i zadržava restoran (nije ovdje), a Zapp im ne računa trošak kurira. 0 KM ako nijedan restoran nije „sami voze"." style="font-weight:600;color:var(--muted);font-size:12px">ⓘ <b id="ovSelfPct">—</b> ponderisano</span><span class="ov-cust-pct"><input type="number" id="ovSelfPctC" min="0" step="0.1" style="width:48px;text-align:right;font-weight:700;border:1px solid var(--line);border-radius:6px;padding:1px 4px">%</span></span><span class="v pos ov-calc-val" id="ovSelfProvMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="self"></span></div>
         <div class="bd"><span>Naknada za dostavu <span class="ov-calc-val abbr" data-tip="Ponderisani prosjek naknade za dostavu (iz „Top restorani"), ponderisan brojem narudžbi. Restorani koji „sami voze" nisu uključeni (dostavu naplaćuje restoran)." style="font-weight:600;color:var(--muted);font-size:12px">ⓘ <b id="ovDostAvg">—</b> ponderisano</span></span><span class="v pos ov-calc-val" id="ovDostMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="dost"></span></div>
         <div class="bd"><span>Marketing</span><span class="v pos ov-calc-val" id="ovMarketingMj">—</span><span class="ov-cust-val"><input type="text" inputmode="numeric" class="ovc-inp" data-ovc="mkt"></span></div>
@@ -607,10 +608,17 @@
           <th class="sortable" data-sort="ord"><span class="abbr" data-tip="Nar./dan — narudžbi po danu, izvedeno: Nar./mj ÷ radnih dana.">Nar./dan</span></th>
           <th class="sortable" data-sort="aov"><span class="abbr" data-tip="PVN — prosječna vrijednost narudžbe (prosječan iznos jedne narudžbe u KM).">PVN (KM)</span></th>
           <th><span class="abbr" data-tip="Prov. % — provizija: procenat vrijednosti narudžbe koji restoran plaća platformi.">Prov. %</span></th><th><span class="abbr" data-tip="Dostava (KM) — naknada za dostavu po narudžbi, u KM.">Dostava (KM)</span></th>
-          <th class="sortable" data-sort="pd"><span class="abbr" data-tip="Prihod/dost. — franšizerski prihod po dostavi = PVN × (provizija − 3% Zapp) + naknada za dostavu.">Prihod/dost.</span></th>
-          <th class="sortable" data-sort="net"><span class="abbr" data-tip="Neto/dost. — neto po dostavi = prihod − trošak kurira po dostavi (iz taba „Fransizer").">Neto/dost.</span></th>
-          <th class="sortable" data-sort="mbruto"><span class="abbr" data-tip="Mj. bruto — mjesečni bruto = Prihod/dost. × Nar./mj (prije troška kurira).">Mj. bruto</span></th>
-          <th class="sortable" data-sort="mr"><span class="abbr" data-tip="Mj. neto — mjesečni neto = Neto/dost. × Nar./mj (prije fiksnih troškova).">Mj. neto</span></th>
+          <th class="sortable" data-sort="pprov"><span class="abbr" data-tip="Prihod provizije — franšizerski dio provizije po dostavi = PVN × (provizija − 3% Zapp). Za „sam vozi": PVN × (self-provizija − 3).">Prihod provizije</span></th>
+          <th class="sortable" data-sort="pdost"><span class="abbr" data-tip="Prihod dostava — naknada za dostavu po dostavi. Za „sam vozi" = 0 (naknadu naplaćuje i zadržava restoran).">Prihod dostava</span></th>
+          <th class="sortable" data-sort="pd"><span class="abbr" data-tip="Prihod/dost. (zbir) = Prihod provizije + Prihod dostava — ukupan franšizerski prihod po jednoj dostavi (prije troškova).">Prihod/dost.</span></th>
+          <th><span class="abbr" data-tip="− Logistika — trošak kurira/3PL po dostavi (iz taba „Fransizer"). „Sam vozi" nema (dostavu vozi restoran).">− Logistika</span></th>
+          <th><span class="abbr" data-tip="− Ured — fiksni troškovi (osoblje + najam + režije + marketing + softver + osiguranje) po dostavi = ukupni fiksni ÷ ukupan broj narudžbi (ravnomjerno, kao Pregled).">− Ured</span></th>
+          <th><span class="abbr" data-tip="− Kartice — kartična/procesorska provizija po dostavi = (PVN + dostava) × % obima plaćenog karticom × % provizije (polja na Pregledu).">− Kartice</span></th>
+          <th><span class="abbr" data-tip="− PDV — PDV obaveza po dostavi (izlazni PDV na proviziju+dostavu − ulazni PDV na logistiku+ured). Prikazuje se samo u „Neto"/„Bruto+neto"; u „Bruto" je 0 (—).">− PDV</span></th>
+          <th class="sortable" data-sort="prof"><span class="abbr" data-tip="Profit/dost. — PRAVI neto po dostavi = Prihod/dost. − Logistika − Ured − Kartice − PDV (isto kao „Profit po dostavi" na Pregledu).">Profit/dost.</span></th>
+          <th class="sortable" data-sort="mbruto"><span class="abbr" data-tip="Mj. bruto — mjesečni bruto = Prihod/dost. × Nar./mj (prije troškova).">Mj. bruto</span></th>
+          <th class="sortable" data-sort="mr"><span class="abbr" data-tip="Mj. neto — mjesečni neto = (Prihod/dost. − Logistika) × Nar./mj. Odbija SAMO kurira; hrani KPI „Ukupan mjesečni neto" i Vlasničku strukturu (zato ostaje).">Mj. neto</span></th>
+          <th class="sortable" data-sort="mp"><span class="abbr" data-tip="Mj. profit — PRAVI mjesečni neto = Profit/dost. × Nar./mj (nakon logistike, ureda, kartica i PDV-a).">Mj. profit</span></th>
           <th class="no-print"></th>
         </tr></thead>
         <tbody id="rtbody"></tbody>
@@ -618,7 +626,10 @@
           <td></td><td class="lbl">Ukupno / prosjek</td>
           <td class="c-gmv" id="rtGmv"></td><td class="c-zprov" id="rtZprov"></td><td class="c-zhq" id="rtZhq"></td><td class="c-gmvd" id="rtGmvd"></td><td id="rtNpm"></td>
           <td id="rtOrders"></td><td id="rtAvgAov"></td><td></td><td></td>
-          <td class="c-pd" id="rtAvgPd"></td><td class="c-net" id="rtAvgNet"></td><td class="c-mb" id="rtMbruto"></td><td class="c-mr" id="rtMr"></td><td class="no-print"></td>
+          <td class="c-pprov" id="rtAvgPprov"></td><td class="c-pdost" id="rtAvgPdost"></td><td class="c-pd" id="rtAvgPd"></td>
+          <td class="c-log" id="rtAvgLog"></td><td class="c-ured" id="rtAvgUred"></td><td class="c-card" id="rtAvgCard"></td><td class="c-pdv" id="rtAvgPdv"></td>
+          <td class="c-prof" id="rtAvgProf"></td>
+          <td class="c-mb" id="rtMbruto"></td><td class="c-mr" id="rtMr"></td><td class="c-mp" id="rtMp"></td><td class="no-print"></td>
         </tr></tfoot>
       </table>
     </div>
@@ -626,7 +637,7 @@
       <button class="btn ghost" id="rAddBtn">+ Dodaj restoran</button>
       <button class="btn ghost" id="rAddGroupBtn">+ Dodaj grupu restorana</button>
     </div>
-    <div class="rnote no-print"><b>Sve ćelije su uredive</b> — uključujući naziv restorana (klikni i prepiši). Klik na zaglavlje kolone sortira (ponovni klik mijenja smjer ▲▼); zadano je sortirano po prometu/mj, opadajuće. <b>„Nar./mj" (Glovo: broj narudžbi za 90 dana ÷ 3) je pokretač svih izračuna</b> — uredi ga stvarnim brojem. „Nar./dan" se <b>izvodi</b> = Nar./mj ÷ radnih dana (nije za ručni unos). „Promet KM/mj" = PVN × Nar./mj (novčani promet kroz platformu). „Prihod/dost." = PVN × (provizija − 3% Zapp) + dostava. „Neto/dost." = prihod − <b>trošak kurira po dostavi</b> (iz taba „Fransizer"). „Mj. bruto" = Prihod/dost. × Nar./mj (prije troška kurira); „Mj. neto" = Neto/dost. × Nar./mj (prije fiksnih troškova fransizera). <br><b>🚗 „Sam vozi"</b> (in-house restoran s vlastitom dostavom): provizija je niža (default <b>6%</b>, <b>izmjenjiva po restoranu</b>), <b>naknadu za dostavu naplaćuje i zadržava restoran</b>, pa se franšizeru <b>ne obračunava trošak kurira</b> — u koloni „Prihod/Neto" računa se <b>franšizerski dio provizije = provizija − 3% (Zapp dio)</b> od PVN-a, bez dostave (npr. 6% → franšizeru 3%; 3% → 0). (Promet KM/mj i dalje teče kroz platformu.) <br><b>📊 Grupa restorana (L2, L3…)</b>: zbirni red za sve restorane iste provizije (zadano L2 = 22%, L3 = 25%). Unesi <b>zbirni</b> Nar./mj i prosječan PVN grupe — računa se kao i pojedinačni restoran i sumira u totale (grupe su uvijek na dnu tabele). Za isti promet koristi <b>ILI</b> pojedinačne restorane <b>ILI</b> grupu, da izbjegneš dvostruko brojanje.</div>
+    <div class="rnote no-print"><b>Sve ćelije su uredive</b> — uključujući naziv restorana (klikni i prepiši). Klik na zaglavlje kolone sortira (ponovni klik mijenja smjer ▲▼); zadano je sortirano po prometu/mj, opadajuće. <b>„Nar./mj" (Glovo: broj narudžbi za 90 dana ÷ 3) je pokretač svih izračuna</b> — uredi ga stvarnim brojem. „Nar./dan" se <b>izvodi</b> = Nar./mj ÷ radnih dana (nije za ručni unos). „Promet KM/mj" = PVN × Nar./mj (novčani promet kroz platformu). <b>Prihod po dostavi je razdvojen:</b> „Prihod provizije" = PVN × (provizija − 3% Zapp), „Prihod dostava" = naknada za dostavu, a „Prihod/dost." je njihov <b>zbir</b>. Zatim idu odbici po dostavi: <b>− Logistika</b> (trošak kurira/3PL), <b>− Ured</b> (svi fiksni troškovi ÷ ukupan broj narudžbi), <b>− Kartice</b> ((PVN+dostava) × % obima × % provizije) i <b>− PDV</b> (PDV obaveza; <b>samo u „Neto"/„Bruto+neto" prikazu</b>, u „Bruto" je 0). „Profit/dost." = <b>PRAVI neto po dostavi</b> = Prihod/dost. − sva četiri odbitka (isto kao „Profit po dostavi" na Pregledu). „Mj. bruto" = Prihod/dost. × Nar./mj; <b>„Mj. neto" = (Prihod/dost. − Logistika) × Nar./mj</b> — odbija samo kurira i <b>hrani KPI „Ukupan mjesečni neto" i Vlasničku strukturu</b> (zato ostaje); <b>„Mj. profit" = Profit/dost. × Nar./mj</b> = pravi mjesečni neto nakon svih troškova. <br><b>🚗 „Sam vozi"</b> (in-house restoran s vlastitom dostavom): provizija je niža (default <b>6%</b>, <b>izmjenjiva po restoranu</b>), <b>naknadu za dostavu naplaćuje i zadržava restoran</b>, pa se franšizeru <b>ne obračunava trošak kurira</b> — u koloni „Prihod/Neto" računa se <b>franšizerski dio provizije = provizija − 3% (Zapp dio)</b> od PVN-a, bez dostave (npr. 6% → franšizeru 3%; 3% → 0). (Promet KM/mj i dalje teče kroz platformu.) <br><b>📊 Grupa restorana (L2, L3…)</b>: zbirni red za sve restorane iste provizije (zadano L2 = 22%, L3 = 25%). Unesi <b>zbirni</b> Nar./mj i prosječan PVN grupe — računa se kao i pojedinačni restoran i sumira u totale (grupe su uvijek na dnu tabele). Za isti promet koristi <b>ILI</b> pojedinačne restorane <b>ILI</b> grupu, da izbjegneš dvostruko brojanje.</div>
   </div>
 
   <div id="costView">
@@ -1312,6 +1323,32 @@ const ZAPP_SELF_CUT=3;                                              // Zapp HQ u
 const selfFranRate=r=>Math.max(0,(+r.selfComm||0)-ZAPP_SELF_CUT);  // franšizerski udio self-provizije u pp (selfComm ≤ 3 → 0)
 /* Trošak po dostavi koji ulazi u neto restorana: Vlastita flota (izračun iz Fransizera) ili 3PL (dogovorena cijena). Dijeli globalni logSrc/pl3Price s Pregledom. */
 const restoCpd=()=> (logSrc==='3pl') ? Math.max(0,pl3Price||0) : courierCostPerDelivery(valA);
+/* Zajedničke stope po dostavi za PRAVI neto (ured/kartice/PDV) — povlače se iz „Fransizer" (valA) + globalnih kartica, isto kao Pregled „Po jednoj dostavi". */
+function restoExtraRates(){
+  const v=valA, totalNpm=restoNpmTotal(), use3pl=(logSrc==='3pl');
+  const officeMonthly=(v.director+v.manager+v.finance+v.opsSal*v.opsCount)+(v.rent+v.mktg+v.insurance+v.utils+v.software);  // ured = osoblje + fiksni (bez kurira/royaltyja)
+  const uredPd=totalNpm>0?officeMonthly/totalNpm:0;                                  // ured po dostavi = fiksni ÷ ukupno narudžbi (ravnomjerno, kao Pregled)
+  const taxOfficeMj=v.rent+v.mktg+v.utils+v.software;                                // ured s ulaznim PDV-om (najam+marketing+režije+softver; plaće/osiguranje bez PDV)
+  const perCourierMo=(v.delPerHour||0)*(v.hoursDay||0)*(v.workDays||0);
+  const fleetTaxPd=perCourierMo>0?(v.vehAmort+v.vehMaint+v.equip)/perCourierMo:0;     // oporezivi dio flote po dostavi (vozila+oprema)
+  const fuelTaxPd=totalNpm>0?(v.fuel||0)/totalNpm:0;
+  const logTaxPd=use3pl?(pl3Price||0):(fleetTaxPd+fuelTaxPd);                         // logistika s ulaznim PDV-om (3PL = puni iznos)
+  const offVatPdShare=totalNpm>0?PDVv(taxOfficeMj)/totalNpm:0;                        // ulazni PDV ureda raspoređen po dostavi
+  return {uredPd, logTaxPd, offVatPdShare, cardPdRate:(cardVol/100)*(cardPct/100)};
+}
+/* P&L po jednoj dostavi za jedan red — vraća sve komponente (prihod razdvojen, odbici, pravi neto). */
+function restoRowPd(r, cpd, rates){
+  const self=!!r.self, del=(+r.del||0);
+  const provRevPd = self ? r.aov*selfFranRate(r)/100 : r.aov*Math.max(0,(+r.comm||0)-ZAPP_SELF_CUT)/100;  // prihod provizije (franšizerski dio, −3pp Zapp)
+  const dostRevPd = self ? 0 : del;                                                                       // prihod dostave (naknada; „sam vozi" → restoranu)
+  const pd = provRevPd + dostRevPd;                                                                       // = zbir „Prihod/dost."
+  const logPd = self ? 0 : cpd;                                                                           // logistika (kurir/3PL); „sam vozi" nema trošak kurira
+  const cardPd = self ? r.aov*rates.cardPdRate : (r.aov+del)*rates.cardPdRate;                            // kartice = obim% × provizija% × (PVN [+ dostava])
+  const pdvPd = (vatView==='gross') ? 0 : (PDVv(pd) - (self?0:PDVv(rates.logTaxPd)) - rates.offVatPdShare); // PDV obaveza po dostavi (izlazni − ulazni); u „Bruto" prikazu 0
+  const profPd = pd - logPd - rates.uredPd - cardPd - pdvPd;                                              // PRAVI neto po dostavi
+  const npd = self ? pd : pd - cpd;                                                                       // „Neto/dost." (samo −logistika) — hrani KPI i Vlasničku strukturu (nepromijenjeno)
+  return {provRevPd, dostRevPd, pd, logPd, uredPd:rates.uredPd, cardPd, pdvPd, profPd, npd};
+}
 function renderResto(){
   sortRows();
   const tb=document.getElementById('rtbody'); tb.innerHTML='';
@@ -1339,7 +1376,10 @@ function renderResto(){
       <td><input type="number" data-f="aov" min="0" max="120" step="0.5" value="${r.aov}" aria-label="PVN ${esc(r.name)}"></td>
       ${commCell}
       ${delCell}
-      <td class="c-pd"></td><td class="c-net"></td><td class="c-mb"></td><td class="c-mr"></td>
+      <td class="c-pprov"></td><td class="c-pdost"></td><td class="c-pd"></td>
+      <td class="c-log"></td><td class="c-ured"></td><td class="c-card"></td><td class="c-pdv"></td>
+      <td class="c-prof"></td>
+      <td class="c-mb"></td><td class="c-mr"></td><td class="c-mp"></td>
       <td class="no-print"><button class="del" title="Ukloni" aria-label="Ukloni ${esc(r.name)}">✕</button></td>`;
     tr.querySelectorAll('input[type=number]').forEach(inp=>{
       inp.addEventListener('input',e=>{const f=e.target.dataset.f,n=parseFloat(e.target.value);if(e.target.value!==''&&isFinite(n)){rRows[i][f]=n;recomputeResto();}});
@@ -1369,15 +1409,16 @@ function updateSortIndicators(){
 }
 function recomputeResto(){
   const wd=rWD(), cpd=restoCpd(), fleetCpd=courierCostPerDelivery(valA), use3pl=(logSrc==='3pl');
+  const rates=restoExtraRates();   // ured/kartice/PDV stope po dostavi (iz „Fransizer" + globalne kartice)
+  const fmtDed=x=>'−'+fmt2(x);     // odbitak: magnituda s predznakom −
   let sO=0,sRev=0,sNet=0,sNpm=0,sGmv=0,sZprov=0,sZhq=0,sBruto=0,sAovW=0,nSelf=0,nGroup=0;
+  let sProvRev=0,sDostRev=0,sLog=0,sUredMj=0,sCard=0,sPdv=0,sProfMj=0;   // komponente PRAVOG neta (mjesečno; po-dostavi avg = ÷ sNpm)
   document.querySelectorAll('#rtbody tr').forEach(tr=>{
     const i=+tr.dataset.i, r=rRows[i];
     const npm=+r.npm||0, ord=npm/wd, gmv=r.aov*npm;   // Glovo mjesečni promet je pokretač; nar/dan izvedeno
-    let pd,npd;
-    if(r.group)nGroup++;
-    if(r.self){ pd=r.aov*selfFranRate(r)/100; npd=pd; nSelf++; }   // per-red sam vozi: franšizeru ide selfComm − 3% Zapp; dostava ide restoranu, nema troška kurira
-    else { pd=r.aov*(Math.max(0,r.comm-ZAPP_SELF_CUT)/100)+r.del; npd=pd-cpd; }
-    const mbruto=pd*npm, mnet=npd*npm;
+    if(r.group)nGroup++; if(r.self)nSelf++;
+    const P=restoRowPd(r,cpd,rates);                  // P&L po dostavi (razdvojen prihod + odbici + pravi neto)
+    const mbruto=P.pd*npm, mnet=P.npd*npm, mprof=P.profPd*npm;
     const effComm=(r.self?(+r.selfComm||0):(+r.comm||0));
     const zprov=gmv*Math.max(0,effComm-ZAPP_SELF_CUT)/100;   // franšizerski dio provizije (nakon −3pp HQ); za „sam vozi" niža self-provizija
     const zhq=gmv*Math.min(effComm,ZAPP_SELF_CUT)/100;       // Zapp HQ dio (3 pp; min(prov,3) ako je provizija < 3)
@@ -1386,13 +1427,21 @@ function recomputeResto(){
     tr.querySelector('.c-zhq').textContent=fmt(zhq);
     tr.querySelector('.c-gmvd').textContent=fmt(gmv/wd);
     tr.querySelector('.c-ord').textContent=num(ord);
-    tr.querySelector('.c-pd').textContent=fmt2(pd);
-    const ne=tr.querySelector('.c-net'); ne.textContent=fmt2(npd); ne.style.color=npd<0?'var(--red)':'';
+    tr.querySelector('.c-pprov').textContent=fmt2(P.provRevPd);
+    tr.querySelector('.c-pdost').textContent=fmt2(P.dostRevPd);
+    tr.querySelector('.c-pd').textContent=fmt2(P.pd);
+    tr.querySelector('.c-log').textContent = r.self ? '—' : fmtDed(P.logPd);     // „sam vozi" nema kurira
+    tr.querySelector('.c-ured').textContent = fmtDed(P.uredPd);
+    tr.querySelector('.c-card').textContent = fmtDed(P.cardPd);
+    tr.querySelector('.c-pdv').textContent = (vatView==='gross') ? '—' : (P.pdvPd>=0 ? fmtDed(P.pdvPd) : '+'+fmt2(-P.pdvPd));   // u „Bruto" prikazu 0 (—); neto kredit → +
+    const pe=tr.querySelector('.c-prof'); pe.textContent=fmt2(P.profPd); pe.style.color=P.profPd<0?'var(--red)':'';
     tr.querySelector('.c-mb').textContent=fmt(mbruto);
     const me=tr.querySelector('.c-mr'); me.textContent=fmt(mnet); me.style.color=mnet<0?'var(--red)':'';
-    sO+=ord; sRev+=pd*npm; sNet+=mnet; sNpm+=npm; sGmv+=gmv; sZprov+=zprov; sZhq+=zhq; sBruto+=mbruto; sAovW+=r.aov*npm;
+    const mp=tr.querySelector('.c-mp'); mp.textContent=fmt(mprof); mp.style.color=mprof<0?'var(--red)':'';
+    sO+=ord; sRev+=P.pd*npm; sNet+=mnet; sNpm+=npm; sGmv+=gmv; sZprov+=zprov; sZhq+=zhq; sBruto+=mbruto; sAovW+=r.aov*npm;
+    sProvRev+=P.provRevPd*npm; sDostRev+=P.dostRevPd*npm; sLog+=P.logPd*npm; sUredMj+=P.uredPd*npm; sCard+=P.cardPd*npm; sPdv+=P.pdvPd*npm; sProfMj+=mprof;
   });
-  const avgPd=sNpm?sRev/sNpm:0, avgNet=sNpm?sNet/sNpm:0, avgAov=sNpm?sAovW/sNpm:0;
+  const avgPd=sNpm?sRev/sNpm:0, avgAov=sNpm?sAovW/sNpm:0;
   document.getElementById('rkCount').textContent=rRows.length-nGroup;
   const cs=document.getElementById('rkCountSub'); if(cs) cs.textContent=[nGroup?(nGroup+' 📊 grupa'):'',nSelf?(nSelf+' 🚗 sam vozi'):''].filter(Boolean).join(' · ');
   document.getElementById('rkOrders').textContent=num(sO)+' /dan';
@@ -1415,20 +1464,30 @@ function recomputeResto(){
   document.getElementById('rtGmvd').textContent=fmt(sGmv/wd);
   document.getElementById('rtAvgAov').textContent=fmt2(avgAov);
   document.getElementById('rtOrders').textContent=num(sO);
+  document.getElementById('rtAvgPprov').textContent=fmt2(sNpm?sProvRev/sNpm:0);
+  document.getElementById('rtAvgPdost').textContent=fmt2(sNpm?sDostRev/sNpm:0);
   document.getElementById('rtAvgPd').textContent=fmt2(avgPd);
-  const an=document.getElementById('rtAvgNet'); an.textContent=fmt2(avgNet); an.style.color=avgNet<0?'var(--red)':'';
+  document.getElementById('rtAvgLog').textContent='−'+fmt2(sNpm?sLog/sNpm:0);
+  document.getElementById('rtAvgUred').textContent='−'+fmt2(sNpm?sUredMj/sNpm:0);
+  document.getElementById('rtAvgCard').textContent='−'+fmt2(sNpm?sCard/sNpm:0);
+  {const a=sNpm?sPdv/sNpm:0; document.getElementById('rtAvgPdv').textContent=(vatView==='gross')?'—':(a>=0?'−'+fmt2(a):'+'+fmt2(-a));}
+  {const a=sNpm?sProfMj/sNpm:0; const pe=document.getElementById('rtAvgProf'); pe.textContent=fmt2(a); pe.style.color=a<0?'var(--red)':'';}
   const mb=document.getElementById('rtMbruto'); mb.textContent=fmt(sBruto); mb.style.color=sBruto<0?'var(--red)':'';
   const tm=document.getElementById('rtMr'); tm.textContent=fmt(sNet); tm.style.color=sNet<0?'var(--red)':'';
+  const mp=document.getElementById('rtMp'); mp.textContent=fmt(sProfMj); mp.style.color=sProfMj<0?'var(--red)':'';
   saveState();
 }
 function valForR(r,f){const wd=rWD(), cpd=restoCpd(), npm=+r.npm||0;
-  const pd = r.self ? r.aov*selfFranRate(r)/100 : r.aov*(Math.max(0,r.comm-ZAPP_SELF_CUT)/100)+r.del;
-  const npd = r.self ? pd : pd-cpd;
-  if(f==='pd')return pd;
-  if(f==='net')return npd;
+  const P=restoRowPd(r,cpd,restoExtraRates());
+  if(f==='pd')return P.pd;
+  if(f==='pprov')return P.provRevPd;
+  if(f==='pdost')return P.dostRevPd;
+  if(f==='net')return P.npd;
+  if(f==='prof')return P.profPd;
   if(f==='ord')return npm/wd;
-  if(f==='mbruto')return pd*npm;
-  if(f==='mr')return npd*npm;
+  if(f==='mbruto')return P.pd*npm;
+  if(f==='mr')return P.npd*npm;
+  if(f==='mp')return P.profPd*npm;
   if(f==='gmv')return r.aov*npm;
   if(f==='zprov')return r.aov*npm*Math.max(0,(r.self?(+r.selfComm||0):(+r.comm||0))-ZAPP_SELF_CUT)/100;
   if(f==='zhq')return r.aov*npm*Math.min((r.self?(+r.selfComm||0):(+r.comm||0)),ZAPP_SELF_CUT)/100;
@@ -1454,16 +1513,15 @@ document.getElementById('rAddGroupBtn').onclick=()=>{const nums=rRows.filter(r=>
   const tr=[...document.querySelectorAll('#rtbody tr')].find(t=>rRows[+t.dataset.i]===nr); const ni=tr&&tr.querySelector('input.rname'); if(ni){ni.scrollIntoView({block:'center'});ni.focus();ni.select();}};
 document.getElementById('rPrintBtn').onclick=()=>window.print();
 document.getElementById('rCsvBtn').onclick=()=>{
-  const wd=rWD(), cpd=restoCpd();
-  const head=['Naziv','Tip','Sam vozi','Promet KM/mj','Zapp provizija (franšizer) KM/mj','Zapp 3% (HQ) KM/mj','Promet KM/dan','Nar./mj','Nar/dan','PVN','Provizija %','Dostava','Prihod/dostava','Trošak/dostava','Neto/dostava','Mj. bruto','Mj. neto'];
+  const wd=rWD(), cpd=restoCpd(), rates=restoExtraRates();
+  const head=['Naziv','Tip','Sam vozi','Promet KM/mj','Zapp provizija (franšizer) KM/mj','Zapp 3% (HQ) KM/mj','Promet KM/dan','Nar./mj','Nar/dan','PVN','Provizija %','Dostava','Prihod provizije/dost','Prihod dostava/dost','Prihod/dost (zbir)','Logistika/dost','Ured/dost','Kartice/dost','PDV/dost','Profit/dost (pravi)','Mj. bruto','Mj. neto','Mj. profit (pravi)'];
   const lines=[head.join(';')];
   rRows.forEach(r=>{
     const npm=+r.npm||0, ord=npm/wd, gmv=r.aov*npm, gmvd=gmv/wd;
-    const pd = r.self ? r.aov*selfFranRate(r)/100 : r.aov*(Math.max(0,r.comm-ZAPP_SELF_CUT)/100)+r.del;
-    const npd = r.self ? pd : pd-cpd, mbruto=pd*npm, net=npd*npm;
-    const commCsv = r.self ? (+r.selfComm||0) : r.comm, delCsv = r.self ? 0 : r.del, trCsv = r.self ? 0 : cpd;
+    const P=restoRowPd(r,cpd,rates);
+    const commCsv = r.self ? (+r.selfComm||0) : r.comm, delCsv = r.self ? 0 : r.del;
     const zprovCsv = gmv*Math.max(0,commCsv-ZAPP_SELF_CUT)/100, zhqCsv = gmv*Math.min(commCsv,ZAPP_SELF_CUT)/100;
-    lines.push([r.name,(r.group?'Grupa':'Restoran'),(r.self?'DA':'NE'),gmv.toFixed(0),zprovCsv.toFixed(0),zhqCsv.toFixed(0),gmvd.toFixed(0),npm,ord.toFixed(1),r.aov,commCsv,delCsv,pd.toFixed(2),trCsv.toFixed(2),npd.toFixed(2),mbruto.toFixed(0),net.toFixed(0)].join(';'));
+    lines.push([r.name,(r.group?'Grupa':'Restoran'),(r.self?'DA':'NE'),gmv.toFixed(0),zprovCsv.toFixed(0),zhqCsv.toFixed(0),gmvd.toFixed(0),npm,ord.toFixed(1),r.aov,commCsv,delCsv,P.provRevPd.toFixed(2),P.dostRevPd.toFixed(2),P.pd.toFixed(2),P.logPd.toFixed(2),P.uredPd.toFixed(2),P.cardPd.toFixed(2),P.pdvPd.toFixed(2),P.profPd.toFixed(2),(P.pd*npm).toFixed(0),(P.npd*npm).toFixed(0),(P.profPd*npm).toFixed(0)].join(';'));
   });
   const blob=new Blob(["﻿"+lines.join("\n")],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='zapp-top-restorani-bl.csv'; a.click();
@@ -1573,10 +1631,10 @@ function updateOverview(){
     setH('ovInhBruto', has?fmt2V(brutoPd,true):em); setH('ovInhZapp', has?'−'+fmt2V(zappPd,true):em); setH('ovInhNet', has?fmt2V(netPd,true):em);
     setH('ovInhUred', has?'−'+fmt2(uredPd):em); setH('ovInhCard2', has?'−'+fmt2(cardPdInh):em); setH('ovInhPdv', (!has||vatView==='gross')?em:'−'+fmt2(pdvPdInh));
     var zarada=netPd-uredPd-cardPdInh-pdvPdInh;
-    setH('ovInhProfit', has?fmt2(zarada):em);
+    setH('ovInhProfit', has?fmt2Profit(zarada,pdvPdInh):em);   // bruto (prije PDV) + (neto poslije PDV), isto kao Zapp profit
   })();
   setH('ovProvMj',fmtV(provMj,true)); setH('ovDostMj',fmtV(dostMj,true)); setH('ovPrihodMj',fmtV(prihodMj,true));
-  set('ovProvPct', pct(blendedComm)); set('ovDostAvg', fmt2(delEff));   // ponderisana provizija % i naknada/dostava (info u redovima)
+  set('ovProvPct', pct(blendedComm)+' − 3% Zapp = '+pct(franComm)); set('ovDostAvg', fmt2(delEff));   // prikaži: ponderisano − 3% Zapp = stvarna stopa franšizeru (iznos je po toj stvarnoj stopi)
   set('ovSelfPct', num(Math.round(selfEco.franPct*10)/10)+'%'); setH('ovSelfProvMj', fmtV(selfProvMj,true));   // SAMO in-house restorani: ponderisana neto self-stopa i njihov zbirni prihod (0 ako nijedan nije „sami voze")
   setH('ovRashodLogMj',fmtVcost(logMj,logVatIn)); setH('ovRashodOffMj',fmtVcost(offMj,offVatIn)); set('ovKarticeMj',fmt(karticeMj));
   set('ovPdvMj', vatView==='gross'?'—':fmt(pdvMj));
