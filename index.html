@@ -1764,16 +1764,22 @@ function ownWaterfill(rows, floor, cap){
     for(let i=0;i<n;i++){ if(fz[i]===1) rows[i].share=cap; else if(fz[i]===-1) rows[i].share=floor; }
   }
 }
+/* Bodovi (težine) uvijek zbrajaju 100%: kad se jedan klizač pomjeri, ostali se proporcionalno prilagode */
+function ownFixTo100(absorbKey){ const keys=OWN_METRICS.map(M=>M.key); let t=keys.reduce((s,k)=>s+(ownWeights[k]||0),0); if(t!==100){ ownWeights[absorbKey]=(ownWeights[absorbKey]||0)+(100-t); if(ownWeights[absorbKey]<0)ownWeights[absorbKey]=0; } }
+function ownNormalizeWeights(){ const keys=OWN_METRICS.map(M=>M.key); let tot=keys.reduce((s,k)=>s+(ownWeights[k]||0),0); if(tot<=0) keys.forEach(k=>ownWeights[k]=Math.round(100/keys.length)); else keys.forEach(k=>ownWeights[k]=Math.round((ownWeights[k]||0)/tot*100)); ownFixTo100(keys[keys.length-1]); }
+function ownRebalanceWeights(changedKey,newVal){ newVal=Math.max(0,Math.min(100,Math.round(newVal))); ownWeights[changedKey]=newVal; const others=OWN_METRICS.map(M=>M.key).filter(k=>k!==changedKey); const remaining=100-newVal; const otherSum=others.reduce((s,k)=>s+(ownWeights[k]||0),0); if(otherSum>0) others.forEach(k=>ownWeights[k]=Math.round(remaining*(ownWeights[k]||0)/otherSum)); else others.forEach(k=>ownWeights[k]=Math.round(remaining/others.length)); ownFixTo100(others[others.length-1]); }
+function ownSyncWeightUI(){ OWN_METRICS.forEach(M=>{ const sl=document.querySelector('#ownWeights input[type=range][data-k="'+M.key+'"]'); if(sl)sl.value=ownWeights[M.key]; const wv=document.getElementById('ownwv-'+M.key); if(wv)wv.textContent=ownWeights[M.key]+'%'; }); }
 function ownBuildControls(){
   const wrap=document.getElementById('ownWeights'); if(!wrap||wrap._built) return; wrap._built=true;
+  ownNormalizeWeights();
   wrap.innerHTML=OWN_METRICS.map(M=>'<div class="own-w"><label><span class="abbr" data-tip="'+esc(M.tip)+'">'+M.label+'</span><span class="wv" id="ownwv-'+M.key+'">'+ownWeights[M.key]+'%</span></label><div class="own-wsub">'+esc(M.sub)+'</div><input type="range" min="0" max="100" step="1" value="'+ownWeights[M.key]+'" data-k="'+M.key+'" aria-label="Bodovi: '+esc(M.label)+'"></div>').join('');
-  wrap.querySelectorAll('input[type=range][data-k]').forEach(s=>s.addEventListener('input',e=>{const k=e.target.dataset.k;ownWeights[k]=parseInt(e.target.value,10)||0;const wv=document.getElementById('ownwv-'+k);if(wv)wv.textContent=ownWeights[k]+'%';ownSaveCfg();ownRenderWeighted();}));
+  wrap.querySelectorAll('input[type=range][data-k]').forEach(s=>s.addEventListener('input',e=>{ownRebalanceWeights(e.target.dataset.k,parseInt(e.target.value,10)||0);ownSyncWeightUI();ownSaveCfg();ownRenderWeighted();}));
 }
 function ownRenderWeighted(){
   const out=document.getElementById('ownWeightedResults'); if(!out) return;
   const owners=rRows.filter(r=>r.owner&&!r.group), N=owners.length;
   const totW=OWN_METRICS.reduce((s,M)=>s+(ownWeights[M.key]||0),0);
-  const wsum=document.getElementById('ownWsum'); if(wsum) wsum.innerHTML='Zbroj bodova: <b>'+totW+'%</b> — '+(totW===100?'omjeri se primjenjuju direktno.':(totW>0?'omjeri se automatski normaliziraju na 100%.':'postavi bar jedan faktor iznad 0%.'));
+  const wsum=document.getElementById('ownWsum'); if(wsum) wsum.innerHTML='Zbroj bodova: <b>'+totW+'%</b> — klizači su povezani: pomjeriš jedan, ostali se prilagode da zbroj ostane 100%.';
   if(!N){ out.innerHTML='<div class="own-empty">Nijedan lokal nije označen kao <b>👤 vlasnik</b>.<br>Otvori tab <b>„Top restorani"</b> i kvačicom 👤 označi lokale čiji vlasnici ulaze u franšizu — pojavit će se ovdje.</div>'; return; }
   const {rows}=ownCompute(owners);
   rows.sort((a,b)=>b.share-a.share);
