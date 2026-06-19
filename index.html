@@ -505,6 +505,7 @@
       <div class="pl-row"><span>− Zapp (royalty) <b class="plsub" id="ovBoxZappPct"></b></span><b class="neg" id="ovBoxProvZapp">—</b></div>
       <div class="pl-row sub"><span>= Provizija (neto)</span><b class="pos" id="ovBoxProvNet">—</b></div>
       <div class="pl-row"><span>+ Naknada za dostavu</span><b class="pos" id="ovPlDost">—</b></div>
+      <div class="pl-row sub"><span>= Prihod po dostavi</span><b class="pos" id="ovPlPrihod">—</b></div>
       <div class="pl-row"><span>− Logistika <span class="seg lp-seg" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></span></span><b class="neg"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl">−<input type="number" id="ovLog3plInp" step="0.1" min="0"> KM <span class="netp" id="ovLog3plNet"></span></span></b></div>
       <div class="pl-row"><span>− Ured</span><b class="neg" id="ovTrosakOffPd">—</b></div>
       <div class="pl-row"><span>− Kartice</span><b class="neg" id="ovPlCard">—</b></div>
@@ -1514,7 +1515,7 @@ function updateOverview(){
   const provNetPd=provBrutoPd-provZappPd;                                                              // ostaje franšizeru po dostavi (= provPd, „Prihod po dostavi (provizija)")
   set('ovBoxProvPct','('+pct(blendedComm)+')'); set('ovBoxZappPct','('+pct(zappRate2)+')');
   setH('ovBoxProvBruto',fmt2V(provBrutoPd,true)); setH('ovBoxProvZapp','−'+fmt2V(provZappPd,true)); setH('ovBoxProvNet',fmt2V(provNetPd,true));
-  setH('ovPlDost','+'+fmt2V(dostPd,true)); setH('ovPlCard', noOrders?'—':'−'+fmt2(karticePerDel));
+  setH('ovPlDost','+'+fmt2V(dostPd,true)); setH('ovPlPrihod',fmt2V(revPd,true)); setH('ovPlCard', noOrders?'—':'−'+fmt2(karticePerDel));
   setH('ovPlPdv', (noOrders||vatView==='gross')?'—':(pdvPd>=0?'−':'+')+fmt2(Math.abs(pdvPd)));   // PDV obaveza po dostavi; u „Bruto" prikazu ugašena (—), kao mjesečni red
   setH('ovPlProfit', noOrders?'—':fmt2Profit(profPd,pdvPd));
   setH('ovProvMj',fmtV(provMj,true)); setH('ovDostMj',fmtV(dostMj,true)); setH('ovPrihodMj',fmtV(prihodMj,true));
@@ -1768,9 +1769,9 @@ function ownStatus(msg,ok){ const s=document.getElementById('ownStatus'); if(!s)
 
 /* ---------- Vlasnička struktura: interni izračun udjela (zaključano šifrom) ----------
    Model po svjetskim standardima (contribution-based / Slicing Pie; valuacija po profitu, ne prometu):
-   udio ∝ doprinosu profitu franšize. Default težine: Neto 55% / Bruto 25% / Narudžbe 20% / GMV 0%.
-   GMV = 0 jer je promet novac restorana koji samo prolazi kroz platformu (franšiza zadrži tek mali %).
-   Granice (floor/cap) se primjenjuju „water-filling" metodom (ne clamp-pa-renormalizuj). Negativan neto → 0.
+   udio ∝ ponderisanom doprinosu. Default bodovi (težine): Ukupan promet 30% / Broj narudžbi 30% / Neto doprinos 40%.
+   Negativan neto računa se kao 0 (gubitaški lokal ne skuplja udio na tuđi račun).
+   Koristi se sirovi (raw) ponderisani doprinos koji prirodno zbraja 100% — floor/cap granice se NE primjenjuju.
    „Soft" gate: cyrb53 hash šifre u kodu (nije prava sigurnost na javnoj stranici, ali skriva sekciju i šifru). */
 function ownHash(str,seed){seed=seed||0;let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);}
 const OWN_PASS_HASH='2g0cawbifdg';   /* cyrb53('vlasnik2026') — promjenu šifre traži od mene (preračunam hash) */
@@ -1799,25 +1800,10 @@ function ownCompute(owners){
   rows.forEach(o=>{ let sh=0; if(sumW>0){ OWN_METRICS.forEach(M=>{ if(effW[M.key]>0&&totals[M.key]>0) sh+=(effW[M.key]/sumW)*(o.m[M.key]/totals[M.key]); }); } else sh=rows.length?1/rows.length:0; o.share=sh; });
   return {rows,totals};
 }
-/* water-filling: zamrzni preko capa na cap i ispod floora na floor, ostatak PRO-RATA na nezamrznute (granica stvarno drži) */
-function ownWaterfill(rows, floor, cap){
-  const n=rows.length; if(!n) return;
-  if(cap*n<1) cap=1/n; if(floor*n>1) floor=1/n; if(floor>cap) floor=cap;
-  const fz=new Array(n).fill(0);
-  for(let iter=0; iter<n*2+3; iter++){
-    let locked=0, free=[];
-    for(let i=0;i<n;i++){ if(fz[i]===1) locked+=cap; else if(fz[i]===-1) locked+=floor; else free.push(i); }
-    if(!free.length) break;
-    const freeSum=free.reduce((s,i)=>s+rows[i].share,0), avail=1-locked;
-    let changed=false;
-    for(const i of free){ const v=freeSum>0?rows[i].share/freeSum*avail:avail/free.length; if(v>cap+1e-9){fz[i]=1;changed=true;} else if(v<floor-1e-9){fz[i]=-1;changed=true;} }
-    if(!changed){ for(const i of free){ rows[i].share=freeSum>0?rows[i].share/freeSum*avail:avail/free.length; } break; }
-    for(let i=0;i<n;i++){ if(fz[i]===1) rows[i].share=cap; else if(fz[i]===-1) rows[i].share=floor; }
-  }
-}
 /* Bodovi (težine) uvijek zbrajaju 100%: kad se jedan klizač pomjeri, ostali se proporcionalno prilagode */
 function ownFixTo100(absorbKey){ const keys=OWN_METRICS.map(M=>M.key); let t=keys.reduce((s,k)=>s+(ownWeights[k]||0),0); if(t!==100){ ownWeights[absorbKey]=(ownWeights[absorbKey]||0)+(100-t); if(ownWeights[absorbKey]<0)ownWeights[absorbKey]=0; } }
-function ownNormalizeWeights(){ const keys=OWN_METRICS.map(M=>M.key); let tot=keys.reduce((s,k)=>s+(ownWeights[k]||0),0); if(tot<=0) keys.forEach(k=>ownWeights[k]=Math.round(100/keys.length)); else keys.forEach(k=>ownWeights[k]=Math.round((ownWeights[k]||0)/tot*100)); ownFixTo100(keys[keys.length-1]); }
+/* largest-remainder: garantuje zbroj točno 100% za SVAKI ulaz (i kad perzistirane težine ne zbrajaju 100) — bez clamp-to-0 u apsorberu */
+function ownNormalizeWeights(){ const keys=OWN_METRICS.map(M=>M.key); let tot=keys.reduce((s,k)=>s+(ownWeights[k]||0),0); const raw={}; if(tot<=0) keys.forEach(k=>raw[k]=100/keys.length); else keys.forEach(k=>raw[k]=(ownWeights[k]||0)/tot*100); let sum=0; const rem=[]; keys.forEach(k=>{ ownWeights[k]=Math.floor(raw[k]); sum+=ownWeights[k]; rem.push([k,raw[k]-ownWeights[k]]); }); rem.sort((a,b)=>b[1]-a[1]); for(let i=0,need=100-sum;i<need;i++) ownWeights[rem[i%keys.length][0]]++; }
 function ownRebalanceWeights(changedKey,newVal){ newVal=Math.max(0,Math.min(100,Math.round(newVal))); ownWeights[changedKey]=newVal; const others=OWN_METRICS.map(M=>M.key).filter(k=>k!==changedKey); const remaining=100-newVal; const otherSum=others.reduce((s,k)=>s+(ownWeights[k]||0),0); if(otherSum>0) others.forEach(k=>ownWeights[k]=Math.round(remaining*(ownWeights[k]||0)/otherSum)); else others.forEach(k=>ownWeights[k]=Math.round(remaining/others.length)); ownFixTo100(others[others.length-1]); }
 function ownSyncWeightUI(){ OWN_METRICS.forEach(M=>{ const sl=document.querySelector('#ownWeights input[type=range][data-k="'+M.key+'"]'); if(sl)sl.value=ownWeights[M.key]; const wv=document.getElementById('ownwv-'+M.key); if(wv)wv.textContent=ownWeights[M.key]+'%'; }); }
 function ownBuildControls(){
