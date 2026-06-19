@@ -125,6 +125,12 @@
   .ov-pl .pl-row.tot{border-bottom:none;border-top:2px solid var(--line);margin-top:2px;padding-top:12px}
   .ov-pl .pl-row.tot>span{color:var(--ink);font-weight:800;font-size:16px}
   .ov-pl .pl-row.tot>b{font-size:21px}
+  .ov-ordfilter{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:10px 0 4px;font-size:13px}
+  .ov-ordfilter .ovf-lab{color:var(--muted);font-weight:700}
+  .ov-ordfilter label{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-weight:700;color:var(--ink)}
+  .ov-ordfilter input{width:16px;height:16px;accent-color:var(--zapp);cursor:pointer;margin:0}
+  #overView.no-zapp .ov-zapp-only{display:none}
+  #overView.no-inh #ovInhCard{display:none}
   .ov-pl .lp-seg{margin-top:0}
   .ov-pl .lp-3pl{display:inline-flex;align-items:center;gap:4px}
   .ov-pl .lp-3pl input{width:62px;font-size:15px;font-weight:800;padding:1px 6px}
@@ -250,6 +256,7 @@
   .ov-sub{font-size:12px;color:var(--muted);margin-top:10px}
   .ov-bar{display:flex;height:32px;border-radius:8px;overflow:hidden;margin:4px 0;background:#EDEEF0}
   .ov-bar .seg-log{background:#7FA9D6}.ov-bar .seg-off{background:#C9CDD3}.ov-bar .seg-cost{background:#C9CDD3}.ov-bar .seg-card{background:#9B8BC4}.ov-bar .seg-pdv{background:#E0A0A0}.ov-bar .seg-profit{background:var(--green)}.ov-bar .seg-loss{background:var(--red)}
+  .ov-bar .seg-log,.ov-bar .seg-off,.ov-bar .seg-cost{color:#1A1A1A}  /* #5 N-28: taman tekst (ov-bar) na svijetlim segmentima (WCAG AA) */
   .ov-bar span{display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;white-space:nowrap;min-width:0;overflow:hidden}
   .ov-stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
   .ov-stat{background:#FAFAFB;border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:14px;font-weight:800}
@@ -302,6 +309,7 @@
   .cbar{display:flex;height:34px;border-radius:8px;overflow:hidden;margin:8px 0 2px;background:#EDEEF0}
   .cbar span{display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;white-space:nowrap;min-width:0;overflow:hidden;padding:0 4px}
   .cbar .s-ppl{background:var(--zapp)}.cbar .s-veh{background:#7FA9D6}.cbar .s-gear{background:#9AA0A6}.cbar .s-oh{background:#6B7280}.cbar .s-var{background:var(--zapp-dark)}
+  .cbar .s-ppl,.cbar .s-veh,.cbar .s-gear{color:#1A1A1A}  /* #5 N-28: taman tekst (cbar) na svijetlim segmentima (WCAG AA) */
   .clegend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:10px}
   .clegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
 
@@ -477,6 +485,11 @@
           <span class="ov-lab">📊 Narudžbi / dan <span style="font-weight:600;color:var(--muted);font-size:13px">— fiksno iz „Top restorani"</span></span>
           <span><b id="ovOrdEff" style="font-size:22px;font-weight:800;color:#9A5A12">—</b> <span style="font-size:12px;color:var(--muted);font-weight:700">nar./dan</span></span>
         </div>
+        <div class="ov-ordfilter">
+          <span class="ovf-lab">Uključi narudžbe:</span>
+          <label><input type="checkbox" id="ovInclZapp" checked> Zapp vozi</label>
+          <label><input type="checkbox" id="ovInclInh" checked> In-house (sami voze)</label>
+        </div>
         <div class="ov-pct-row">
           <span class="ov-lab" style="font-size:13px;white-space:nowrap">Udio obima</span>
           <input type="range" id="ovCalcPctRng" min="0" max="200" step="5" class="ov-range" aria-label="Udio obima (%)">
@@ -499,7 +512,7 @@
       <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakOffPdC" data-ovcpd="ured"><span class="ov-unit">KM</span></div><div class="k-sub" style="color:var(--muted)">osoblje + ostali fiksni troškovi</div></div>
       <div class="kpi" id="ovProfitCard"><div class="k-lab"><span class="abbr" data-tip="U prikazu „Bruto" = operativni profit PRIJE PDV obaveze. U „Bruto + neto / Neto" = stvarni profit NAKON PDV obaveze (ono što ostaje). Razlika bruto − neto je upravo PDV obaveza.">Profit po dostavi</span></div><div class="k-val" id="ovProfitPd">—</div></div>
     </div>
-    <div class="ov-calc-only card ov-pl">
+    <div class="ov-calc-only card ov-pl ov-zapp-only">
       <h3>📦 Po jednoj dostavi <span style="font-weight:600;color:var(--muted);font-size:13px">— samo narudžbe koje Zapp vozi (in-house „sami voze" se računaju zasebno u „Prihod (mjesečno)")</span></h3>
       <div class="pl-row"><span>Provizija (bruto) <b class="plsub" id="ovBoxProvPct"></b></span><b class="pos" id="ovBoxProvBruto">—</b></div>
       <div class="pl-row"><span>− Zapp (royalty) <b class="plsub" id="ovBoxZappPct"></b></span><b class="neg" id="ovBoxProvZapp">—</b></div>
@@ -544,7 +557,7 @@
       <h3 style="margin:0">💰 <span class="abbr" data-tip="U prikazu „Bruto" = profit prije PDV obaveze. U „Bruto + neto / Neto" = stvarni profit nakon PDV obaveze. Razlika je PDV obaveza.">Profit (mjesečno)</span></h3>
       <span class="v pos" id="ovProfitMj" style="font-size:26px;font-weight:800">—</span>
     </div>
-    <div class="card">
+    <div class="card ov-zapp-only">
       <h3>💸 Gdje ide jedna dostava</h3>
       <div class="ov-bar" id="ovBar"></div>
       <div class="legend"><span><i style="background:#7FA9D6"></i>Logistika <b id="ovLegLog"></b></span><span><i style="background:#C9CDD3"></i>Ured <b id="ovLegOff"></b></span><span><i style="background:#9B8BC4"></i>Kartice <b id="ovLegCard"></b></span><span><i style="background:#E0A0A0"></i>PDV <b id="ovLegPdv"></b></span><span><i style="background:var(--green)"></i>Profit <b id="ovLegPro"></b></span></div>
@@ -869,6 +882,7 @@ let ovMode='calc', ovCustomRev=null, ovCustomCostLog=null, ovCustomCostOff=null;
 let ovCalcPct=100, ovCustOrders=null;   /* Pregled: Izračunato = % udjela obima iz „Top restorani" (fiksno) | Ručni = ručni broj narudžbi/dan (null = seed iz calc) */
 let logSrc='3pl', pl3Price=4;   /* Pregled logistika (calc mod): 'fleet'=izračun | '3pl'=dogovorena cijena, default 4 KM */
 let cardPct=3.5, cardVol=10;   /* Pregled kartične uplate: iznos provizije % (3.5) i obim % prometa plaćen karticom (10) */
+let inclZapp=true, inclInh=true;   /* Pregled Izračunato: koji tipovi narudžbi ulaze u obim/računicu — Zapp-vožene i/ili in-house (checkbox) */
 let ovcMj={prov:0,dost:0,mkt:0,log:0,ured:0,card:0,pdv:0,self:null}, ovcSeeded=false;   /* Ručni unos: mjesečni iznosi (upisivi); seedani iz Izračunato pri prvom prelasku */
 const refs={A:{},B:{}};
 const openState={invest:false,staff:false,fixed:false,courier:false,volume:false,restB:true,
@@ -1452,8 +1466,13 @@ function updateOverview(){
   const custom=(ovMode==='custom');
   // --- Model narudžbi: Izračunato = FIKSNO iz „Top restorani" × udio% | Ručni = ručni unos (ne sinkroniziraju se) ---
   const wd=v.workDays>0?v.workDays:30;
-  const restoNpm=restoNpmTotal();                                  // ukupno narudžbi/mj iz „Top restorani" (Σ npm)
-  const restoOd=restoNpm/wd;                                       // bazni obim narudžbi/dan (= 100%)
+  // Filter tipa narudžbi (checkbox „Zapp vozi" / „In-house"): isključeni tip se nulira u cijeloj računici Izračunato
+  const ecoFull=restoFranEconomics();                              // Zapp-voženi restorani (non-self)
+  const selfFull=restoSelfEconomics();                             // in-house restorani (self)
+  const eco = inclZapp ? ecoFull : {gmv:0,orders:0,commRev:0,delRev:0,commPct:0,delAvg:0};
+  const selfEco = inclInh ? selfFull : {gmv:0,orders:0,franRev:0,grossRev:0,zappRev:0,franPct:0,grossPct:0,zappPct:0};
+  const restoNpm=(eco.orders||0)+(selfEco.orders||0);              // bazni obim = zbroj narudžbi UKLJUČENIH tipova (Zapp i/ili in-house)
+  const restoOd=wd>0?restoNpm/wd:0;                                // narudžbi/dan (= 100%)
   if(custom){
     if(ovCustOrders==null) ovCustOrders=Math.round(v.ordersDay>0?v.ordersDay:restoOd);   // seed jednom (od trenutnog Izračunato obima)
     v.ordersDay=Math.max(0, ovCustOrders);
@@ -1462,10 +1481,9 @@ function updateOverview(){
   }
   const r=computeA();
   const ov=document.getElementById('overView');
-  if(ov) ov.classList.toggle('ov-custom', custom);
+  if(ov){ ov.classList.toggle('ov-custom', custom); ov.classList.toggle('no-zapp', !custom && !inclZapp); ov.classList.toggle('no-inh', !custom && !inclInh); }
   document.querySelectorAll('#ovModeSeg button').forEach(b=>{const on=b.dataset.ovm===ovMode;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
-  const eco=restoFranEconomics();                                  // ponderisana provizija/dostava iz „Top restorani" (samo restorani koje Zapp vozi)
-  const selfEco=restoSelfEconomics();                              // ekonomija in-house „sami voze" restorana (zaseban red prihoda; 0 ako nijedan nije označen)
+  { const cz=document.getElementById('ovInclZapp'); if(cz)cz.checked=inclZapp; const ci=document.getElementById('ovInclInh'); if(ci)ci.checked=inclInh; }
   const blendedComm=eco.commPct;                                   // ponderisana provizija % (bruto), ponder = promet (PVN × narudžbe)
   const franComm=Math.max(0, blendedComm-3);                       // fransizeru ide ponderisana provizija MINUS 3% (Zapp dio)
   const delEff=eco.delAvg;                                         // ponderisana naknada za dostavu (KM/narudžba), ponder = broj narudžbi
@@ -1617,6 +1635,8 @@ function updateOverview(){
   if(cpi) cpi.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(isFinite(n))cardPct=Math.max(0,n);updateOverview();saveState();});
   const cvi=document.getElementById('ovCardVol');
   if(cvi) cvi.addEventListener('input',e=>{const raw=e.target.value;if(raw==='')return;const n=parseFloat(raw);if(isFinite(n))cardVol=Math.max(0,n);updateOverview();saveState();});
+  const incZ=document.getElementById('ovInclZapp'); if(incZ) incZ.addEventListener('change',e=>{ if(!e.target.checked && !inclInh){e.target.checked=true;return;} inclZapp=e.target.checked; updateOverview(); saveState(); });   // bar jedan tip mora ostati
+  const incI=document.getElementById('ovInclInh'); if(incI) incI.addEventListener('change',e=>{ if(!e.target.checked && !inclZapp){e.target.checked=true;return;} inclInh=e.target.checked; updateOverview(); saveState(); });
   const ovEl=document.getElementById('overView');
   if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('.ovc-inp'); if(!inp)return; const k=inp.dataset.ovc; if(!k)return; const raw=inp.value; if(raw==='')return; const n=ovPI(raw); if(isFinite(n))ovcMj[k]=Math.max(0,n); updateOverview(); saveState();});
   if(ovEl) ovEl.addEventListener('input',e=>{const inp=e.target.closest&&e.target.closest('[data-ovcpd]'); if(!inp)return; const k=inp.dataset.ovcpd; const raw=inp.value; if(raw==='')return; const n=ovPD(raw); if(!isFinite(n))return; const om=(valA.ordersDay*valA.workDays)||1; const x=Math.max(0,n);
@@ -1961,7 +1981,7 @@ document.addEventListener('keydown',e=>{const a=document.activeElement; if(e.key
 /* ---------- Auto-spremanje (localStorage — lokalno na ovom uređaju/browseru) ---------- */
 const SAVE_KEY='zapp-kalkulator-v2';
 function buildSnapshot(){
-  return {v:1, mode, preset, targetType, targetValue, ovMode, ovCalcPct, ovCustOrders, logSrc, pl3Price, cardPct, cardVol, vatView, ovcMj:{...ovcMj}, ovcSeeded, ovCustomRev, ovCustomCostLog, ovCustomCostOff,
+  return {v:1, mode, preset, targetType, targetValue, ovMode, ovCalcPct, ovCustOrders, logSrc, pl3Price, cardPct, cardVol, inclZapp, inclInh, vatView, ovcMj:{...ovcMj}, ovcSeeded, ovCustomRev, ovCustomCostLog, ovCustomCostOff,
     valA:{...valA}, valB:{...valB}, valT:{...valT}, openState:{...openState},
     rRows: rRows.map(r=>({...r})),
     rWorkDays:+document.getElementById('rWorkDays').value||30,
@@ -1972,38 +1992,43 @@ function buildSnapshot(){
 function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(buildSnapshot())); flashSaved(); }catch(e){} }
 let saveTimer; function saveState(){ clearTimeout(saveTimer); saveTimer=setTimeout(persist,300); }
 function flashSaved(){ const b=document.getElementById('saveBadge'); if(!b)return; b.textContent='✓ Spremljeno'; b.classList.add('on'); clearTimeout(b._t); b._t=setTimeout(()=>{b.textContent='💾 Auto-spremanje';b.classList.remove('on');},1200); }
+// #4 sanitizacija učitavanja: kopira samo POSTOJEĆE ključeve (odbacuje strane/zastarjele); brojčano polje samo ako je konačno (NaN/Infinity iz corrupt storagea se odbacuje)
+function mergeKnown(target, src){ if(!src||typeof src!=='object') return; for(const k in target){ if(!Object.prototype.hasOwnProperty.call(src,k)) continue; const v=src[k]; if(typeof target[k]==='number'){ if(Number.isFinite(v)) target[k]=v; } else if(v!==undefined){ target[k]=v; } } }
 function loadState(){
   let s=null; try{ s=JSON.parse(localStorage.getItem(SAVE_KEY)); }catch(e){ s=null; }
   if(!s||typeof s!=='object') return false;
   if(s.mode==='A'||s.mode==='B'||s.mode==='C'||s.mode==='O'||s.mode==='T'||s.mode==='V') mode=s.mode;
   if(s.preset==='bih'||s.preset==='custom') preset=s.preset;
   if(s.targetType==='profit'||s.targetType==='payback') targetType=s.targetType;
-  if(typeof s.targetValue==='number') targetValue=s.targetValue;
+  if(Number.isFinite(s.targetValue)) targetValue=s.targetValue;
   if(s.ovMode==='calc'||s.ovMode==='custom') ovMode=s.ovMode;
-  if(typeof s.ovCalcPct==='number') ovCalcPct=Math.max(0,Math.min(200,s.ovCalcPct));
-  if(typeof s.ovCustOrders==='number') ovCustOrders=Math.max(0,s.ovCustOrders);
+  if(Number.isFinite(s.ovCalcPct)) ovCalcPct=Math.max(0,Math.min(200,s.ovCalcPct));
+  if(Number.isFinite(s.ovCustOrders)) ovCustOrders=Math.max(0,s.ovCustOrders);
   if(s.logSrc==='fleet'||s.logSrc==='3pl') logSrc=s.logSrc;
-  if(typeof s.pl3Price==='number') pl3Price=s.pl3Price;
-  if(typeof s.cardPct==='number') cardPct=s.cardPct;
-  if(typeof s.cardVol==='number') cardVol=s.cardVol;
+  if(Number.isFinite(s.pl3Price)) pl3Price=s.pl3Price;
+  if(Number.isFinite(s.cardPct)) cardPct=s.cardPct;
+  if(Number.isFinite(s.cardVol)) cardVol=s.cardVol;
+  if(typeof s.inclZapp==='boolean') inclZapp=s.inclZapp;
+  if(typeof s.inclInh==='boolean') inclInh=s.inclInh;
+  if(!inclZapp && !inclInh){ inclZapp=true; inclInh=true; }   // sigurnosna mreža: bar jedan tip uključen
   if(s.vatView==='both'||s.vatView==='gross'||s.vatView==='net') vatView=s.vatView;
-  if(s.ovcMj&&typeof s.ovcMj==='object'){ Object.assign(ovcMj, s.ovcMj); if(s.ovcSeeded) ovcSeeded=true; }
-  if(typeof s.ovCustomRev==='number') ovCustomRev=s.ovCustomRev;
-  if(typeof s.ovCustomCostLog==='number') ovCustomCostLog=s.ovCustomCostLog;
-  if(typeof s.ovCustomCostOff==='number') ovCustomCostOff=s.ovCustomCostOff;
-  if(ovCustomCostLog==null && typeof s.ovCustomCost==='number') ovCustomCostLog=s.ovCustomCost;   // migracija sa starog „Trošak" polja
-  if(s.valA&&typeof s.valA==='object') Object.assign(valA, s.valA);
-  if(s.valB&&typeof s.valB==='object') Object.assign(valB, s.valB);
-  if(s.valT&&typeof s.valT==='object') Object.assign(valT, s.valT);
+  if(s.ovcMj&&typeof s.ovcMj==='object'){ mergeKnown(ovcMj, s.ovcMj); if(s.ovcSeeded) ovcSeeded=true; }
+  if(Number.isFinite(s.ovCustomRev)) ovCustomRev=s.ovCustomRev;
+  if(Number.isFinite(s.ovCustomCostLog)) ovCustomCostLog=s.ovCustomCostLog;
+  if(Number.isFinite(s.ovCustomCostOff)) ovCustomCostOff=s.ovCustomCostOff;
+  if(ovCustomCostLog==null && Number.isFinite(s.ovCustomCost)) ovCustomCostLog=s.ovCustomCost;   // migracija sa starog „Trošak" polja
+  if(s.valA&&typeof s.valA==='object') mergeKnown(valA, s.valA);
+  if(s.valB&&typeof s.valB==='object') mergeKnown(valB, s.valB);
+  if(s.valT&&typeof s.valT==='object') mergeKnown(valT, s.valT);
   if(s.openState&&typeof s.openState==='object') Object.assign(openState, s.openState);
   A_COLLAPSE_KEYS.forEach(k=>openState[k]=false);   // Fransizer kategorije uvijek zatvorene na učitavanju (klik otvara za uređivanje)
   if(Array.isArray(s.rRows)&&s.rRows.length&&('aov' in s.rRows[0])) rRows=s.rRows.map(r=>{const sub90=parseInt(String(r.sub||'').split('nar')[0].replace(/[^\d]/g,''),10);const npm=typeof r.npm==='number'?r.npm:(typeof r.n90==='number'?Math.round(r.n90/3):(sub90?Math.round(sub90/3):Math.round((+r.ord||0)*30)));return {name:r.name||'Restoran',npm,aov:+r.aov||0,comm:typeof r.comm==='number'?r.comm:20,del:typeof r.del==='number'?r.del:3,self:!!r.self,selfComm:typeof r.selfComm==='number'?r.selfComm:6,owner:!!r.owner,group:!!r.group};});
   try{
-    if(typeof s.rWorkDays==='number') document.getElementById('rWorkDays').value=s.rWorkDays;
-    if(typeof s.rAllComm==='number') document.getElementById('rAllComm').value=s.rAllComm;
-    if(typeof s.rAllDel==='number') document.getElementById('rAllDel').value=s.rAllDel;
-    if(typeof s.rSelfComm==='number') document.getElementById('rSelfComm').value=s.rSelfComm;
-    else if(typeof s.rSelfZapp==='number'||typeof s.rSelfFran==='number') document.getElementById('rSelfComm').value=(+s.rSelfZapp||0)+(+s.rSelfFran||0);  // migracija sa starog split polja (Zapp % + ti %) → jedinstvena provizija
+    if(Number.isFinite(s.rWorkDays)) document.getElementById('rWorkDays').value=s.rWorkDays;
+    if(Number.isFinite(s.rAllComm)) document.getElementById('rAllComm').value=s.rAllComm;
+    if(Number.isFinite(s.rAllDel)) document.getElementById('rAllDel').value=s.rAllDel;
+    if(Number.isFinite(s.rSelfComm)) document.getElementById('rSelfComm').value=s.rSelfComm;
+    else if(Number.isFinite(s.rSelfZapp)||Number.isFinite(s.rSelfFran)) document.getElementById('rSelfComm').value=(+s.rSelfZapp||0)+(+s.rSelfFran||0);  // migracija sa starog split polja (Zapp % + ti %) → jedinstvena provizija
   }catch(e){}
   return true;
 }
