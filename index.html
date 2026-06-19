@@ -111,22 +111,23 @@
   @media (max-width:1080px){.kpis{grid-template-columns:repeat(2,1fr)}}
   @media (max-width:480px){.kpis{grid-template-columns:repeat(2,1fr);gap:10px}}
   #overView .kpis{grid-template-columns:repeat(4,1fr);gap:12px}
-  #overView:not(.ov-custom) .kpis{grid-template-columns:repeat(5,1fr)}   /* Izračunato: prihod razdvojen u 2 KPI-ja (provizija + dostava) → 5 kartica */
-  @media (max-width:1100px){#overView .kpis,#overView:not(.ov-custom) .kpis{grid-template-columns:repeat(3,1fr)}}
-  @media (max-width:600px){#overView .kpis,#overView:not(.ov-custom) .kpis{grid-template-columns:repeat(2,1fr)}}
-  .ov-rev-recap{font-size:13px;color:var(--muted);margin:-8px 0 18px;padding:8px 12px;background:var(--card);border-radius:10px;box-shadow:var(--shadow)}
-  .ov-rev-recap b{color:var(--ink);font-weight:800}
-  .ov-boxes2{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:18px}
-  @media (max-width:600px){.ov-boxes2{grid-template-columns:1fr}}
-  .ov-box .kpi-br{margin-top:8px}
-  .kpi-br-row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;padding:6px 0;border-bottom:1px dashed var(--line)}
-  .kpi-br-row span{color:var(--muted)}
-  .kpi-br-row b{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
-  .kpi-br-row b.brsub{font-weight:600;color:var(--muted);font-size:12px}
-  .kpi-br-row b.pos{color:var(--green)} .kpi-br-row b.neg{color:var(--red)}
-  .kpi-br-row.tot{border-bottom:none;border-top:2px solid var(--line);margin-top:2px;padding-top:9px}
-  .kpi-br-row.tot span{color:var(--ink);font-weight:700}
-  .kpi-br-row.tot b{font-size:16px}
+  #overView:not(.ov-custom) .kpis{display:none}   /* Izračunato: KPI kartice skrivene — sve ide u listu „Po jednoj dostavi"; kartice ostaju samo za Ručni unos */
+  @media (max-width:1100px){#overView .kpis{grid-template-columns:repeat(2,1fr)}}
+  .ov-pl{margin-bottom:18px}
+  .ov-pl h3{margin:0 0 6px}
+  .ov-pl .pl-row{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:15px;padding:9px 0;border-bottom:1px dashed var(--line)}
+  .ov-pl .pl-row>span{color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .ov-pl .pl-row>b{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ov-pl .pl-row b.pos{color:var(--green)} .ov-pl .pl-row b.neg{color:var(--red)}
+  .ov-pl .pl-row .plsub{font-weight:600;color:var(--muted);font-size:12px}
+  .ov-pl .pl-row.sub{border-top:1px solid var(--line)}
+  .ov-pl .pl-row.sub>span{color:var(--ink);font-weight:700}
+  .ov-pl .pl-row.tot{border-bottom:none;border-top:2px solid var(--line);margin-top:2px;padding-top:12px}
+  .ov-pl .pl-row.tot>span{color:var(--ink);font-weight:800;font-size:16px}
+  .ov-pl .pl-row.tot>b{font-size:21px}
+  .ov-pl .lp-seg{margin-top:0}
+  .ov-pl .lp-3pl{display:inline-flex;align-items:center;gap:4px}
+  .ov-pl .lp-3pl input{width:62px;font-size:15px;font-weight:800;padding:1px 6px}
   .kpi{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;position:relative;overflow:hidden}
   .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--zapp)}
   .kpi .k-lab{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:6px}
@@ -493,31 +494,21 @@
       </div>
     </div>
     <div class="kpis">
-      <div class="kpi ov-calc-only"><div class="k-lab">Prihod po dostavi (provizija)</div><div class="k-val" id="ovPrihodProvPd">—</div><div class="k-sub" id="ovPrihodProvSub"></div></div>
-      <div class="kpi ov-calc-only"><div class="k-lab">Prihod po dostavi (dostava)</div><div class="k-val" id="ovPrihodDostPd">—</div><div class="k-sub" id="ovPrihodDostSub"></div></div>
-      <div class="kpi ov-cust-only"><div class="k-lab">Prihod po dostavi</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovPrihodPdC" data-ovcpd="rev"><span class="ov-unit">KM</span></div><div class="k-sub" style="color:var(--muted)">ukupan prihod ÷ narudžbe</div></div>
-      <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-calc-val"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl"><input type="number" id="ovLog3plInp" step="0.1" min="0"><span class="ov-unit">KM</span> <span class="netp" id="ovLog3plNet"></span></span></div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakLogPdC" data-ovcpd="log"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only" id="ovLogSub">kuriri, vozila, gorivo, oprema</div><div class="seg lp-seg ov-calc-only" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></div></div>
-      <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-calc-val" id="ovTrosakOffPd">—</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakOffPdC" data-ovcpd="ured"><span class="ov-unit">KM</span></div><div class="k-sub ov-calc-only">osoblje + ostali fiksni troškovi</div></div>
+      <div class="kpi"><div class="k-lab">Prihod po dostavi</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovPrihodPdC" data-ovcpd="rev"><span class="ov-unit">KM</span></div><div class="k-sub" style="color:var(--muted)">ukupan prihod ÷ narudžbe</div></div>
+      <div class="kpi"><div class="k-lab">Trošak po dostavi (logistika)</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakLogPdC" data-ovcpd="log"><span class="ov-unit">KM</span></div><div class="k-sub" style="color:var(--muted)">kuriri, vozila, gorivo, oprema</div></div>
+      <div class="kpi"><div class="k-lab">Trošak po dostavi (ured)</div><div class="k-val ov-cust-val"><input type="text" inputmode="decimal" id="ovTrosakOffPdC" data-ovcpd="ured"><span class="ov-unit">KM</span></div><div class="k-sub" style="color:var(--muted)">osoblje + ostali fiksni troškovi</div></div>
       <div class="kpi" id="ovProfitCard"><div class="k-lab"><span class="abbr" data-tip="U prikazu „Bruto" = operativni profit PRIJE PDV obaveze. U „Bruto + neto / Neto" = stvarni profit NAKON PDV obaveze (ono što ostaje). Razlika bruto − neto je upravo PDV obaveza.">Profit po dostavi</span></div><div class="k-val" id="ovProfitPd">—</div></div>
     </div>
-    <div class="ov-calc-only ov-rev-recap" id="ovRevRecap"></div>
-    <div class="ov-calc-only ov-boxes2">
-      <div class="kpi ov-box">
-        <div class="k-lab">Provizija po dostavi — razdvajanje <span class="abbr" data-tip="Provizija po jednoj dostavi, od restorana koje ZAPP VOZI (bez „sami voze"). Bruto = PVN × ponderirana provizija. Zapp uzima fiksnih 3pp (royalty) — ostatak je franšizerov.">ⓘ</span></div>
-        <div class="kpi-br">
-          <div class="kpi-br-row"><span>Provizija (bruto) <b id="ovBoxProvPct" class="brsub"></b></span><b class="pos" id="ovBoxProvBruto">—</b></div>
-          <div class="kpi-br-row"><span>− Zapp <b id="ovBoxZappPct" class="brsub"></b></span><b class="neg" id="ovBoxProvZapp">—</b></div>
-          <div class="kpi-br-row tot"><span>= Ostaje franšizeru</span><b class="pos" id="ovBoxProvNet">—</b></div>
-        </div>
-      </div>
-      <div class="kpi ov-box">
-        <div class="k-lab">Po dostavi — Zapp vozi <span class="abbr" data-tip="Operativa po jednoj dostavi, samo za narudžbe koje Zapp vozi (in-house „sami voze" se računaju zasebno). Zarada po dostavi = prihod − svi troškovi po dostavi (logistika, ured, kartice, PDV).">ⓘ</span></div>
-        <div class="kpi-br">
-          <div class="kpi-br-row"><span>Troškovi logistike</span><b class="neg" id="ovBoxLogPd">—</b></div>
-          <div class="kpi-br-row"><span>Troškovi ureda</span><b class="neg" id="ovBoxOffPd">—</b></div>
-          <div class="kpi-br-row tot"><span>Zarada po dostavi</span><b id="ovBoxEarnPd">—</b></div>
-        </div>
-      </div>
+    <div class="ov-calc-only card ov-pl">
+      <h3>📦 Po jednoj dostavi <span style="font-weight:600;color:var(--muted);font-size:13px">— samo narudžbe koje Zapp vozi (in-house „sami voze" se računaju zasebno u „Prihod (mjesečno)")</span></h3>
+      <div class="pl-row"><span>Provizija (bruto) <b class="plsub" id="ovBoxProvPct"></b></span><b class="pos" id="ovBoxProvBruto">—</b></div>
+      <div class="pl-row"><span>− Zapp (royalty) <b class="plsub" id="ovBoxZappPct"></b></span><b class="neg" id="ovBoxProvZapp">—</b></div>
+      <div class="pl-row sub"><span>= Provizija (neto)</span><b class="pos" id="ovBoxProvNet">—</b></div>
+      <div class="pl-row"><span>+ Naknada za dostavu</span><b class="pos" id="ovPlDost">—</b></div>
+      <div class="pl-row"><span>− Logistika <span class="seg lp-seg" id="ovLogSeg" role="group" aria-label="Izvor logistike"><button data-lm="fleet" type="button">Vlastita</button><button data-lm="3pl" type="button" data-tip="3PL (Third-Party Logistics) — vanjski logistički partner koji obavlja dostavu umjesto vlastite flote (dogovorena cijena po dostavi).">3PL</button></span></span><b class="neg"><span class="lp-fleet" id="ovTrosakLogPd">—</span><span class="lp-3pl">−<input type="number" id="ovLog3plInp" step="0.1" min="0"> KM <span class="netp" id="ovLog3plNet"></span></span></b></div>
+      <div class="pl-row"><span>− Ured</span><b class="neg" id="ovTrosakOffPd">—</b></div>
+      <div class="pl-row"><span>− Kartice + PDV</span><b class="neg" id="ovPlCard">—</b></div>
+      <div class="pl-row tot"><span>= Profit po dostavi</span><b id="ovPlProfit">—</b></div>
     </div>
     <div class="cards2">
       <div class="card">
@@ -1507,25 +1498,22 @@ function updateOverview(){
   const setH=(id,h)=>{const e=document.getElementById(id); if(e)e.innerHTML=h;};
   const perCdel=(v.delPerHour||0)*(v.hoursDay||0)*(v.workDays||0);
   const fleetVatPd=PDVv((perCdel>0?(v.vehAmort+v.vehMaint+v.equip)/perCdel:0)+(ordersMonth>0?(v.fuel||0)/ordersMonth:0));
-  setH('ovPrihodProvPd',fmt2V(provPd,true)); setH('ovPrihodDostPd',fmt2V(dostPd,true)); setH('ovTrosakLogPd',fmt2Vcost(calcLog,fleetVatPd));
+  setH('ovTrosakLogPd','−'+fmt2Vcost(calcLog,fleetVatPd));   // logistika (vlastita flota) — prikaz u listi „Po jednoj dostavi"
   set('ovLogSub', use3pl?'3PL — dogovorena cijena':'kuriri, vozila, gorivo, oprema');
   if(ov) ov.classList.toggle('log-3pl', use3pl);
   document.querySelectorAll('#ovLogSeg button').forEach(b=>{const on=b.dataset.lm===logSrc;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   const l3=document.getElementById('ovLog3plInp'); if(l3&&document.activeElement!==l3) l3.value=pl3Price;
   const l3n=document.getElementById('ovLog3plNet'); if(l3n) l3n.textContent=(vatView!=='gross')?('(neto '+fmt2(NETv(pl3Price))+')'):'';
-  set('ovTrosakOffPd', noOrders?'—':fmt2(calcOff));
+  set('ovTrosakOffPd', noOrders?'—':'−'+fmt2(calcOff));
   setH('ovProfitPd', noOrders?'—':fmt2Profit(profPd,pdvPd)); set('ovNeto',fmt(neto));
-  set('ovPrihodProvSub','PVN '+fmt2(v.aov)+' · '+pct(blendedComm)+' ponderisano (− 3% Zapp = '+pct(franComm)+')');
-  set('ovPrihodDostSub','naknada '+fmt2(delEff)+' ponderisano');
-  setH('ovRevRecap','📥 Prihod po dostavi <b>'+fmt2(calcRev)+'</b> = provizija <b>'+fmt2(provPd)+'</b> + dostava <b>'+fmt2(dostPd)+'</b> — iz „Top restorani"');
-  // Dvije kocke (samo „Zapp vozi"): razdvajanje provizije PO DOSTAVI + operativa po dostavi
+  // Lista „Po jednoj dostavi" (samo „Zapp vozi"): bruto → −Zapp → neto → +dostava → −troškovi → profit
   const zappRate2=Math.min(blendedComm, ZAPP_SELF_CUT);                                                // Zapp uzima do 3pp provizije (royalty)
   const provBrutoPd=eco.orders>0 ? eco.gmv*(blendedComm/100)/eco.orders : v.aov*(blendedComm/100);     // bruto provizija po dostavi = PVN × ponderirana provizija
   const provZappPd=eco.orders>0 ? eco.gmv*(zappRate2/100)/eco.orders : v.aov*(zappRate2/100);          // Zapp dio po dostavi = PVN × 3pp
   const provNetPd=provBrutoPd-provZappPd;                                                              // ostaje franšizeru po dostavi (= provPd, „Prihod po dostavi (provizija)")
   set('ovBoxProvPct','('+pct(blendedComm)+')'); set('ovBoxZappPct','('+pct(zappRate2)+')');
   setH('ovBoxProvBruto',fmt2V(provBrutoPd,true)); setH('ovBoxProvZapp','−'+fmt2V(provZappPd,true)); setH('ovBoxProvNet',fmt2V(provNetPd,true));
-  setH('ovBoxLogPd', noOrders?'—':'−'+fmt2(logPd)); setH('ovBoxOffPd', noOrders?'—':'−'+fmt2(offPd)); setH('ovBoxEarnPd', noOrders?'—':fmt2Profit(profPd,pdvPd));
+  setH('ovPlDost','+'+fmt2V(dostPd,true)); setH('ovPlCard', noOrders?'—':'−'+fmt2(karticePerDel+pdvPd)); setH('ovPlProfit', noOrders?'—':fmt2Profit(profPd,pdvPd));
   setH('ovProvMj',fmtV(provMj,true)); setH('ovDostMj',fmtV(dostMj,true)); setH('ovPrihodMj',fmtV(prihodMj,true));
   set('ovProvPct', pct(blendedComm)); set('ovDostAvg', fmt2(delEff));   // ponderisana provizija % i naknada/dostava (info u redovima)
   set('ovSelfPct', num(Math.round(selfEco.franPct*10)/10)+'%'); setH('ovSelfProvMj', fmtV(selfProvMj,true));   // SAMO in-house restorani: ponderisana neto self-stopa i njihov zbirni prihod (0 ako nijedan nije „sami voze")
