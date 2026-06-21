@@ -731,7 +731,7 @@
             <span style="flex:1"></span>
             <button class="btn ghost" id="ownLockBtn3" type="button" style="font-size:12px;padding:7px 12px">🔒 Zaključaj</button>
           </div>
-          <p class="own-lock" style="margin-top:8px"><b>Pravilo:</b> <b>50%</b> vlasništva ide u <b>jednakim dijelovima</b> svakom vlasniku (svako <b>50%÷broj vlasnika</b>), a <b>50%</b> <b>srazmjerno doprinosu dobiti</b> — udjelu lokala u ukupnoj mjesečnoj dobiti (Mj. neto) franšize. Vlasnici = lokali označeni 👤 vlasnik u „Top restorani".</p>
+          <p class="own-lock" style="margin-top:8px"><b>Pravilo:</b> <b>50%</b> vlasništva ide u <b>jednakim dijelovima</b> svakom vlasniku (svako <b>50%÷broj vlasnika</b>), a <b>50%</b> <b>srazmjerno doprinosu dobiti</b> — udjelu lokala u ukupnoj mjesečnoj dobiti (Mj. profit) franšize. Vlasnici = lokali označeni 👤 vlasnik u „Top restorani".</p>
           <div id="ownFinResults"></div>
         </div>
 
@@ -2006,7 +2006,7 @@ function ownRenderFin(){
   if(!owners.length){ owners=rRows.filter(r=>!r.group); usingAll=true; }   // nijedan vlasnik označen → izračun za SVE lokale (da uvijek bude izračun, ne prazno)
   const N=owners.length;
   if(!N){ out.innerHTML='<div class="own-empty">Dodaj lokale u tabu „Top restorani" da se pojavi izračun.</div>'; return; }
-  const rows=owners.map(r=>({name:r.name, net:Math.max(0,valForR(r,'mr'))}));
+  const rows=owners.map(r=>({name:r.name, net:Math.max(0,valForR(r,'mp'))}));
   const totNet=rows.reduce((s,o)=>s+o.net,0);
   rows.forEach(o=>{ o.profShare = totNet>0 ? o.net/totNet : 1/N; o.equalPart=0.5*(1/N); o.profPart=0.5*o.profShare; o.total=o.equalPart+o.profPart; });
   rows.sort((a,b)=>b.total-a.total);
@@ -2016,7 +2016,7 @@ function ownRenderFin(){
   const t1trs=rows.map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+(o.equalPart*100).toFixed(1)+'%</td><td>'+(o.profPart*100).toFixed(1)+'%</td><td class="own-share">'+(o.total*100).toFixed(1)+'%</td></tr>').join('');
   const t1='<table class="own-tbl"><thead><tr><th>Lokal (vlasnik)</th><th>Jednaki dio (50%)</th><th>Dio po dobiti (50%)</th><th>Ukupni udjel</th></tr></thead><tbody>'+t1trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>50,0%</td><td>50,0%</td><td>100%</td></tr></tfoot></table>';
   const t2trs=rows.map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+fmt(o.net)+'</td><td class="own-share">'+(o.profShare*100).toFixed(1)+'%</td></tr>').join('');
-  const t2='<table class="own-tbl"><thead><tr><th>Lokal (vlasnik)</th><th>Dobit — Mj. neto</th><th>Udio u dobiti</th></tr></thead><tbody>'+t2trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>'+fmt(totNet)+'</td><td>100%</td></tr></tfoot></table>';
+  const t2='<table class="own-tbl"><thead><tr><th>Lokal (vlasnik)</th><th>Dobit — Mj. profit</th><th>Udio u dobiti</th></tr></thead><tbody>'+t2trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>'+fmt(totNet)+'</td><td>100%</td></tr></tfoot></table>';
   const note = usingAll ? '<div class="own-note" style="margin:0 0 12px;border:0;padding:0;color:var(--zapp-dark)">ℹ️ Nijedan lokal nije označen kao <b>👤 vlasnik</b> — prikazan je izračun za <b>sve lokale</b> kao primjer. Označi vlasnike kvačicom 👤 u tabu „Top restorani" za stvarni sastav.</div>' : '';
   out.innerHTML=note+'<div class="own-finbig"><span>'+(usingAll?'Lokala':'Vlasnika')+': <b>'+N+'</b></span><span>Jednaki dio: <b>'+eqEach.toFixed(1)+'%</b> po vlasniku</span><span>Ukupna mj. dobit: <b>'+fmt(totNet)+'</b></span></div>'
     +'<div class="own-bars">'+bars+'</div>'
