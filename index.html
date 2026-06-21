@@ -729,6 +729,7 @@
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <h3 style="margin:0;font-size:16px">⚖️ Udjel vlasnika 3 — 50% jednako + 50% po dobiti</h3>
             <span style="flex:1"></span>
+            <button class="btn solid no-print" id="ownPrintBtn3" type="button" style="font-size:12px;padding:7px 12px">⤓ PDF / Print</button>
             <button class="btn ghost" id="ownLockBtn3" type="button" style="font-size:12px;padding:7px 12px">🔒 Zaključaj</button>
           </div>
           <p class="own-lock" style="margin-top:8px"><b>Pravilo:</b> <b>50%</b> vlasništva ide u <b>jednakim dijelovima</b> svakom vlasniku (svako <b>50%÷broj vlasnika</b>), a <b>50%</b> <b>srazmjerno doprinosu dobiti</b> — udjelu lokala u ukupnoj mjesečnoj dobiti (Mj. profit) franšize. Vlasnici = lokali označeni 👤 vlasnik u „Top restorani".</p>
@@ -2045,6 +2046,7 @@ function ownEnter(){ ownSetView('v1'); }
   const u3=document.getElementById('ownUnlockBtn3'); if(u3) u3.onclick=ownDoUnlock3;
   const p3=document.getElementById('ownPass3'); if(p3) p3.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); ownDoUnlock3(); } });
   const l3=document.getElementById('ownLockBtn3'); if(l3) l3.onclick=ownDoLock3;
+  const pp3=document.getElementById('ownPrintBtn3'); if(pp3) pp3.onclick=()=>window.print();
   document.querySelectorAll('#ownSeg button').forEach(b=>b.onclick=()=>ownSetView(b.dataset.ov2));
   const rw=document.getElementById('ownResetW'); if(rw) rw.onclick=()=>{ OWN_METRICS.forEach(M=>ownWeights[M.key]=M.w); ownFloor=2; ownCap=35; ownCapAuto=true; ownSaveCfg(); const wrap=document.getElementById('ownWeights'); if(wrap){ wrap._built=false; ownBuildControls(); } ownRenderWeighted(); };
 })();
