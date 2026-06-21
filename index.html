@@ -332,6 +332,9 @@
   /* mod V: interni (zaključani) panel za vlasničku strukturu */
   .own-lock{font-size:12.5px;color:var(--muted);margin:0 0 14px;line-height:1.55}
   #ownPanel1{display:none}
+  #ownPanel3{display:none}
+  .own-finhead{font-weight:800;font-size:15px;margin:2px 0 4px;color:var(--ink)}
+  .own-finbig{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:6px}
   .own-secthead{font-weight:800;font-size:13px;margin:18px 0 8px;color:var(--ink)}
   .own-metrics{display:grid;gap:14px;margin:6px 0 2px}
   .own-w label{display:flex;justify-content:space-between;align-items:baseline;font-weight:700;font-size:13px;gap:10px}
@@ -659,6 +662,7 @@
       <div class="seg ov-modeseg own-seg no-print" id="ownSeg" role="group" aria-label="Pregled vlasničke strukture">
         <button data-ov2="v1" class="active" aria-pressed="true">🔒 Udjel vlasnika 1</button>
         <button data-ov2="v2" aria-pressed="false">📊 Udjel vlasnika 2</button>
+        <button data-ov2="v3" aria-pressed="false">⚖️ Financijska struktura</button>
         <button data-ov2="prop" aria-pressed="false">✉️ Pošalji prijedlog</button>
       </div>
 
@@ -705,6 +709,34 @@
         </div>
 
       </div><!-- /ownV2View -->
+
+      <!-- ===== Financijska struktura — 50% jednako + 50% po dobiti (zaključano) ===== -->
+      <div id="ownV3View" style="display:none">
+
+        <div class="card own-gate" id="ownGate3">
+          <h3>🔒 Financijska struktura — zaključano</h3>
+          <p class="own-lock">Interni prikaz, vidljiv samo uz šifru. Pola vlasništva (<b>50%</b>) dijeli se <b>jednako</b> među vlasnicima, a druga polovica (<b>50%</b>) <b>srazmjerno doprinosu mjesečnoj dobiti</b> (Mj. neto) franšizi.</p>
+          <label class="own-fld">Šifra
+            <input type="password" id="ownPass3" placeholder="Unesite šifru" autocomplete="off">
+          </label>
+          <div class="own-actions">
+            <button class="btn zapp" id="ownUnlockBtn3" type="button">Otključaj</button>
+          </div>
+          <div class="own-status" id="ownGateStatus3" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="card" id="ownPanel3">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <h3 style="margin:0;font-size:16px">⚖️ Financijska struktura — 50% jednako + 50% po dobiti</h3>
+            <span style="flex:1"></span>
+            <button class="btn ghost" id="ownLockBtn3" type="button" style="font-size:12px;padding:7px 12px">🔒 Zaključaj</button>
+          </div>
+          <p class="own-lock" style="margin-top:8px"><b>Pravilo:</b> <b>50%</b> vlasništva ide u <b>jednakim dijelovima</b> svakom vlasniku (svako <b>50%÷broj vlasnika</b>), a <b>50%</b> <b>srazmjerno doprinosu dobiti</b> — udjelu lokala u ukupnoj mjesečnoj dobiti (Mj. neto) franšize. Vlasnici = lokali označeni 👤 vlasnik u „Top restorani". Negativan neto računa se kao 0.</p>
+          <div id="ownFinResults"></div>
+          <div class="own-why" id="ownFinWhy"></div>
+        </div>
+
+      </div><!-- /ownV3View -->
 
       <div id="ownPropView">
 
@@ -1964,15 +1996,62 @@ function ownRenderNeto(){
 function ownV1Enter(){ if(ownUnlocked()){ ownShowV1Panel(true); ownRenderNeto(); } else { ownShowV1Panel(false); } }
 /* Vlasnik 2 = otvoreni ponderisani prikaz (više faktora) */
 function ownV2Enter(){ ownBuildControls(); ownRenderWeighted(); }
+/* ===== Financijska struktura (v3): 50% jednako + 50% po doprinosu dobiti (Mj. neto); zaključano šifrom ===== */
+function ownShowV3Panel(unlocked){ const g=document.getElementById('ownGate3'), p=document.getElementById('ownPanel3'); if(g) g.style.display=unlocked?'none':''; if(p) p.style.display=unlocked?'block':'none'; }
+function ownGateStatus3(msg){ const s=document.getElementById('ownGateStatus3'); if(s){ s.textContent=msg||''; s.classList.remove('ok'); } }
+function ownDoUnlock3(){ const inp=document.getElementById('ownPass3'); const v=(inp&&inp.value)||''; if(ownHash(v)===OWN_PASS_HASH){ try{sessionStorage.setItem('zapp-own-unlocked','1');}catch(e){} if(inp) inp.value=''; ownGateStatus3(''); ownShowV3Panel(true); ownRenderFin(); ownBuildFinWhy(); } else { ownGateStatus3('Pogrešna šifra.'); } }
+function ownDoLock3(){ try{sessionStorage.removeItem('zapp-own-unlocked');}catch(e){} ownShowV3Panel(false); }
+function ownRenderFin(){
+  const out=document.getElementById('ownFinResults'); if(!out) return;
+  const owners=rRows.filter(r=>r.owner&&!r.group), N=owners.length;
+  if(!N){ out.innerHTML='<div class="own-empty">Označi lokale <b>👤 vlasnik</b> u „Top restorani" da se pojave ovdje.</div>'; return; }
+  const rows=owners.map(r=>({name:r.name, net:Math.max(0,valForR(r,'mr'))}));
+  const totNet=rows.reduce((s,o)=>s+o.net,0);
+  rows.forEach(o=>{ o.profShare = totNet>0 ? o.net/totNet : 1/N; o.equalPart=0.5*(1/N); o.profPart=0.5*o.profShare; o.total=o.equalPart+o.profPart; });
+  rows.sort((a,b)=>b.total-a.total);
+  const eqEach=0.5/N*100;
+  const maxShare=Math.max.apply(null,rows.map(o=>o.total).concat(0.0001));
+  const bars=rows.map(o=>'<div class="own-bar-row"><span class="nm" title="'+esc(o.name)+'">'+esc(o.name)+'</span><div class="own-bar-track"><div class="own-bar" style="width:'+(o.total/maxShare*100).toFixed(1)+'%"></div></div><span class="pc">'+(o.total*100).toFixed(1)+'%</span></div>').join('');
+  const t1trs=rows.map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+(o.equalPart*100).toFixed(1)+'%</td><td>'+(o.profPart*100).toFixed(1)+'%</td><td class="own-share">'+(o.total*100).toFixed(1)+'%</td></tr>').join('');
+  const t1='<table class="own-tbl"><thead><tr><th>Lokal (vlasnik)</th><th>Jednaki dio (50%)</th><th>Dio po dobiti (50%)</th><th>Ukupni udjel</th></tr></thead><tbody>'+t1trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>50,0%</td><td>50,0%</td><td>100%</td></tr></tfoot></table>';
+  const t2trs=rows.map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+fmt(o.net)+'</td><td class="own-share">'+(o.profShare*100).toFixed(1)+'%</td></tr>').join('');
+  const t2='<table class="own-tbl"><thead><tr><th>Lokal (vlasnik)</th><th>Dobit — Mj. neto</th><th>Udio u dobiti</th></tr></thead><tbody>'+t2trs+'</tbody><tfoot><tr><td>Ukupno ('+N+')</td><td>'+fmt(totNet)+'</td><td>100%</td></tr></tfoot></table>';
+  out.innerHTML='<div class="own-finbig"><span>Vlasnika: <b>'+N+'</b></span><span>Jednaki dio: <b>'+eqEach.toFixed(1)+'%</b> po vlasniku</span><span>Ukupna mj. dobit: <b>'+fmt(totNet)+'</b></span></div>'
+    +'<div class="own-bars">'+bars+'</div>'
+    +'<div class="own-secthead">📊 Raspodjela udjela — 50% jednako + 50% po dobiti</div><div style="overflow-x:auto">'+t1+'</div>'
+    +'<div class="own-secthead">💰 Doprinos dobiti po vlasniku</div><div style="overflow-x:auto">'+t2+'</div>';
+}
+function ownBuildFinWhy(){
+  const el=document.getElementById('ownFinWhy'); if(!el||el._built) return; el._built=true;
+  el.innerHTML=''
+    +'<h4>💬 Procjena (financijski analitičar): je li 50/50 fer?</h4>'
+    +'<p><b>Ukratko: da, uz uslove.</b> „50% jednako + 50% po dobiti" je priznat kompromis (koristi se u partnerstvima — advokatske, ljekarske, konsultantske firme: „jednaka baza + zasluge"). Spaja dvije pravičnosti: ravnopravnost partnera i nagradu za rezultat.</p>'
+    +'<ul>'
+    +'<li><b>Jednakih 50%</b> = svi su ravnopravni suvlasnici: dijele rizik, brend, glas i trud koji se ne vidi u brojkama. Štiti manje i nove lokale.</li>'
+    +'<li><b>50% po dobiti</b> = nagrađuje one koji stvarno pune zajedničku kasu i daje poticaj za rezultat.</li>'
+    +'</ul>'
+    +'<h4>⚠️ Na šta paziti</h4>'
+    +'<ul>'
+    +'<li><b>Subvencija malih, razvodnjavanje velikih:</b> jednaki dio diže male iznad njihovog ekonomskog doprinosa, a najveći doprinositelj dobije manje nego po čistom profitu. Npr. lokal koji nosi 60% dobiti uz 4 vlasnika dobije ~42,5% (12,5% + 30%), ne 60%. Fer je samo ako svi ulažu sličan ne-finansijski trud i rizik.</li>'
+    +'<li><b>Jednaki dio pretpostavlja jednak doprinos „izvan brojki"</b> (rad, vrijeme, reputacija). Ako neko ne radi a ima jednakih 50%÷N, to je nepravedno — veži jednaki dio uz aktivno učešće (vesting: „radiš → držiš").</li>'
+    +'<li><b>Omjer 50/50 je izbor, ne zakon:</b> za jaču nagradu rezultatu → bliže 30/70; za jaču ravnopravnost → 70/30. 50/50 je uravnotežena polazna tačka.</li>'
+    +'<li><b>Glas ≠ udjel:</b> preporuka jedan vlasnik = jedan glas (nezavisno od %), uz super-većinu za ključne odluke — da veliki ne preuzme kontrolu, ni mali da ne blokiraju.</li>'
+    +'<li><b>Kapital odvojeno:</b> uloženi novac (oprema, licenca) vraća se kao prioritetni povrat/zajam — NIJE dio ovog vlasništva.</li>'
+    +'</ul>'
+    +'<p class="own-note">Zaključak: 50/50 je <b>fer i uobičajen</b> kad vlasnici dijele sličan trud i rizik; postaje nefer ako se doprinosi (rad ili profit) jako razlikuju a model to ne prizna. Provjeri na stvarnim brojkama (tablice gore) i, ako neko ispadne prejako subvencioniran ili razvodnjen, svjesno odaberi drugi omjer prije dogovora.</p>';
+}
+function ownV3Enter(){ if(ownUnlocked()){ ownShowV3Panel(true); ownRenderFin(); ownBuildFinWhy(); } else { ownShowV3Panel(false); } }
 /* pod-prikazi mod V: „🔒 Udjel vlasnika 1" | „📊 Udjel vlasnika 2" | „✉️ Pošalji prijedlog"; default = v1 */
 function ownSetView(which){
-  const v1=document.getElementById('ownV1View'), v2=document.getElementById('ownV2View'), pv=document.getElementById('ownPropView');
+  const v1=document.getElementById('ownV1View'), v2=document.getElementById('ownV2View'), v3=document.getElementById('ownV3View'), pv=document.getElementById('ownPropView');
   if(v1) v1.style.display=(which==='v1')?'':'none';
   if(v2) v2.style.display=(which==='v2')?'':'none';
+  if(v3) v3.style.display=(which==='v3')?'':'none';
   if(pv) pv.style.display=(which==='prop')?'':'none';
   document.querySelectorAll('#ownSeg button').forEach(b=>{const on=(b.dataset.ov2===which);b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
   if(which==='v1') ownV1Enter();
   else if(which==='v2') ownV2Enter();
+  else if(which==='v3') ownV3Enter();
   else ownStatus('');
 }
 function ownEnter(){ ownSetView('v1'); }
@@ -1980,6 +2059,9 @@ function ownEnter(){ ownSetView('v1'); }
   const u=document.getElementById('ownUnlockBtn'); if(u) u.onclick=ownDoUnlock;
   const p=document.getElementById('ownPass'); if(p) p.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); ownDoUnlock(); } });
   const l=document.getElementById('ownLockBtn'); if(l) l.onclick=ownDoLock;
+  const u3=document.getElementById('ownUnlockBtn3'); if(u3) u3.onclick=ownDoUnlock3;
+  const p3=document.getElementById('ownPass3'); if(p3) p3.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); ownDoUnlock3(); } });
+  const l3=document.getElementById('ownLockBtn3'); if(l3) l3.onclick=ownDoLock3;
   document.querySelectorAll('#ownSeg button').forEach(b=>b.onclick=()=>ownSetView(b.dataset.ov2));
   const rw=document.getElementById('ownResetW'); if(rw) rw.onclick=()=>{ OWN_METRICS.forEach(M=>ownWeights[M.key]=M.w); ownFloor=2; ownCap=35; ownCapAuto=true; ownSaveCfg(); const wrap=document.getElementById('ownWeights'); if(wrap){ wrap._built=false; ownBuildControls(); } ownRenderWeighted(); };
 })();
