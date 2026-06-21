@@ -733,7 +733,6 @@
           </div>
           <p class="own-lock" style="margin-top:8px"><b>Pravilo:</b> <b>50%</b> vlasništva ide u <b>jednakim dijelovima</b> svakom vlasniku (svako <b>50%÷broj vlasnika</b>), a <b>50%</b> <b>srazmjerno doprinosu dobiti</b> — udjelu lokala u ukupnoj mjesečnoj dobiti (Mj. neto) franšize. Vlasnici = lokali označeni 👤 vlasnik u „Top restorani". Negativan neto računa se kao 0.</p>
           <div id="ownFinResults"></div>
-          <div class="own-why" id="ownFinWhy"></div>
         </div>
 
       </div><!-- /ownV3View -->
@@ -1999,7 +1998,7 @@ function ownV2Enter(){ ownBuildControls(); ownRenderWeighted(); }
 /* ===== Financijska struktura (v3): 50% jednako + 50% po doprinosu dobiti (Mj. neto); zaključano šifrom ===== */
 function ownShowV3Panel(unlocked){ const g=document.getElementById('ownGate3'), p=document.getElementById('ownPanel3'); if(g) g.style.display=unlocked?'none':''; if(p) p.style.display=unlocked?'block':'none'; }
 function ownGateStatus3(msg){ const s=document.getElementById('ownGateStatus3'); if(s){ s.textContent=msg||''; s.classList.remove('ok'); } }
-function ownDoUnlock3(){ const inp=document.getElementById('ownPass3'); const v=(inp&&inp.value)||''; if(ownHash(v)===OWN_PASS_HASH){ try{sessionStorage.setItem('zapp-own-unlocked','1');}catch(e){} if(inp) inp.value=''; ownGateStatus3(''); ownShowV3Panel(true); ownRenderFin(); ownBuildFinWhy(); } else { ownGateStatus3('Pogrešna šifra.'); } }
+function ownDoUnlock3(){ const inp=document.getElementById('ownPass3'); const v=(inp&&inp.value)||''; if(ownHash(v)===OWN_PASS_HASH){ try{sessionStorage.setItem('zapp-own-unlocked','1');}catch(e){} if(inp) inp.value=''; ownGateStatus3(''); ownShowV3Panel(true); ownRenderFin(); } else { ownGateStatus3('Pogrešna šifra.'); } }
 function ownDoLock3(){ try{sessionStorage.removeItem('zapp-own-unlocked');}catch(e){} ownShowV3Panel(false); }
 function ownRenderFin(){
   const out=document.getElementById('ownFinResults'); if(!out) return;
@@ -2024,18 +2023,7 @@ function ownRenderFin(){
     +'<div class="own-secthead">📊 Raspodjela udjela — 50% jednako + 50% po dobiti</div><div style="overflow-x:auto">'+t1+'</div>'
     +'<div class="own-secthead">💰 Doprinos dobiti po vlasniku</div><div style="overflow-x:auto">'+t2+'</div>';
 }
-function ownBuildFinWhy(){
-  const el=document.getElementById('ownFinWhy'); if(!el||el._built) return; el._built=true;
-  el.innerHTML=''
-    +'<h4>💬 Je li 50/50 fer? (kratka procjena analitičara)</h4>'
-    +'<p><b>Da, uz uslove.</b> Spaja ravnopravnost (jednakih 50%) i nagradu za rezultat (50% po dobiti) — priznat kompromis iz partnerstava. Fer je kad svi vlasnici ulažu sličan trud i rizik.</p>'
-    +'<ul>'
-    +'<li><b>Subvencija / razvodnjavanje:</b> jednaki dio diže male iznad doprinosa, a velike spušta (lokal s 60% dobiti uz 4 vlasnika → ~42,5%, ne 60%).</li>'
-    +'<li><b>Glas ≠ udjel:</b> preporuka jedan vlasnik = jedan glas + super-većina za ključne odluke.</li>'
-    +'<li><b>Kapital odvojeno</b> (uloženi novac = prioritetni povrat, ne vlasništvo); omjer 50/50 je izbor (može i 30/70 ili 70/30).</li>'
-    +'</ul>';
-}
-function ownV3Enter(){ if(ownUnlocked()){ ownShowV3Panel(true); ownRenderFin(); ownBuildFinWhy(); } else { ownShowV3Panel(false); } }
+function ownV3Enter(){ if(ownUnlocked()){ ownShowV3Panel(true); ownRenderFin(); } else { ownShowV3Panel(false); } }
 /* pod-prikazi mod V: „🔒 Udjel vlasnika 1" | „📊 Udjel vlasnika 2" | „✉️ Pošalji prijedlog"; default = v1 */
 function ownSetView(which){
   const v1=document.getElementById('ownV1View'), v2=document.getElementById('ownV2View'), v3=document.getElementById('ownV3View'), pv=document.getElementById('ownPropView');
